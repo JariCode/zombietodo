@@ -1,0 +1,24 @@
+# ================================
+# .gitignore
+#
+# Kertoo Gitille mitkä tiedostot
+# jätetään pois repositoriosta.
+#
+# Tärkeintä: .env ei koskaan GitHubiin
+# koska siellä on salasanat!
+# ================================
+
+# Salasanat ja tietokanta-asetukset — ei koskaan nettiin
+.env
+
+# Palvelimen reititysasetukset — ei tarvita GitHubissa
+.htaccess
+
+# Ulkopuoliset lisäosat — jokainen lataa ne itse omalle koneelleen
+/vendor/
+
+# Palvelimen päiväkirja — kirjaa ylös virheet ja tapahtumat
+*.log
+
+# Tietokantavedos — voi sisältää käyttäjien tietoja
+*.sql
