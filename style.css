@@ -12,3 +12,71 @@
    - Punaisissa veritehosteissa
    - Kauhuelokuvamaisessa fontissa
    ================================ */
+
+   body {
+    margin: 0;
+    padding: 0;
+    /* taustakuva pysyy paikallaan kun rullaat — fixed */
+    background: url('assets/img/Kansikuva.webp') center/cover no-repeat fixed;
+    font-family: 'Courier New', monospace;
+    color: #ff4444;
+    text-shadow: 2px 2px black;
+}
+
+/* Veriantimaatio — valuu yläreunasta ja häviää */
+.blood {
+    width: 100%;
+    height: 150%;
+    background: url('assets/img/blood.webp') top center no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10;
+    animation: bloodDisappear 4s ease-out forwards;
+}
+
+@keyframes bloodDisappear {
+    0%   { opacity: 0; transform: translateY(-20px); }
+    20%  { opacity: 1; transform: translateY(0); }
+    60%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Sisältökortti — kelluva keskellä sivua */
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 40px auto;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 20px;
+    border: 3px solid #4a0000;
+    box-shadow: 0 0 25px #000;
+    position: relative;
+    z-index: 20;
+}
+
+/* Hero-kuva — logo/otsikkokuva */
+.hero {
+    width: 80%;
+    margin: 0 auto 10px auto;
+    display: block;
+}
+
+/* WIP-banneri — vilkkuva teksti joka kertoo että sovellus on vielä keskeneräinen */
+.wip-banner {
+    text-align: center;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: #bb4444;
+    margin-bottom: 5px;
+    animation: pulse 2s ease-in-out infinite; /* Hengittävä vilkutus */
+}
+
+@keyframes pulse {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.4; }
+    100% { opacity: 1; }
+}
