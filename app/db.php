@@ -21,7 +21,7 @@
 // LADATAAN .ENV TIEDOSTO
 // ===========================================================
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); //Tietokantavirheet näytetään virheilmoituksina
-$envFile = __DIR__ . '/app/.env'; //Ladataan .env tiedosto app kansiosta jossa tietokantayhteyden tiedot
+$envFile = __DIR__ . '/.env'; //Ladataan .env tiedosto app kansiosta jossa tietokantayhteyden tiedot
 if (file_exists($envFile)) { //Tarkistetaan että .env tiedosto löytyy
     foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) { // Silmukka joka käy läpi .env tiedoston rivit, ohittaa tyhjät ja kommenttirivit
         $line = trim($line);// Poistaa rivin alusta ja lopusta mahdolliset välilyönnit
@@ -60,7 +60,6 @@ $conn->set_charset('utf8mb4'); //Asetetaan tietokannan merkistö UTF-8:ksi, joka
 // ===========================================================
 // LUODAAN TIETOKANTATAULUT JOS NIITÄ EI OLE
 // ===========================================================
-
 // Käyttäjätaulu — tallentaa rekisteröityneet käyttäjät
 $conn->query("
 CREATE TABLE IF NOT EXISTS users (
