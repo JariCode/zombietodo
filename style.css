@@ -13,17 +13,17 @@
    - Kauhuelokuvamaisessa fontissa
    ================================ */
 
+/* Perusasetukset koko sivulle */
    body {
     margin: 0;
     padding: 0;
-    /* taustakuva pysyy paikallaan kun rullaat — fixed */
-    background: url('assets/img/Kansikuva.webp') center/cover no-repeat fixed;
+    background: url('assets/img/Kansikuva.webp') center/cover no-repeat fixed; /*Taustakuva pysyy paikallaan kun rullaa sivulla*/
     font-family: 'Courier New', monospace;
     color: #ff4444;
     text-shadow: 2px 2px black;
 }
 
-/* Veriantimaatio — valuu yläreunasta ja häviää */
+/* Veriantimaatio valuu yläreunasta ja häviää */
 .blood {
     width: 100%;
     height: 150%;
@@ -44,7 +44,7 @@
     100% { opacity: 0; }
 }
 
-/* Sisältökortti — kelluva keskellä sivua */
+/* Sisältökontti on kelluva keskellä sivua */
 .container {
     width: 100%;
     max-width: 600px;
@@ -57,26 +57,295 @@
     z-index: 20;
 }
 
-/* Hero-kuva — logo/otsikkokuva */
+/* Hero-kuva  joka sivulla */
 .hero {
     width: 80%;
     margin: 0 auto 10px auto;
     display: block;
 }
 
-/* WIP-banneri — vilkkuva teksti joka kertoo että sovellus on vielä keskeneräinen */
+/* WIP-banneri on vilkkuva teksti joka kertoo että sovellus on vielä keskeneräinen */
 .wip-banner {
     text-align: center;
     font-family: Impact, sans-serif;
-    font-size: 1rem;
+    font-size: 1.4rem;
     letter-spacing: 2px;
-    color: #bb4444;
-    margin-bottom: 5px;
-    animation: pulse 2s ease-in-out infinite; /* Hengittävä vilkutus */
+    color: #ff3b3b;
+    margin: 5px 0 20px 0;
+    text-shadow: 2px 2px black;
+    animation: flicker 1.8s infinite;
 }
 
-@keyframes pulse {
-    0%   { opacity: 1; }
-    50%  { opacity: 0.4; }
-    100% { opacity: 1; }
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+
+/* Pääotsikko */
+h1 {
+    font-family: Impact, sans-serif;
+    font-size: 3rem;
+    text-align: center;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ff2222;
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+
+/* LOGIN / REGISTER otsikot */
+.auth-title {
+    color: #ff4444;
+    font-family: Impact, sans-serif;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+/* Auth-lomakelaatikko */
+.auth-box {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(20, 0, 0, 0.8);
+    border: 2px solid #660000;
+    box-shadow: 0 0 15px #000;
+}
+
+/* Lomakkeiden väliin erotin teksti */
+.auth-separator {
+    text-align: center;
+    margin: 20px 0;
+    color: #bb4444;
+    font-family: Impact, sans-serif;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+}
+
+/* Unohtunut salasana -linkki */
+.forgot-link {
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+    color: #ff6666;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    color: #ff9999;
+}
+
+/* Input labelit */
+.auth-box label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+/* Input-kentät */
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    border-radius: 4px;
+    box-sizing: border-box;   /* <--- KORJAUS */
+}
+
+/* Salasanakentän silmä-ikonin sijoittelu */
+.password-field {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.password-field input {
+    width: 100%;
+    padding-right: 44px;
+    margin-bottom: 0;
+}
+
+/*Piilota Edge/IE:n oma silmä/clear -ikoni, käytetään omaa painiketta*/
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+
+/* Rekisteröidy ja login -napit */
+.auth-box button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    background: #990000;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 3px;
+    transition: 0.2s;
+}
+
+.auth-box button:hover {
+    background: #cc0000;
+}
+
+/* Silmäpainike näyttämään salasana salasanakentän sisällä */
+.password-field .password-eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    box-shadow: none;
+    outline: none;
+    appearance: none;
+}
+
+.password-field .password-eye:hover {
+    color: #ffc0c0;
+}
+
+/*Hyväksy käyttöehdot */
+.checkbox-wrapper {
+    margin: 10px 0 15px 0;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+/* Yhdistetty label + checkbox riville */
+.checkbox-wrapper label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+    line-height: 1.4;
+}
+
+/* Checkbox-tyyli */
+.checkbox-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Linkit ehtodokumentteihin */
+.checkbox-wrapper a {
+    color: #ff3b3b;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.checkbox-wrapper a:hover {
+    color: #ff6b6b;
+}
+
+/* Linkki-tyylinen nappi käyttöehdot/tietosuoja-teksteille */
+button.link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #ff8080;
+    font-weight: normal;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: inherit;
+    width: auto;
+    display: inline;
+    line-height: inherit;
+}
+
+button.link-btn:hover {
+    color: #ffaaaa;
+    background: none;
+}
+
+
+/* ================================
+   Responsiivisuus
+
+   Tämä osio määrittää, miten sovellus
+   mukautuu eri näyttökokoihin.
+
+   Tavoitteena on varmistaa, että sovellus
+   toimii hyvin sekä tietokoneella että mobiilissa.
+   ================================ */
+
+/* Puhelin*/
+@media (max-width: 640px) {
+    /* Sisältökontti täyttää koko leveyden mobiilissa */
+    .container {
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
+        border-left: none;
+        border-right: none;
+    }
+
+    /*Wip-banner teksti pienemmäksi mobiiliss*/
+     .wip-banner {
+        font-size: 0.9rem; 
+    }
+
+    /*Pääotsikko pienemmäksi mobiilissa*/
+    h1 {
+        font-size: 2rem; 
+    }
+
+    /*Auth-lomakkeiden tekstit ja inputit pienemmiksi mobiilissa*/
+    .auth-box label {
+        font-size: 0.9rem;
+    }
+
+    .auth-box input {
+        font-size: 0.9rem;
+    }
+
+    .auth-box button {
+        font-size: 0.9rem;
+    }
+
+    .auth-title {
+        font-size: 1.2rem;
+    }
+
+    .auth-separator {
+        font-size: 1rem;
+    }
+
+    /* Unohtunut salasana -linkki pienemmäksi mobiilissa */
+    .forgot-link {
+        font-size: 0.9rem;
+    }
+
+    /* Checkbox-tekstin pienentäminen ja rivittäminen mobiilissa */
+    .checkbox-wrapper label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        flex-wrap: wrap;
+    }
 }

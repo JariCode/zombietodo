@@ -44,6 +44,57 @@
     <!-- WIP-banneri — näkyy sivun yläosassa kun sovellus on kehitysvaiheessa -->
     <div class="wip-banner">🧠 WORK IN PROGRESS… BRAINS LOADING 🩸</div>
 
+    <!-- Pääotsikko-->
+    <h1>ZOMBIE LOGIN</h1>
+
+    <!-- Kirjautumislomake -->
+    <div class="auth-box">
+        <h2 class="auth-title">Kirjaudu sisään</h2>
+        <form method="POST" action="app/actions.php?action=login" autocomplete="off">
+            <label>Sähköposti</label>
+            <input type="email" name="email" placeholder="example@domain.com" required autocomplete="off">
+            <label>Salasana</label>
+            <div class="password-field">
+                <input type="password" name="password" placeholder="********" required autocomplete="off">
+                <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
+            </div>
+            <button type="submit">Kirjaudu sisään 🔑</button>
+            <a href="#" class="forgot-link">Vai unohtuiko salasanasi? 🧟</a>
+        </form>
+    </div>
+
+    <!--Lomakkeiden väliin erotin teksti-->
+    <div class="auth-separator">TAI LUO TILI</div>
+
+    <!-- Rekisteröitymislomake -->
+     <div class="auth-box">
+        <h2 class="auth-title">Rekisteröidy</h2>
+        <form method="POST" action="app/actions.php?action=register" autocomplete="off">
+            <label>Käyttäjänimi</label>
+            <input type="text" name="username" placeholder="ZombieMaster91" required autocomplete="off">
+            <label>Sähköposti</label>
+            <input type="email" name="email" placeholder="example@domain.com" required autocomplete="off">
+            <label>Salasana</label>
+            <div class="password-field">
+                <input type="password" name="password" placeholder="********" required autocomplete="off">
+                <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
+            </div>
+            <label>Toista salasana</label>
+            <div class="password-field">
+                <input type="password" name="password_confirm" placeholder="********" required autocomplete="off">
+                <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
+            </div>
+            <div class="checkbox-wrapper">
+                <label for="acceptPrivacyPolicy" class="checkbox-label">
+                    <input type="checkbox" id="acceptPrivacyPolicy" name="terms" required>
+                    Hyväksyn
+                    <button type="button" class="link-btn" onclick="openLegalModal('terms')">käyttöehdot</button> ja
+                    <button type="button" class="link-btn" onclick="openLegalModal('privacy')">tietosuojaselosteen</button>.
+                </label>
+            </div>
+            <button type="submit">Rekisteröidy 🧟‍♂️</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>
