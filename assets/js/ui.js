@@ -24,10 +24,10 @@
 // Haetaan kaikki silmäpainikkeet sivulta
 document.querySelectorAll('.password-field .password-eye').forEach(function(btn) {
     btn.addEventListener('click', function() {
-        var input = btn.parentElement.querySelector('input'); // Haetaan saman password-field divin sisällä oleva input-kenttä
+        const input = btn.parentElement.querySelector('input'); // Haetaan saman password-field divin sisällä oleva input-kenttä
         if (!input) return; // Jos kenttää ei löydy, ei tehdä mitään — estää kaatumisen
 
-        var isHidden = input.type === 'password'; // Tarkistetaan onko salasana piilotettu
+        const isHidden = input.type === 'password'; // Tarkistetaan onko salasana piilotettu
         input.type = isHidden ? 'text' : 'password'; // Vaihdetaan tyyppiä — text näyttää, password piilottaa
 
         // Päivitetään aria-label saavutettavuutta varten — ruudunlukijat kertovat tilan
