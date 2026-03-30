@@ -20,8 +20,15 @@
 // käyttäjä ohjataan takaisin kirjautumaan.
 // Sisäänpääsy ei siis säily ikuisesti.
 // ================================
-require_once 'app/session-config.php';// Istuntoasetukset. ENSIN ennen kaikkea muuta
+require_once 'app/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
 require_once 'app/db.php'; // Tietokantayhteys $conn-muuttujaan
+
+// Haetaan mahdollisesti tallennetut kenttien arvot sessiosta
+// Nämä täytetään takaisin lomakkeelle jos rekisteröinti tai kirjautuminen epäonnistui
+$form_username    = $_SESSION['form_username']    ?? ''; // Käyttäjänimi palautetaan rekisteröintikentttään
+$form_email       = $_SESSION['form_email']       ?? ''; // Sähköposti palautetaan rekisteröintikenttään
+$form_login_email = $_SESSION['form_login_email'] ?? ''; // Sähköposti palautetaan kirjautumiskenttään virheen jälkeen
+unset($_SESSION['form_username'], $_SESSION['form_email'], $_SESSION['form_login_email']); // Poistetaan sessiosta heti ettei näy enää seuraavalla latauksella
 ?>
 <!DOCTYPE html>
 <html lang="fi">
@@ -70,11 +77,12 @@ require_once 'app/db.php'; // Tietokantayhteys $conn-muuttujaan
             <h2 class="auth-title">Kirjaudu sisään</h2>
             <form method="POST" action="app/actions.php" autocomplete="off">
                 <input type="hidden" name="action" value="login"> <!-- Toiminto POST-datana URL:n sijaan -->
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus. Estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
                 <label>Sähköposti</label>
-                <input type="email" name="email" placeholder="example@domain.com" required autocomplete="off">
+                <input type="email" name="email" value="<?= htmlspecialchars($form_login_email) ?>" placeholder="example@domain.com" required autocomplete="off"> <!-- Arvo palautetaan kenttään kirjautumisvirheen jälkeen -->
                 <label>Salasana</label>
                 <div class="password-field">
-                    <input type="password" name="password" placeholder="********" required autocomplete="off">
+                    <input type="password" name="password" placeholder="********" required minlength="10" maxlength="72" autocomplete="off"> <!-- Min 10 merkkiä, max 72 bcryptin takia -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
                 </div>
                 <button type="submit">Kirjaudu sisään 🔑</button>
@@ -90,19 +98,19 @@ require_once 'app/db.php'; // Tietokantayhteys $conn-muuttujaan
             <h2 class="auth-title">Rekisteröidy</h2>
             <form method="POST" action="app/actions.php" autocomplete="off">
                 <input type="hidden" name="action" value="register"> <!-- Toiminto POST-datana URL:n sijaan -->
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus. Estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
                 <label>Käyttäjänimi</label>
-                <input type="text" name="username" placeholder="ZombieMaster91" required autocomplete="off">
+                <input type="text" name="username" value="<?= htmlspecialchars($form_username) ?>" placeholder="ZombieMaster91" required minlength="3" maxlength="30" autocomplete="off"> <!-- Arvo palautetaan kentälle virheen jälkeen. Min 3, max 30 merkkiä -->
                 <label>Sähköposti</label>
-                <input type="email" name="email" placeholder="example@domain.com" required autocomplete="off">
+                <input type="email" name="email" value="<?= htmlspecialchars($form_email) ?>" placeholder="example@domain.com" required autocomplete="off"> <!-- Arvo palautetaan kentälle virheen jälkeen -->
                 <label>Salasana</label>
-
                 <div class="password-field">
-                    <input type="password" name="password" placeholder="********" required autocomplete="off">
+                    <input type="password" name="password" placeholder="********" required minlength="10" maxlength="72" autocomplete="off"> <!-- Min 10 merkkiä, max 72 bcryptin takia -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
                 </div>
                 <label>Toista salasana</label>
                 <div class="password-field">
-                    <input type="password" name="password_confirm" placeholder="********" required autocomplete="off">
+                    <input type="password" name="password_confirm" placeholder="********" required minlength="10" maxlength="72" autocomplete="off"> <!-- Samat rajat kuin salasanakentässä -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
                 </div>
                 <div class="checkbox-wrapper">
@@ -117,5 +125,7 @@ require_once 'app/db.php'; // Tietokantayhteys $conn-muuttujaan
             </form>
         </div>
     </div>
+<!--JavaScriptit. Ensin kirjautumislomakkeen toiminnallisuudet, sitten taskit-->
+<script src="assets/js/ui.js"></script>
 </body>
 </html>

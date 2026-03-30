@@ -60,17 +60,20 @@ $conn->set_charset('utf8mb4'); //Asetetaan tietokannan merkistö UTF-8:ksi, joka
 // ===========================================================
 // LUODAAN TIETOKANTATAULUT JOS NIITÄ EI OLE
 // ===========================================================
+
 // Käyttäjätaulu — tallentaa rekisteröityneet käyttäjät
 $conn->query("
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY, -- Käyttäjätunniste, joka kasvaa automaattisesti
-    username VARCHAR(50) NOT NULL, -- Käyttäjätunnus, joka ei saa olla tyhjä. Maksimi 50 merkkiä.
-    email VARCHAR(100) NOT NULL UNIQUE, -- Sähköpostiosoite, joka ei saa olla tyhjä ja on uniikki (ei saa olla sama kuin toisella käyttäjällä)
-    password VARCHAR(255) NOT NULL, -- Salasana, joka tallennetaan suolattuna ja hashattuna. Maksimi 255 merkkiä.
-    role ENUM('user','admin') NOT NULL DEFAULT 'user', -- Käyttäjätaso, joka voi olla 'user' tai 'admin'. Oletuksena 'user'
+    id INT AUTO_INCREMENT PRIMARY KEY,          -- Käyttäjätunniste, joka kasvaa automaattisesti
+    username VARCHAR(50) NOT NULL,              -- Käyttäjätunnus, joka ei saa olla tyhjä. Maksimi 50 merkkiä.
+    email VARCHAR(100) NOT NULL UNIQUE,         -- Sähköpostiosoite, uniikki — ei saa olla sama kuin toisella käyttäjällä
+    password VARCHAR(255) NOT NULL,             -- Salasana, tallennetaan hashattuna. Maksimi 255 merkkiä.
+    role ENUM('user','admin') NOT NULL DEFAULT 'user', -- Käyttäjätaso, oletuksena 'user'
+    login_attempts INT NOT NULL DEFAULT 0,      -- Väärät kirjautumisyritykset — nollataan onnistuneen kirjautumisen jälkeen
+    login_locked_until DATETIME NULL,           -- Kirjautumislukituksen päättymisaika — NULL tarkoittaa ei lukittu
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Käyttäjätiedot luotiin, asetetaan automaattisesti nykyhetkeen
-    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP -- Käyttäjätiedot päivitettiin, asetetaan automaattisesti nykyhetkeen aina kun rivi päivitetään
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 -- InnoDB huolehtii että poistetun käyttäjän tehtävät poistetaan myös. utf8mb4 tukee kaikkia merkkejä ja emojeja
+    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP -- Käyttäjätiedot päivitettiin, asetetaan automaattisesti nykyhetkeen
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
 // Tehtävätaulu — tallentaa käyttäjien tehtävät
@@ -84,7 +87,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     started_at DATETIME NULL,                   -- Milloin tehtävä aloitettiin, täytetään kun tila muuttuu käynnissä olevaksi
     done_at DATETIME NULL,                      -- Milloin tehtävä valmistui, täytetään kun tila muuttuu valmiiksi
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Jos käyttäjä poistetaan, poistetaan myös kaikki hänen tehtävänsä
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4         -- InnoDB huolehtii että poistetun käyttäjän tehtävät poistetaan myös. utf8mb4 tukee kaikkia merkkejä ja emojeja
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
 // Lokitaulu — tallentaa käyttäjien tapahtumat
@@ -106,40 +109,40 @@ CREATE TABLE IF NOT EXISTS logs (
     ip_address VARCHAR(45) NULL,                -- Käyttäjän IP-osoite tapahtuman hetkellä
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, -- Milloin tapahtuma tapahtui, täyttyy automaattisesti
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Jos käyttäjä poistetaan, poistetaan myös hänen lokimerkintänsä
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4         -- InnoDB huolehtii viiteavaimista. utf8mb4 tukee kaikkia merkkejä ja emojeja
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
 // Salasanan palautustaulu — tallentaa salasanan palautuspyynnöt
 $conn->query("
 CREATE TABLE IF NOT EXISTS password_resets (
-    id INT AUTO_INCREMENT PRIMARY KEY,      -- Jokaiselle palautuspyynnölle oma numero, kasvaa automaattisesti
-    user_id INT NOT NULL,                   -- Minkä käyttäjän palautuspyyntö on, pakollinen
-    token CHAR(64) NOT NULL,               -- Satunnainen 64 merkkiä pitkä avain joka lähetetään sähköpostiin
-    expires_at DATETIME NOT NULL,          -- Milloin palautuslinkki vanhenee, tunnin kuluttua luomisesta
+    id INT AUTO_INCREMENT PRIMARY KEY,          -- Jokaiselle palautuspyynnölle oma numero, kasvaa automaattisesti
+    user_id INT NOT NULL,                       -- Minkä käyttäjän palautuspyyntö on, pakollinen
+    token CHAR(64) NOT NULL,                    -- Satunnainen 64 merkkiä pitkä avain joka lähetetään sähköpostiin
+    expires_at DATETIME NOT NULL,               -- Milloin palautuslinkki vanhenee, tunnin kuluttua luomisesta
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Jos käyttäjä poistetaan, poistetaan myös hänen palautuspyyntönsä
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4    -- InnoDB huolehtii viiteavaimista. utf8mb4 tukee kaikkia merkkejä ja emojeja
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
 // ===========================================================
 // VANHOJEN LOKIMERKINTÖJEN AUTOMAATTINEN SIIVOUS
 // ===========================================================
 if (rand(1, 10) === 1) { // 10% todennäköisyydellä tapahtuva siivous joka poistaa vanhentuneet lokimerkinnät
-    $conn->query("DELETE FROM logs WHERE timestamp < DATE_SUB(NOW(), INTERVAL 12 MONTH)");//Satunnainen siivous joka poistaa kaikki lokimerkinnät jotka ovat vanhempia kuin 12 kuukautta. 
+    $conn->query("DELETE FROM logs WHERE timestamp < DATE_SUB(NOW(), INTERVAL 12 MONTH)"); // Poistetaan yli 12 kuukautta vanhat lokimerkinnät
 }
 
 // ===========================================================
 // ISTUNNON VANHENEMISEN TARKISTUS
 // ===========================================================
-function validateSessionTimeout() { //Tarkistetaan onko käyttäjän istunto vanhentunut. Jos on kirjaudutaan ulos automaattisesti.
+function validateSessionTimeout() { // Tarkistetaan onko käyttäjän istunto vanhentunut. Jos on, kirjaudutaan ulos automaattisesti.
     $timeout = 3600; // Istunto vanhenee tunnin kuluttua (3600 sekuntia)
-    
+
     // Tarkistetaan onko viime toiminnosta kulunut yli tunti
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
-        session_unset();  // Tyhjennetään kaikki istunnon tiedot muistista
+        session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
         session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
-        return false; // Palautetaan false — istunto on vanhentunut
+        return false;      // Palautetaan false — istunto on vanhentunut
     }
-    
+
     $_SESSION['last_activity'] = time(); // Päivitetään viimeisen toiminnon aika
     return true; // Palautetaan true — istunto on vielä voimassa
 }
