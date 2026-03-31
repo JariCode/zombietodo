@@ -34,7 +34,7 @@ $action = $_POST['action'] ?? $_GET['action'] ?? null; // Jos kumpikaan ei löyd
 if (isset($_SESSION['user_id'])) { // isset tarkistaa onko user_id tallennettu istuntoon eli onko kirjauduttu
     if (!validateSessionTimeout()) { // validateSessionTimeout() on db.php:ssä. Palauttaa false jos tunti kulunut viimeisestä toiminnasta ja istunto vanhentunut
         $_SESSION['error'] = 'Istunto on vanhentunut. Kirjaudu uudelleen.'; // Tallennetaan virheilmoitus istuntoon
-        header('Location: ../index.php'); // Ohjataan kirjautumissivulle — ../ tarkoittaa yksi kansio ylöspäin
+        header('Location: ../index.php'); // Ohjataan kirjautumissivulle kun istunto on vanhentunut
         exit; // Pysäytetään koodin suoritus heti — ilman tätä PHP jatkaisi eteenpäin
     }
 }
@@ -44,7 +44,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'register': handleRegister(); break; // Jos action on 'register', kutsutaan rekisteröintifunktiota
     case 'login':    handleLogin();    break; // Jos action on 'login', kutsutaan kirjautumisfunktiota
     default:                                  // Jos action on jotain muuta tai null
-        header('Location: ../index.php');     // Ohjataan etusivulle — ei tehdä mitään
+        header('Location: ../index.php');     // Ohjataan kirjautumissivulle — ei tehdä mitään
         exit; // Pysäytetään suoritus
 }
 
@@ -230,8 +230,8 @@ function handleRegister() {
     $_SESSION['username']      = $username;  // Käyttäjänimi näytetään tervetuloviestissä
     $_SESSION['last_activity'] = time();     // Käynnistetään timeout-laskuri. Aika tallennetaan sekunteina
 
-    // Ohjataan etusivulle jossa tehtävälista näkyy nyt kirjautuneelle käyttäjälle
-    header('Location: ../index.php');
+    // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
+    header('Location: ../tasks.php');
     exit;
 }
 
@@ -292,7 +292,6 @@ function handleLogin() {
         $lockedUntil = strtotime($user['login_locked_until']); // strtotime muuttaa päivämäärämerkkijonon sekunteina vertailua varten
 
         if (time() < $lockedUntil) { // Jos nykyinen aika on ennen lukituksen päättymistä, tili on vielä lukittu
-            $minutesLeft = ceil(($lockedUntil - time()) / 60); // Lasketaan montako minuuttia lukitusta on jäljellä
             $_SESSION['error'] = 'Liian monta kirjautumisyritystä. Yritä myöhemmin uudelleen.'; // Ei paljasteta tarkkaa syytä tai odotusaikaa
             $_SESSION['form_login_email'] = $email; // Palautetaan sähköposti kenttään
             header('Location: ../index.php');
@@ -361,7 +360,7 @@ function handleLogin() {
     // Tallennetaan onnistumisviesti sessioon
     $_SESSION['success'] = 'Kirjautuminen onnistui! 🧟';
 
-    // Ohjataan etusivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
-    header('Location: ../index.php');
+    // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
+    header('Location: ../tasks.php');
     exit;
 }
