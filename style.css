@@ -356,6 +356,28 @@ button.link-btn:hover {
     color: #ff9999;
 }
 
+/* Uloskirjautumisnappi näyttää samalta kuin header-linkit */
+.header-links form {
+    margin: 0;
+    padding: 0;
+}
+
+.header-links button.header-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #ff6666;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    text-shadow: 2px 2px black;
+    text-decoration: none;
+}
+
+.header-links button.header-link:hover {
+    color: #ff9999;
+    background: none;
+}
 /* Tehtävälistan wrapper */
 .todo-box {
     margin-top: 10px;

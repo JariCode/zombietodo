@@ -84,10 +84,17 @@ $doneTasks = $doneTasks->get_result();
 
         <!-- Yläpalkki — tervetuloviesti ja navigointilinkit -->
         <div class="header-bar">
-            <span class="welcome-text">Tervetuloa, <?= clean($_SESSION['username']) ?>!</span>
+            <span class="welcome-text">Tervetuloa, <?= clean($_SESSION['username']) ?>!</span> <!-- Näytetään kirjautuneen käyttäjän nimi turvallisesti -->
             <div class="header-links">
-                <a href="profile.php" class="header-link">Muokkaa&nbsp;tietoja&nbsp;🧟‍♀️</a>
-                <a href="app/actions.php?action=logout" class="header-link">Kirjaudu&nbsp;ulos&nbsp;❌</a>
+                <a href="profile.php" class="header-link">Muokkaa&nbsp;tietoja&nbsp;🧟‍♀️</a> <!-- Linkki profiilisivulle — GET on ok koska vain avataan sivu -->
+                <?php if ($_SESSION['role'] === 'admin'): ?> <!-- Näytetään admin-linkki vain jos käyttäjällä on admin-rooli -->
+                    <a href="admin.php" class="header-link">Admin&#8209;paneeli&nbsp;⚙️</a> <!-- Linkki admin-sivulle — GET on ok koska vain avataan sivu -->
+                <?php endif; ?>
+                <form method="POST" action="app/actions.php"> <!-- POST koska uloskirjautuminen muuttaa istunnon tilaa -->
+                    <input type="hidden" name="action" value="logout"> <!-- Toiminto POST-datana URL:n sijaan -->
+                    <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus — estää ulkopuolisen kirjaamasta käyttäjän ulos -->
+                    <button type="submit" class="header-link">Kirjaudu&nbsp;ulos&nbsp;❌</button>
+                </form>
             </div>
         </div>
 

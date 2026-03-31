@@ -125,7 +125,7 @@ unset($_SESSION['form_username'], $_SESSION['form_email'], $_SESSION['form_login
             </form>
         </div>
     </div>
-<!--JavaScriptit. Ensin kirjautumislomakkeen toiminnallisuudet, sitten taskit-->
+<!--JavaScriptit. Lomakkeiden toiminnallisuudet-->
 <script src="assets/js/ui.js"></script>
 </body>
 </html>
