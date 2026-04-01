@@ -51,3 +51,4 @@ document.querySelectorAll('.auth-error, .auth-success').forEach(function(msg) {
         }, 1000); // Poistetaan 1 sekunnin häivytyksen jälkeen
     }, 4000); // Odotetaan 4 sekuntia ennen häivytystä
 });
+

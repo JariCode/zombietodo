@@ -87,7 +87,7 @@ $doneTasks = $doneTasks->get_result();
             <span class="welcome-text">Tervetuloa, <?= clean($_SESSION['username']) ?>!</span> <!-- Näytetään kirjautuneen käyttäjän nimi turvallisesti -->
             <div class="header-links">
                 <a href="profile.php" class="header-link">Muokkaa&nbsp;tietoja&nbsp;🧟‍♀️</a> <!-- Linkki profiilisivulle — GET on ok koska vain avataan sivu -->
-                <?php if ($_SESSION['role'] === 'admin'): ?> <!-- Näytetään admin-linkki vain jos käyttäjällä on admin-rooli -->
+                <?php if (($_SESSION['role'] ?? '') === 'admin'): ?><!-- Näytetään admin-linkki vain jos käyttäjällä on admin-rooli -->
                     <a href="admin.php" class="header-link">Admin&#8209;paneeli&nbsp;⚙️</a> <!-- Linkki admin-sivulle — GET on ok koska vain avataan sivu -->
                 <?php endif; ?>
                 <form method="POST" action="app/actions.php"> <!-- POST koska uloskirjautuminen muuttaa istunnon tilaa -->
