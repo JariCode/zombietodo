@@ -29,6 +29,6 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_trans_sid', 0); //Estetään istuntotunnuksen näkyminen osoitepalkissa
     ini_set('session.cookie_lifetime', 0); // Eväste vanhenee, kun selain suljetaan
     ini_set('session.sid_length', 48); // Istuntotunnus on 48 merkkiä pitkä, vaikeampi arvattava. Oletuksena 26 merkkiä, joka on helpompi arvattava.
-    session_name('sid');  // Vaihdetaan istuntoevästeen oletusnimi PHPSESSID -> sid. Ei paljasta suoraan että kyseessä on PHP-sovellus
+    session_name('Bub');  // Vaihdetaan istuntoevästeen oletusnimi PHPSESSID -> Bub. Zombie teemaan sopiva nimi.
     session_start(); // Käynnistetään istunto. Tämä on pakollista, jotta istunto toimii ja käyttäjätiedot säilyvät sivujen välillä.
 }

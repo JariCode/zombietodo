@@ -43,9 +43,10 @@ if (isset($_SESSION['user_id'])) { // isset tarkistaa onko user_id tallennettu i
 switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi tapa
     case 'register': handleRegister(); break; // Jos action on 'register', kutsutaan rekisteröintifunktiota
     case 'login':    handleLogin();    break; // Jos action on 'login', kutsutaan kirjautumisfunktiota
-    default:                                  // Jos action on jotain muuta tai null
-        header('Location: ../index.php');     // Ohjataan kirjautumissivulle — ei tehdä mitään
-        exit; // Pysäytetään suoritus
+    case 'logout':   handleLogout();   break; // Jos action on 'logout', kutsutaan uloskirjautumisfunktiota
+    default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
+        handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
+        break;
 }
 
 // ===========================================================
@@ -363,5 +364,117 @@ function handleLogin() {
 
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
+    exit;
+}
+
+// ===========================================================
+// ULOSKIRJAUTUMINEN
+// ===========================================================
+function handleLogout() {
+
+    // Tarkistetaan CSRF-token — estää ulkopuolista kirjaamasta käyttäjän ulos
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403); // 403 = Forbidden — pääsy kielletty
+        $_SESSION['error'] = 'Turvallisuusvirhe. Yritä uudelleen.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
+    session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
+
+    header('Location: ../index.php'); // Ohjataan kirjautumissivulle
+    exit;
+}
+
+// ===========================================================
+// TEHTÄVÄTOIMINNOT — vain kirjautuneille käyttäjille
+// ===========================================================
+function handleTaskAction($action) {
+    global $conn; // Otetaan tietokantayhteys käyttöön
+
+    // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse tekemään mitään
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403); // 403 = Forbidden — pääsy kielletty
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut']);
+        exit;
+    }
+
+    // CSRF luetaan POST-bodysta tai X-CSRF-Token-headerista
+    // tasks.js lähettää tokenin headerissa, lomakkeet POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'CSRF TOKEN INVALID']);
+        exit;
+    }
+
+    $user_id = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
+    $id      = intval($_GET['id'] ?? 0);     // Tehtävän id URL-parametrista — esim. ?action=start&id=5
+
+    // LISÄÄ TEHTÄVÄ
+    if ($action === 'add') {
+        $task = trim($_POST['task'] ?? ''); // Luetaan teksti ja poistetaan välilyönnit reunoilta
+        if ($task === '') { echo json_encode(['success' => false]); exit; }
+        $stmt = $conn->prepare("INSERT INTO tasks (user_id, text, status, created_at) VALUES (?, ?, 'not_started', NOW())");
+        $stmt->bind_param('is', $user_id, $task); // 'is' = integer, string
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // ALOITA TEHTÄVÄ — siirretään ei aloitetusta käynnissä olevaksi
+    if ($action === 'start' && $id > 0) {
+        $stmt = $conn->prepare("UPDATE tasks SET status='in_progress', started_at=NOW() WHERE id=? AND user_id=?");
+        $stmt->bind_param('ii', $id, $user_id); // user_id tarkistus — käyttäjä ei voi muokata toisen tehtäviä
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // MERKITSE VALMIIKSI — siirretään käynnissä olevasta valmiiksi
+    if ($action === 'done' && $id > 0) {
+        $stmt = $conn->prepare("UPDATE tasks SET status='done', done_at=NOW() WHERE id=? AND user_id=?");
+        $stmt->bind_param('ii', $id, $user_id);
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // UNDO START — palautetaan käynnissä oleva takaisin ei aloitetuksi
+    if ($action === 'undo_start' && $id > 0) {
+        $stmt = $conn->prepare("UPDATE tasks SET status='not_started', started_at=NULL WHERE id=? AND user_id=?");
+        $stmt->bind_param('ii', $id, $user_id);
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // UNDO DONE — palautetaan valmis takaisin käynnissä olevaksi
+    if ($action === 'undo_done' && $id > 0) {
+        $stmt = $conn->prepare("UPDATE tasks SET status='in_progress', done_at=NULL WHERE id=? AND user_id=?");
+        $stmt->bind_param('ii', $id, $user_id);
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // POISTA TEHTÄVÄ
+    if ($action === 'delete' && $id > 0) {
+        $stmt = $conn->prepare('DELETE FROM tasks WHERE id=? AND user_id=?');
+        $stmt->bind_param('ii', $id, $user_id); // user_id tarkistus — käyttäjä ei voi poistaa toisen tehtäviä
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // Tuntematon toiminto — ohjataan etusivulle
+    header('Location: ../index.php');
     exit;
 }
