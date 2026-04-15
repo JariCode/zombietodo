@@ -190,9 +190,9 @@ $doneTasks = $doneTasks->get_result();
             <?php endwhile; ?>
             </div>
 
-        </div><!-- .todo-box -->
+        </div><!-- .todo-box loppuu -->
 
-    </div><!-- .container -->
+    </div><!-- .container loppuu-->
 
     <!-- ---------------------------------------------------------------->
     <!-- Tähän tulee muokkausmodal kun käyttäjä klikkaa muokkaa-nappia -->
@@ -200,7 +200,7 @@ $doneTasks = $doneTasks->get_result();
 
     <!-- JavaScriptit ladataan sivun lopussa jotta HTML on valmis ennen scriptejä -->
     <script src="assets/js/ui.js"></script>   <!-- Yleiset UI-toiminnot -->
-    <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka — lisätään myöhemmin -->
+    <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka -->
 
 </body>
 </html>

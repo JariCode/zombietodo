@@ -223,9 +223,6 @@ function handleRegister() {
     // Näin estetään CSRF-tokenin uudelleenkäyttö kun käyttäjän tila muuttuu anonyymistä kirjautuneeksi
     generateCSRFToken(true); // true pakottaa uuden tokenin luomisen
 
-    // Näytetään tervetuloviesti tehtäväsivulla
-    $_SESSION['success'] = 'Tilisi on luotu onnistuneesti. 🧟'; // Tallennetaan onnistumisviesti sessioon
-
     // Kirjataan käyttäjä automaattisesti sisään rekisteröityessä ja tallennetaan tiedot sessioon
     $_SESSION['user_id']       = $newId;     // Käyttäjän id tietokannasta. Tätä käytetään kaikissa kyselyissä
     $_SESSION['username']      = $username;  // Käyttäjänimi näytetään tervetuloviestissä
@@ -358,9 +355,6 @@ function handleLogin() {
     // Luodaan uusi CSRF-token kirjautumisen jälkeen — vanha token ei enää kelpaa
     // Näin estetään CSRF-tokenin uudelleenkäyttö kirjautumisen jälkeen
     generateCSRFToken(true); // true pakottaa uuden tokenin luomisen
-
-    // Tallennetaan onnistumisviesti sessioon
-    $_SESSION['success'] = 'Kirjautuminen onnistui! 🧟';
 
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
