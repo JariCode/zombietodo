@@ -406,10 +406,14 @@ function handleTaskAction($action) {
     $user_id = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
     $id      = intval($_GET['id'] ?? 0);     // Tehtävän id URL-parametrista — esim. ?action=start&id=5
 
+    // ===========================================================
     // LISÄÄ TEHTÄVÄ
+    // Luetaan teksti POST-datasta, tarkistetaan ettei ole tyhjä
+    // ja tallennetaan tietokantaan ei aloitettu -tilassa
+    // ===========================================================
     if ($action === 'add') {
         $task = trim($_POST['task'] ?? ''); // Luetaan teksti ja poistetaan välilyönnit reunoilta
-        if ($task === '') { echo json_encode(['success' => false]); exit; }
+        if ($task === '') { echo json_encode(['success' => false]); exit; } // Tyhjiä tehtäviä ei sallita
         $stmt = $conn->prepare("INSERT INTO tasks (user_id, text, status, created_at) VALUES (?, ?, 'not_started', NOW())");
         $stmt->bind_param('is', $user_id, $task); // 'is' = integer, string
         $stmt->execute();
@@ -418,7 +422,67 @@ function handleTaskAction($action) {
         exit;
     }
 
-    // ALOITA TEHTÄVÄ — siirretään ei aloitetusta käynnissä olevaksi
+    // ===========================================================
+    // HAE TEHTÄVÄ MUOKKAUSTA VARTEN
+    // Haetaan tehtävän tiedot tietokannasta JSON-muodossa
+    // tasks.js täyttää tiedot muokkausmodaliin
+    // ===========================================================
+    if ($action === 'get_task' && $id > 0) {
+        $stmt = $conn->prepare('SELECT id, text, status, started_at, done_at FROM tasks WHERE id=? AND user_id=?');
+        $stmt->bind_param('ii', $id, $user_id); // user_id tarkistus — käyttäjä ei voi hakea toisen tehtäviä
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $task = $result->fetch_assoc(); // Haetaan tehtävä assosiatiivisena taulukkona
+        $stmt->close();
+        if (!$task) { // Jos tehtävää ei löydy tai se kuuluu toiselle käyttäjälle
+            echo json_encode(['success' => false, 'error' => 'Tehtävää ei löydy']);
+            exit;
+        }
+        echo json_encode(['success' => true, 'task' => $task]); // Palautetaan tehtävän tiedot JSON-muodossa
+        exit;
+    }
+
+    // ===========================================================
+    // MUOKKAA TEHTÄVÄ
+    // Päivitetään tehtävän teksti ja aikaleimät tietokantaan
+    // Tyhjä arvo tallennetaan NULL:na
+    // ===========================================================
+    if ($action === 'edit_task' && $id > 0) {
+        $text       = trim($_POST['text']       ?? ''); // Luetaan teksti ja poistetaan välilyönnit
+        $started_at = trim($_POST['started_at'] ?? ''); // Aloitusaika Flatpickrista
+        $done_at    = trim($_POST['done_at']    ?? ''); // Valmistumisaika Flatpickrista
+
+        if ($text === '') { // Tarkistetaan että teksti ei ole tyhjä
+            echo json_encode(['success' => false, 'error' => 'Teksti ei voi olla tyhjä']);
+            exit;
+        }
+
+        // Tyhjä arvo tallennetaan NULL:na tietokantaan — ei tallenneta tyhjää merkkijonoa
+        $started_at = $started_at !== '' ? $started_at : null;
+        $done_at    = $done_at    !== '' ? $done_at    : null;
+
+        // Päätellään tehtävän tila aikaleimoista, jotta muutos näkyy heti oikeassa listassa.
+        if ($done_at !== null) {
+            $status = 'done';
+        } elseif ($started_at !== null) {
+            $status = 'in_progress';
+        } else {
+            $status = 'not_started';
+        }
+
+        $stmt = $conn->prepare('UPDATE tasks SET text=?, started_at=?, done_at=?, status=? WHERE id=? AND user_id=?');
+        $stmt->bind_param('ssssii', $text, $started_at, $done_at, $status, $id, $user_id); // user_id tarkistus — käyttäjä ei voi muokata toisen tehtäviä
+        $stmt->execute();
+        $stmt->close();
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // ===========================================================
+    // ALOITA TEHTÄVÄ
+    // Siirretään ei aloitetusta käynnissä olevaksi
+    // Tallennetaan aloitusaika automaattisesti
+    // ===========================================================
     if ($action === 'start' && $id > 0) {
         $stmt = $conn->prepare("UPDATE tasks SET status='in_progress', started_at=NOW() WHERE id=? AND user_id=?");
         $stmt->bind_param('ii', $id, $user_id); // user_id tarkistus — käyttäjä ei voi muokata toisen tehtäviä
@@ -428,7 +492,11 @@ function handleTaskAction($action) {
         exit;
     }
 
-    // MERKITSE VALMIIKSI — siirretään käynnissä olevasta valmiiksi
+    // ===========================================================
+    // MERKITSE VALMIIKSI
+    // Siirretään käynnissä olevasta valmiiksi
+    // Tallennetaan valmistumisaika automaattisesti
+    // ===========================================================
     if ($action === 'done' && $id > 0) {
         $stmt = $conn->prepare("UPDATE tasks SET status='done', done_at=NOW() WHERE id=? AND user_id=?");
         $stmt->bind_param('ii', $id, $user_id);
@@ -438,7 +506,11 @@ function handleTaskAction($action) {
         exit;
     }
 
-    // UNDO START — palautetaan käynnissä oleva takaisin ei aloitetuksi
+    // ===========================================================
+    // UNDO START
+    // Palautetaan käynnissä oleva takaisin ei aloitetuksi
+    // Tyhjennetään aloitusaika
+    // ===========================================================
     if ($action === 'undo_start' && $id > 0) {
         $stmt = $conn->prepare("UPDATE tasks SET status='not_started', started_at=NULL WHERE id=? AND user_id=?");
         $stmt->bind_param('ii', $id, $user_id);
@@ -448,7 +520,11 @@ function handleTaskAction($action) {
         exit;
     }
 
-    // UNDO DONE — palautetaan valmis takaisin käynnissä olevaksi
+    // ===========================================================
+    // UNDO DONE
+    // Palautetaan valmis takaisin käynnissä olevaksi
+    // Tyhjennetään valmistumisaika
+    // ===========================================================
     if ($action === 'undo_done' && $id > 0) {
         $stmt = $conn->prepare("UPDATE tasks SET status='in_progress', done_at=NULL WHERE id=? AND user_id=?");
         $stmt->bind_param('ii', $id, $user_id);
@@ -458,7 +534,10 @@ function handleTaskAction($action) {
         exit;
     }
 
+    // ===========================================================
     // POISTA TEHTÄVÄ
+    // Poistetaan tehtävä pysyvästi tietokannasta
+    // ===========================================================
     if ($action === 'delete' && $id > 0) {
         $stmt = $conn->prepare('DELETE FROM tasks WHERE id=? AND user_id=?');
         $stmt->bind_param('ii', $id, $user_id); // user_id tarkistus — käyttäjä ei voi poistaa toisen tehtäviä

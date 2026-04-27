@@ -69,6 +69,7 @@ $doneTasks = $doneTasks->get_result();
     <title>Zombie To-Do</title>
     <meta name="description" content="Zombie To-Do — hallitse tehtäväsi ja selviä apokalypsistä.">
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen tyylit -->
     <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit -->
 </head>
 <body>
@@ -137,6 +138,7 @@ $doneTasks = $doneTasks->get_result();
                         <small class="timestamp">Lisätty: <?= date('d.m.Y H:i', strtotime($task['created_at'])) ?></small>
                     </div>
                     <div class="actions">
+                        <button type="button" data-action="edit"   data-id="<?= $task['id'] ?>">✏️</button>
                         <button type="button" data-action="start"  data-id="<?= $task['id'] ?>">⚔️</button>
                         <button type="button" data-action="delete" data-id="<?= $task['id'] ?>">🗑</button>
                     </div>
@@ -157,6 +159,7 @@ $doneTasks = $doneTasks->get_result();
                         </small>
                     </div>
                     <div class="actions">
+                        <button type="button" data-action="edit"   data-id="<?= $task['id'] ?>">✏️</button>
                         <button type="button" data-action="done"       data-id="<?= $task['id'] ?>">✓</button>
                         <button type="button" data-action="undo_start" data-id="<?= $task['id'] ?>">☠️</button>
                         <button type="button" data-action="delete"     data-id="<?= $task['id'] ?>">🗑</button>
@@ -183,6 +186,7 @@ $doneTasks = $doneTasks->get_result();
                         </small>
                     </div>
                     <div class="actions">
+                        <button type="button" data-action="edit"   data-id="<?= $task['id'] ?>">✏️</button>
                         <button type="button" data-action="undo_done" data-id="<?= $task['id'] ?>">☠️</button>
                         <button type="button" data-action="delete"    data-id="<?= $task['id'] ?>">🗑</button>
                     </div>
@@ -194,13 +198,42 @@ $doneTasks = $doneTasks->get_result();
 
     </div><!-- .container loppuu-->
 
-    <!-- ---------------------------------------------------------------->
-    <!-- Tähän tulee muokkausmodal kun käyttäjä klikkaa muokkaa-nappia -->
-    <!-- ---------------------------------------------------------------->   
+  <!-- Muokkausmodal — avautuu kun käyttäjä klikkaa ✏️-nappia -->
+    <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">✏️ Muokkaa tehtävää</h2>
+                <button class="modal-close" id="modalClose" aria-label="Sulje">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-error" id="modalError"></div> <!-- Virheilmoitus modalin sisällä -->
+                <div>
+                    <label for="editText">Tehtävä 🧠</label>
+                    <textarea id="editText" placeholder="Tehtävän kuvaus..." maxlength="255" required></textarea>
+                </div>
+                <div class="modal-field-row">
+                    <div>
+                        <label for="editStarted">Aloitettu</label>
+                        <input type="text" id="editStarted" placeholder="pp.kk.vvvv hh:mm" autocomplete="off" readonly>
+                    </div>
+                    <div>
+                        <label for="editDone">Valmis</label>
+                        <input type="text" id="editDone" placeholder="pp.kk.vvvv hh:mm" autocomplete="off" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="modalCancel">Peruuta</button>
+                <button class="btn-save"   id="modalSave">Tallenna 🩸</button>
+            </div>
+        </div>
+    </div>  
 
     <!-- JavaScriptit ladataan sivun lopussa jotta HTML on valmis ennen scriptejä -->
     <script src="assets/js/ui.js"></script>   <!-- Yleiset UI-toiminnot -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka -->
+    
 
 </body>
 </html>

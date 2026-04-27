@@ -66,6 +66,7 @@ $doneTasks = $doneTasks->get_result();
             <small class="timestamp">Lisätty: <?= date('d.m.Y H:i', strtotime($task['created_at'])) ?></small>
         </div>
         <div class="actions">
+            <button type="button" data-action="edit"   data-id="<?= $task['id'] ?>">✏️</button>
             <button type="button" data-action="start"  data-id="<?= $task['id'] ?>">⚔️</button>
             <button type="button" data-action="delete" data-id="<?= $task['id'] ?>">🗑</button>
         </div>
@@ -86,6 +87,7 @@ $doneTasks = $doneTasks->get_result();
             </small>
         </div>
         <div class="actions">
+            <button type="button" data-action="edit"   data-id="<?= $task['id'] ?>">✏️</button>
             <button type="button" data-action="done"       data-id="<?= $task['id'] ?>">✓</button>
             <button type="button" data-action="undo_start" data-id="<?= $task['id'] ?>">☠️</button>
             <button type="button" data-action="delete"     data-id="<?= $task['id'] ?>">🗑</button>
@@ -112,6 +114,7 @@ $doneTasks = $doneTasks->get_result();
             </small>
         </div>
         <div class="actions">
+            <button type="button" data-action="edit"   data-id="<?= $task['id'] ?>">✏️</button>
             <button type="button" data-action="undo_done" data-id="<?= $task['id'] ?>">☠️</button>
             <button type="button" data-action="delete"    data-id="<?= $task['id'] ?>">🗑</button>
         </div>
