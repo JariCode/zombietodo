@@ -432,7 +432,7 @@ function handleTaskAction($action) {
         $stmt->bind_param('ii', $id, $user_id); // user_id tarkistus — käyttäjä ei voi hakea toisen tehtäviä
         $stmt->execute();
         $result = $stmt->get_result();
-        $task = $result->fetch_assoc(); // Haetaan tehtävä assosiatiivisena taulukkona
+        $task = $result->fetch_assoc(); // Haetaan tehtävä  taulukkona
         $stmt->close();
         if (!$task) { // Jos tehtävää ei löydy tai se kuuluu toiselle käyttäjälle
             echo json_encode(['success' => false, 'error' => 'Tehtävää ei löydy']);

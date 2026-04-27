@@ -508,12 +508,13 @@ button.link-btn:hover {
 .actions button[data-action="done"]       { color: #44ff44; } /* Vihreä   — valmis      */
 .actions button[data-action="undo_start"] { color: #ff4444; } /* Punainen — peru aloitus */
 .actions button[data-action="undo_done"]  { color: #ff4444; } /* Punainen — peru valmis  */
-.actions button[data-action="delete"]     { color: #ff4444; } /* Punainen — poista      */
+.actions button[data-action="delete"]     { color: #d8d8d8; } /* Neutraali — poista     */
 
 /* ================================
    4. MUOKKAUSMODAL
    tasks.php — avautuu ✏️-napista
    ================================ */
+/* Estetään taustasivun skrollaus modalin ollessa auki */
 .modal.no-scroll {
     overflow: hidden;
 }
@@ -522,6 +523,7 @@ body.modal-open {
     overflow: hidden;
 }
 
+/*Modal-yläosa joka peittää koko näytön ja sisältää modal-ikkunan keskellä */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -554,6 +556,7 @@ body.modal-open {
     from { transform: translateY(-30px); opacity: 0; }
     to   { transform: translateY(0);     opacity: 1; }
 }
+/* Modalin header*/
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -570,6 +573,8 @@ body.modal-open {
     margin: 0;
     text-transform: uppercase;
 }
+
+/* Sulje-nappi modalin headerissä */
 .modal-close {
     background: none;
     border: none;
@@ -587,6 +592,8 @@ body.modal-open {
     flex-direction: column;
     gap: 14px;
 }
+
+/* Modal-kenttien labelit ja inputit */
 .modal-body label {
     display: block;
     color: #ffbbbb;
@@ -616,12 +623,16 @@ body.modal-open {
     border-color: #cc0000;
     box-shadow: 0 0 8px rgba(180,0,0,0.4);
 }
+
+/* Tekstialueen minimikorkeus ja pystysuunnan skaalautuvuus */
 .modal-body textarea { resize: vertical; min-height: 80px; }
 .modal-field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
+
+/* Modal-footer jossa tallennus- ja peruutusnapit */
 .modal-footer {
     padding: 14px 20px 20px 20px;
     display: flex;
@@ -629,6 +640,8 @@ body.modal-open {
     justify-content: flex-end;
     border-top: 1px solid #330000;
 }
+
+/* Tallennusnappi ja peruutusnappi modal-footerissa */
 .modal-footer .btn-save {
     background: #880000;
     color: #fff;
@@ -652,13 +665,16 @@ body.modal-open {
     cursor: pointer;
     width: auto;
 }
+
+/* Peruutusnappi hover-efekti ja virheilmoitus */
 .modal-footer .btn-cancel:hover { color: #ff6666; border-color: #880000; background: transparent; }
 .modal-error { color: #ff4444; font-size: 0.85rem; text-align: center; min-height: 18px; }
 
 /* ================================
-   FLATPICKR — ZOMBIE THEME FIX
-   ================================ */
+    FLATPICKR — ZOMBIETEEMAN KORJAUKSET
+    ================================ */
 
+/* Päivämäärävalitsimen tyyli */
 .flatpickr-calendar {
     background: #0d0000 !important;
     border: 1px solid #880000 !important;
@@ -667,66 +683,73 @@ body.modal-open {
     font-family: 'Courier New', monospace !important;
 }
 
-/* Header */
+/* Otsikko ja kuukauden valinta */
 .flatpickr-months {
     background: #1a0000 !important;
     border-bottom: 1px solid #550000 !important;
 }
 
+/* Kuukauden ja vuoden teksti */
 .flatpickr-current-month {
     color: #ff4444 !important;
     font-family: Impact, sans-serif !important;
     letter-spacing: 2px !important;
 }
 
+/* Edellinen ja seuraava kuukausi */
 .flatpickr-prev-month,
 .flatpickr-next-month {
     color: #ff4444 !important;
     fill: #ff4444 !important;
 }
 
-/* Weekdays */
+/* Viikonpäivät */
 .flatpickr-weekday {
     color: #aa4444 !important;
     font-weight: bold !important;
 }
 
-/* Days */
+/* Päivät */
 .flatpickr-day {
     color: #ffbbbb !important;
 }
 
+/* Hover-efekti päiville */
 .flatpickr-day:hover {
     background: #330000 !important;
     color: #ff4444 !important;
 }
 
+/* Valittu päivä */
 .flatpickr-day.selected {
     background: #880000 !important;
     color: #fff !important;
 }
 
+/* Tämä päivä */
 .flatpickr-day.today {
     border: 1px solid #880000 !important;
 }
 
-/* Time */
+/* Aika */
 .flatpickr-time {
     background: #110000 !important;
     border-top: 1px solid #550000 !important;
 }
 
+/* Aikavalitsimen inputit */
 .flatpickr-time input {
     color: #ff4444 !important;
     background: transparent !important;
 }
 
-/* Input field */
+/* Syötekenttä */
 .flatpickr-input.flatpickr-alt-input {
     background: #1a0000 !important;
     color: #ffcccc !important;
     border: 1px solid #660000 !important;
 }
+
 /* ================================
    5. RESPONSIIVISUUS
    Mukautuu eri näyttökokoihin.

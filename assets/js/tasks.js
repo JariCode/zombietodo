@@ -53,7 +53,7 @@ async function refreshTasks() {
     box.innerHTML = (form ? form.outerHTML : '') + html;
 
     // Kiinnitetään nappeihin tapahtumat uudelleen koska HTML vaihtui
-    attachTaskEvents();
+    attachTaskEvents();// Tehtävänappien tapahtumat täytyy kiinnittää uudestaan koska HTML on korvattu uudella
     setupEnterKey();
     setupFormSubmit();
 
@@ -218,10 +218,11 @@ setupEditModal();   // Kiinnitetään modalin toiminnot
 // ===========================================================
 // FLATPICKR — alustetaan VASTA kun modal avataan
 // ===========================================================
-let fpStarted = null;
-let fpDone = null;
-let fpOutsideClickHandler = null;
+let fpStarted = null;// Flatpickr-olio aloitusajalle — let koska arvo asetetaan modalin avauksessa
+let fpDone = null; // Flatpickr-olio valmistumisajalle — let koska arvo asetetaan modalin avauksessa
+let fpOutsideClickHandler = null; // Tapahtumankuuntelija joka sulkee Flatpickrin kun klikataan sen ulkopuolelle — tallennetaan jotta voidaan poistaa se myöhemmin
 
+// Sulkee Flatpickrin kun käyttäjä klikkaa sen ulkopuolelle
 function closeFlatpickrOnOutsideClick(instance) {
     if (!instance) return;
 
@@ -230,6 +231,7 @@ function closeFlatpickrOnOutsideClick(instance) {
         fpOutsideClickHandler = null;
     }
 
+    // Määritellään tapahtumankuuntelija joka tarkistaa klikataanko Flatpickrin ulkopuolelle
     fpOutsideClickHandler = function(e) {
         const calendar = instance.calendarContainer;
         const input    = instance.input;
@@ -243,15 +245,17 @@ function closeFlatpickrOnOutsideClick(instance) {
         }
     };
 
-    document.addEventListener('mousedown', fpOutsideClickHandler, true);
+    document.addEventListener('mousedown', fpOutsideClickHandler, true);//Kuunnellaan hiiren klikkauksia ennen kuin ne saavuttavat muut elementit (true = capture-vaihe)
 }
 
+// Alustaa Flatpickr-kalenterit modalin aloitus- ja valmistumiskenttiin
 function initFlatpickr() {
     const startedInput = document.getElementById('editStarted');
     const doneInput    = document.getElementById('editDone');
 
     if (!startedInput || !doneInput) return;
 
+    // Yhteiset asetukset molemmille Flatpickreille
     const commonOpts = {
         enableTime: true,
         dateFormat: 'Y-m-d H:i',
@@ -275,7 +279,7 @@ function initFlatpickr() {
         }
     };
 
-    // 🔥 estetään tupla-init
+    // Alustetaan Flatpickr vain jos sitä ei ole vielä alustettu, muuten vanhat päivämäärät katoavat modalista
     if (!fpStarted) {
         fpStarted = flatpickr(startedInput, Object.assign({}, commonOpts, {
             onOpen: [function() { closeFlatpickrOnOutsideClick(fpStarted); }],
@@ -288,6 +292,7 @@ function initFlatpickr() {
         }));
     }
 
+    // Sama aloitus- ja valmistumiskentille — molemmille oma Flatpickr-olio jotta päivämäärät eivät sekoitu modalissa
     if (!fpDone) {
         fpDone = flatpickr(doneInput, Object.assign({}, commonOpts, {
             onOpen: [function() { closeFlatpickrOnOutsideClick(fpDone); }],
@@ -310,10 +315,11 @@ function initFlatpickr() {
 async function openEditModal(id) {
     currentEditId = id;
 
-    initFlatpickr(); // 🔥 TÄRKEIN KORJAUS
+    initFlatpickr(); // Alustetaan Flatpickr modalin avauksessa jotta se on varmasti valmis ennen kuin asetetaan päivämäärät
 
     document.getElementById('modalError').textContent = '';
 
+    // Haetaan tehtävän tiedot palvelimelta jotta modalin kentät voidaan täyttää niillä
     const res = await fetch('app/actions.php?action=get_task&id=' + id, {
         method: 'POST',
         headers: {
@@ -344,6 +350,6 @@ async function openEditModal(id) {
     document.body.classList.add('modal-open'); // Lukitaan taustasivun skrolli modalin ajaksi
 
     setTimeout(function() {
-        document.getElementById('editText').focus();
+        document.getElementById('editText').focus();// Siirretään fokus kuvauskenttään jotta käyttäjä voi heti alkaa kirjoittaa
     }, 50);
 }

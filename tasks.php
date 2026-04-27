@@ -69,8 +69,8 @@ $doneTasks = $doneTasks->get_result();
     <title>Zombie To-Do</title>
     <meta name="description" content="Zombie To-Do — hallitse tehtäväsi ja selviä apokalypsistä.">
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen tyylit -->
-    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
+    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit. Tämä oltava viimeisenä -->
 </head>
 <body>
 
@@ -227,13 +227,13 @@ $doneTasks = $doneTasks->get_result();
                 <button class="btn-save"   id="modalSave">Tallenna 🩸</button>
             </div>
         </div>
-    </div>  
+    </div> 
+    <!-- Muokkausmodal loppuu --> 
 
     <!-- JavaScriptit ladataan sivun lopussa jotta HTML on valmis ennen scriptejä -->
-    <script src="assets/js/ui.js"></script>   <!-- Yleiset UI-toiminnot -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="assets/js/ui.js"></script><!-- Yleiset UI-toiminnot -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten ladattu ulkoisesta lähteestä -->
     <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka -->
     
-
 </body>
 </html>
