@@ -52,3 +52,12 @@ document.querySelectorAll('.auth-error, .auth-success').forEach(function(msg) {
     }, 4000); // Odotetaan 4 sekuntia ennen häivytystä
 });
 
+// ===========================================================
+// KÄYTTÖEHDOT JA TIETOSUOJASELOSTE — MODALIN AVAUS
+// ===========================================================
+document.querySelectorAll('.link-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const type = btn.textContent.trim().startsWith('käyttöehdot') ? 'terms' : 'privacy';
+        openLegalModal(type);
+    });
+});

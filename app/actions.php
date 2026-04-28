@@ -385,6 +385,7 @@ function handleLogout() {
 // TEHTÄVÄTOIMINNOT — vain kirjautuneille käyttäjille
 // ===========================================================
 function handleTaskAction($action) {
+    header('Content-Type: application/json; charset=utf-8'); // Kerrotaan selaimelle että vastaus on JSON-dataa eikä HTML — estää selainta tulkitsemasta ja suorittamasta vastauksen sisältöä HTML:nä
     global $conn; // Otetaan tietokantayhteys käyttöön
 
     // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse tekemään mitään

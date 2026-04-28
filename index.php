@@ -117,8 +117,8 @@ unset($_SESSION['form_username'], $_SESSION['form_email'], $_SESSION['form_login
                     <label for="acceptPrivacyPolicy" class="checkbox-label">
                         <input type="checkbox" id="acceptPrivacyPolicy" name="terms" required>
                         Hyväksyn
-                        <button type="button" class="link-btn" onclick="openLegalModal('terms')">käyttöehdot</button> ja
-                        <button type="button" class="link-btn" onclick="openLegalModal('privacy')">tietosuojaselosteen</button>.
+                        <button type="button" class="link-btn">käyttöehdot</button> ja
+                        <button type="button" class="link-btn">tietosuojaselosteen</button>.
                     </label>
                 </div>
                 <button type="submit">Rekisteröidy 🧟‍♂️</button>
