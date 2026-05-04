@@ -103,6 +103,13 @@ function attachTaskEvents() {
                 await new Promise(function(resolve) { setTimeout(resolve, 1000); });
             }
 
+            // Haudasta nouseminen kun perutaan aloitus tai valmistuminen
+            if (action === 'undo_start' || action === 'undo_done') {
+                const task = el.closest('.task');
+                task.classList.add('anim-zombie-rise');
+                await new Promise(function(resolve) { setTimeout(resolve, 900); });
+            }
+
             // Koko sivun veriroiske kun tehtävä poistetaan
             if (action === 'delete') {
                 const overlay = document.getElementById('bloodOverlay');
@@ -178,7 +185,7 @@ function setupFormSubmit() {
             msg.style.transition = 'opacity 1s';
             msg.style.opacity = '0';
             setTimeout(function() { msg.remove(); }, 1000);
-        }, 3000);
+        }, 1000);
     });
 }
 

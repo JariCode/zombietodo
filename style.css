@@ -105,7 +105,7 @@ h1 {
     padding: 0;
 }
 
-/* Virheilmoitus — näytetään punaisena tekstinä */
+/* Virheilmoitus — näytetään oranssinena tekstinä */
 .auth-error {
     color: #ff6600;
     text-align: center;
@@ -137,6 +137,21 @@ h1 {
     0%   { text-shadow: 1px 1px black, 0 0 2px #030; }
     50%  { text-shadow: 1px 1px black, 0 0 10px #00ff00, 0 0 20px #00cc00; }
     100% { text-shadow: 1px 1px black, 0 0 2px #030; }
+}
+
+/* Haudasta nouseminen -animaatio — kun perutaan aloitus tai valmistuminen ☠️ */
+@keyframes zombieRise {
+    0%   { transform: translateY(20px); opacity: 0; background: rgba(30, 10, 0, 0.5); }
+    20%  { transform: translateY(10px); opacity: 0.4; background: rgba(40, 20, 0, 0.7); box-shadow: 0 0 20px #2a1800; }
+    40%  { transform: translateY(-4px); opacity: 0.7; background: rgba(50, 15, 0, 0.7); box-shadow: 0 0 15px #3d2200; }
+    55%  { transform: translateY(3px);  opacity: 0.85; }
+    70%  { transform: translateY(-2px); opacity: 0.95; background: rgba(35, 5, 0, 0.7); box-shadow: 0 0 8px #1a0f00; }
+    85%  { transform: translateY(1px);  opacity: 1; }
+    100% { transform: translateY(0);    opacity: 1; background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+}
+
+.task.anim-zombie-rise {
+    animation: zombieRise 0.9s ease-out;
 }
 
 /* ================================
