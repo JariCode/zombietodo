@@ -88,6 +88,36 @@ function attachTaskEvents() {
             if (action === 'edit') { openEditModal(id); return; } // Muokkausnappi avaa modalin eikä lähetä pyyntöä
             // Lähetetään toiminto palvelimelle POST-pyyntönä
             // CSRF-token lähetetään headerissa koska actions.php vaatii sen
+
+             // Veriroiske-animaatio kun tehtävä aloitetaan
+            if (action === 'start') {
+                const task = el.closest('.task');
+                task.classList.add('anim-blood-splash');
+                await new Promise(function(resolve) { setTimeout(resolve, 800); });
+            }
+
+            // Mullan heitto -animaatio kun tehtävä merkataan valmiiksi
+            if (action === 'done') {
+                const task = el.closest('.task');
+                task.classList.add('anim-grave-drop');
+                await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+            }
+
+            // Koko sivun veriroiske kun tehtävä poistetaan
+            if (action === 'delete') {
+                const overlay = document.getElementById('bloodOverlay');
+                const task = el.closest('.task');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                    overlay.offsetHeight;                   // Pakotetaan selain huomaamaan muutos
+                    overlay.classList.add('active');
+                }
+                task.style.transition = 'opacity 0.4s';
+                task.style.opacity = '0';
+                await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+                if (overlay) overlay.classList.remove('active');
+            }
+
             await fetch('app/actions.php?action=' + action + '&id=' + id, {
                 method: 'POST',
                 headers: {
@@ -126,15 +156,29 @@ function setupEnterKey() {
 // ===========================================================
 function setupFormSubmit() {
     const form = document.querySelector('form.input-area');
-    if (!form) return; // Jos lomaketta ei löydy, lopetetaan
+    if (!form) return;
     form.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Estetään lomakkeen normaali lähetys joka lataisi sivun uudelleen
+        e.preventDefault();
         await fetch('app/actions.php?action=add', {
             method: 'POST',
-            body: new FormData(e.target) // FormData kerää lomakkeen kentät automaattisesti
+            body: new FormData(e.target)
         });
-        e.target.reset();  // Tyhjennetään tekstikenttä lisäyksen jälkeen
-        refreshTasks();    // Päivitetään tehtävälista
+        e.target.reset();
+        refreshTasks();
+
+        // Onnistumisilmoitus tehtävän lisäyksen jälkeen
+        const existing = document.querySelector('.auth-success');
+        if (existing) existing.remove();
+        const msg = document.createElement('div');
+        msg.className = 'auth-success';
+        msg.textContent = 'Tehtävä lisätty! 🧟‍♂️';
+        const h1 = document.querySelector('h1');
+        h1.insertAdjacentElement('afterend', msg);
+        setTimeout(function() {
+            msg.style.transition = 'opacity 1s';
+            msg.style.opacity = '0';
+            setTimeout(function() { msg.remove(); }, 1000);
+        }, 3000);
     });
 }
 
@@ -204,16 +248,6 @@ async function saveEdit() {
     if (data.success) { closeEditModal(); refreshTasks(); } // Suljetaan modal ja päivitetään lista
     else { document.getElementById('modalError').textContent = '⚠️ Tallentaminen epäonnistui.'; }
 }
-
-// ===========================================================
-// KÄYNNISTYS
-// Kiinnitetään tapahtumat kun sivu on latautunut
-// ===========================================================
-attachTaskEvents(); // Kiinnitetään toimintonapit
-setupEnterKey();    // Kiinnitetään Enter-näppäin
-setupFormSubmit();  // Kiinnitetään lisäyslomake
-focusInput();       // Siirretään kursori lisäyskenttään
-setupEditModal();   // Kiinnitetään modalin toiminnot
 
 // ===========================================================
 // FLATPICKR — alustetaan VASTA kun modal avataan
@@ -353,3 +387,13 @@ async function openEditModal(id) {
         document.getElementById('editText').focus();// Siirretään fokus kuvauskenttään jotta käyttäjä voi heti alkaa kirjoittaa
     }, 50);
 }
+
+// ===========================================================
+// KÄYNNISTYS
+// Kiinnitetään tapahtumat kun sivu on latautunut
+// ===========================================================
+attachTaskEvents(); // Kiinnitetään toimintonapit
+setupEnterKey();    // Kiinnitetään Enter-näppäin
+setupFormSubmit();  // Kiinnitetään lisäyslomake
+focusInput();       // Siirretään kursori lisäyskenttään
+setupEditModal();   // Kiinnitetään modalin toiminnot

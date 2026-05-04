@@ -73,7 +73,9 @@ $doneTasks = $doneTasks->get_result();
     <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit. Tämä oltava viimeisenä -->
 </head>
 <body>
-
+    <!-- Veri-overlay — peittää sivun punaisella efektillä, käytetään kun tehtävä merkitään valmiiksi -->
+    <div class="blood-overlay" id="bloodOverlay"></div>
+    
     <!-- Veriantimaatio — valuu sivun yläreunasta ja häviää -->
     <div class="blood"></div>
 

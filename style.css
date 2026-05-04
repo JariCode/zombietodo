@@ -107,10 +107,12 @@ h1 {
 
 /* Virheilmoitus — näytetään punaisena tekstinä */
 .auth-error {
-    color: #ff4444;
+    color: #ff6600;
     text-align: center;
     margin-bottom: 15px;
-    font-size: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+    animation: errorPulse 1.8s infinite ease-in-out;
 }
 
 /* Onnistumisilmoitus — näytetään vihreänä tekstinä */
@@ -118,7 +120,23 @@ h1 {
     color: #aaffaa;
     text-align: center;
     margin-bottom: 15px;
-    font-size: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+    animation: successPulse 1.8s infinite ease-in-out;
+}
+
+/* Sykkivä hohde virheilmoitukselle — sama tyyli kuin bloodPulse */
+@keyframes errorPulse {
+    0%   { text-shadow: 1px 1px black, 0 0 4px #301a00; }
+    50%  { text-shadow: 1px 1px black, 0 0 15px #ff6600, 0 0 30px #ff6600, 0 0 50px #cc5500, 0 0 80px #993300; }
+    100% { text-shadow: 1px 1px black, 0 0 4px #301a00; }
+}
+
+/* Sykkivä vihreä hohde onnistumisilmoitukselle */
+@keyframes successPulse {
+    0%   { text-shadow: 1px 1px black, 0 0 2px #030; }
+    50%  { text-shadow: 1px 1px black, 0 0 10px #00ff00, 0 0 20px #00cc00; }
+    100% { text-shadow: 1px 1px black, 0 0 2px #030; }
 }
 
 /* ================================
@@ -333,8 +351,8 @@ button.link-btn:hover {
 .welcome-text {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #ff4444;
-    text-shadow: 1px 1px black;
+    color: #aaffaa;
+    animation: successPulse 1.8s infinite ease-in-out;
 }
 
 /* Navigointilinkkien ryhmä yläpalkissa */
@@ -469,13 +487,16 @@ button.link-btn:hover {
 /* Tehtävän teksti */
 .task-text {
     color: #ffdddd;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    font-weight:500;
 }
 
 /* Aikaleima — lisätty, aloitettu, valmis */
 .timestamp {
     color: #aa8888;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
 }
 
 /* Valmis tehtävä — yliviivattu teksti */
@@ -488,7 +509,7 @@ button.link-btn:hover {
 .actions {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     flex-shrink: 0;
     margin-left: 10px;
 }
@@ -498,7 +519,7 @@ button.link-btn:hover {
     border: none;
     padding: 0;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     line-height: 1;
 }
 
@@ -509,6 +530,70 @@ button.link-btn:hover {
 .actions button[data-action="undo_start"] { color: #ff4444; } /* Punainen — peru aloitus */
 .actions button[data-action="undo_done"]  { color: #ff4444; } /* Punainen — peru valmis  */
 .actions button[data-action="delete"]     { color: #d8d8d8; } /* Neutraali — poista     */
+
+/* Veriroiske-animaatio — kun tehtävä aloitetaan ⚔️ */
+@keyframes bloodSplash {
+    0%   { transform: translateX(0);   background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+    10%  { transform: translateX(-6px); background: rgba(180, 0, 0, 0.8); }
+    20%  { transform: translateX(6px);  background: rgba(200, 0, 0, 0.9); box-shadow: 0 0 20px #ff0000; }
+    30%  { transform: translateX(-4px); background: rgba(160, 0, 0, 0.8); box-shadow: 0 0 40px #cc0000; }
+    40%  { transform: translateX(4px);  background: rgba(120, 0, 0, 0.7); box-shadow: 0 0 30px #990000; }
+    50%  { transform: translateX(-2px); background: rgba(80, 0, 0, 0.7);  box-shadow: 0 0 20px #660000; }
+    70%  { transform: translateX(0);    background: rgba(50, 0, 0, 0.7);  box-shadow: 0 0 10px #330000; }
+    100% { transform: translateX(0);    background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+}
+
+.task.anim-blood-splash {
+    animation: bloodSplash 0.8s ease-out;
+}
+
+/* Mullan heitto -animaatio — kun tehtävä merkataan valmiiksi 🪦 */
+@keyframes graveDrop {
+    0%   { transform: translateY(0);    opacity: 1; background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+    30%  { transform: translateY(4px);  opacity: 0.9; background: rgba(40, 20, 0, 0.8); box-shadow: 0 0 15px #3d2200; }
+    60%  { transform: translateY(10px); opacity: 0.6; background: rgba(50, 30, 0, 0.8); box-shadow: 0 0 30px #2a1800; }
+    80%  { transform: translateY(16px); opacity: 0.3; background: rgba(40, 20, 0, 0.7); box-shadow: 0 0 20px #1a0f00; }
+    100% { transform: translateY(20px); opacity: 0;   background: rgba(30, 10, 0, 0.5); box-shadow: none; }
+}
+
+.task.anim-grave-drop {
+    animation: graveDrop 1s ease-in forwards;
+}
+
+/* Koko sivun veriroiske — kun tehtävä poistetaan 🗑 */
+.blood-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+}
+
+@keyframes bloodFlash {
+    0%   { opacity: 0; transform: scale(0.8); }
+    10%  { opacity: 1; transform: scale(1.1); }
+    30%  { opacity: 1; transform: scale(1); }
+    60%  { opacity: 0.7; }
+    100% { opacity: 0; }
+}
+
+.blood-overlay.active {
+    animation: bloodFlash 1.2s ease-out forwards;
+    background:
+        radial-gradient(ellipse at 50% 45%, rgba(180, 0, 0, 0.95), transparent 35%),
+        radial-gradient(ellipse at 30% 30%, rgba(150, 0, 0, 0.8), transparent 25%),
+        radial-gradient(ellipse at 75% 25%, rgba(200, 0, 0, 0.85), transparent 30%),
+        radial-gradient(ellipse at 20% 70%, rgba(130, 0, 0, 0.7), transparent 20%),
+        radial-gradient(ellipse at 80% 65%, rgba(160, 0, 0, 0.75), transparent 22%),
+        radial-gradient(ellipse at 55% 15%, rgba(170, 0, 0, 0.8), transparent 28%),
+        radial-gradient(ellipse at 10% 50%, rgba(140, 0, 0, 0.6), transparent 18%),
+        radial-gradient(ellipse at 90% 40%, rgba(160, 0, 0, 0.65), transparent 20%),
+        radial-gradient(circle at 40% 20%, rgba(220, 0, 0, 0.9), transparent 10%),
+        radial-gradient(circle at 65% 75%, rgba(200, 0, 0, 0.8), transparent 8%),
+        radial-gradient(circle at 15% 85%, rgba(180, 0, 0, 0.7), transparent 7%),
+        radial-gradient(circle at 85% 15%, rgba(190, 0, 0, 0.75), transparent 9%),
+        rgba(80, 0, 0, 0.4);
+}
 
 /* ================================
    4. MUOKKAUSMODAL
@@ -778,6 +863,11 @@ body.modal-open {
         font-size: 2rem;
     }
 
+    /* Tervetuloviesti pienemmäksi mobiilissa */
+    .welcome-text {
+        font-size: 1rem;
+    }
+
     /* Auth-lomakkeiden tekstit ja inputit pienemmiksi mobiilissa */
     .auth-box label {
         font-size: 0.9rem;
@@ -796,6 +886,11 @@ body.modal-open {
     }
 
     .auth-separator {
+        font-size: 1rem;
+    }
+
+    .auth-error,
+    .auth-success {
         font-size: 1rem;
     }
 
@@ -819,6 +914,22 @@ body.modal-open {
         grid-template-columns: 1fr;
     }
 
+    /* Tehtävän lisäyslomake allekkain mobiilissa */
+    .input-area {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-area input[type="text"],
+    .input-area button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input-area input[type="text"]::placeholder {
+        font-size: 0.6rem;
+    }
+
     /* Yläpalkki allekkain mobiilissa */
     .header-bar {
         flex-direction: column;
@@ -830,4 +941,15 @@ body.modal-open {
     .header-links {
         align-items: flex-start;
     }
+
+    /*Aikaleiman pienentäminen mobiilissa */
+    .timestamp {
+        font-size: 0.8rem;
+    }
+
+    /* Toimintonappien pienentäminen mobiilissa */
+    .actions button {
+        font-size: 1.2rem;
+    }
+
 }

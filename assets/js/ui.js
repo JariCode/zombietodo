@@ -49,7 +49,7 @@ document.querySelectorAll('.auth-error, .auth-success').forEach(function(msg) {
                 msg.parentNode.removeChild(msg); // Poistetaan elementti kokonaan DOM:sta
             }
         }, 1000); // Poistetaan 1 sekunnin häivytyksen jälkeen
-    }, 4000); // Odotetaan 4 sekuntia ennen häivytystä
+    }, 8000); // Odotetaan 8 sekuntia ennen häivytystä
 });
 
 // ===========================================================
