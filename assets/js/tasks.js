@@ -166,10 +166,28 @@ function setupFormSubmit() {
     if (!form) return;
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        await fetch('app/actions.php?action=add', {
+        const res = await fetch('app/actions.php?action=add', {
             method: 'POST',
             body: new FormData(e.target)
         });
+
+        const data = await res.json();
+
+        // Virheilmoitus jos tehtävän lisäys epäonnistui
+        if (!data.success) {
+            const oldErr = document.querySelector('.auth-error');
+            if (oldErr) oldErr.remove();
+            const err = document.createElement('div');
+            err.className = 'auth-error';
+            err.textContent = data.error || 'Tehtävän lisääminen epäonnistui.';
+            document.querySelector('h1').insertAdjacentElement('afterend', err);
+            setTimeout(function() {
+                err.style.transition = 'opacity 1s';
+                err.style.opacity = '0';
+                setTimeout(function() { err.remove(); }, 1000);
+            }, 3000);
+            return;
+        }
         e.target.reset();
         refreshTasks();
 
@@ -253,7 +271,7 @@ async function saveEdit() {
     });
     const data = await res.json();
     if (data.success) { closeEditModal(); refreshTasks(); } // Suljetaan modal ja päivitetään lista
-    else { document.getElementById('modalError').textContent = '⚠️ Tallentaminen epäonnistui.'; }
+    else { document.getElementById('modalError').textContent = '⚠️ ' + (data.error || 'Tallentaminen epäonnistui.'); }
 }
 
 // ===========================================================

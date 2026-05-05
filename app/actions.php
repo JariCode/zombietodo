@@ -377,6 +377,14 @@ function handleLogout() {
     session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
     session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
 
+    // Poistetaan eväste selaimesta asettamalla vanhenemisaika menneisyyteen
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+
+    // Käynnistetään uusi istunto onnistumisviestiä varten
+    session_start();
+    $_SESSION['success'] = 'Uloskirjautuminen onnistui. Nähdään taas! 🧟';
+
     header('Location: ../index.php'); // Ohjataan kirjautumissivulle
     exit;
 }
@@ -415,6 +423,13 @@ function handleTaskAction($action) {
     if ($action === 'add') {
         $task = trim($_POST['task'] ?? ''); // Luetaan teksti ja poistetaan välilyönnit reunoilta
         if ($task === '') { echo json_encode(['success' => false]); exit; } // Tyhjiä tehtäviä ei sallita
+
+          // Tarkistetaan ettei tehtävä ylitä tietokannan 255 merkin rajaa
+        if (mb_strlen($task) > 255) {
+            echo json_encode(['success' => false, 'error' => 'Tehtävä saa olla enintään 255 merkkiä.']);
+            exit;
+        }
+
         $stmt = $conn->prepare("INSERT INTO tasks (user_id, text, status, created_at) VALUES (?, ?, 'not_started', NOW())");
         $stmt->bind_param('is', $user_id, $task); // 'is' = integer, string
         $stmt->execute();
@@ -458,6 +473,24 @@ function handleTaskAction($action) {
             exit;
         }
 
+        // Tarkistetaan päivämäärien muoto — sallitaan vain tyhjä tai YYYY-MM-DD HH:MM
+        function isValidDatetime($val) {
+            if ($val === '') return true; // Tyhjä on ok — tarkoittaa ei asetettu
+            $d = DateTime::createFromFormat('Y-m-d H:i', $val);
+            return $d && $d->format('Y-m-d H:i') === $val; // Tarkistetaan että muoto täsmää
+        }
+
+        if (!isValidDatetime($started_at) || !isValidDatetime($done_at)) {
+            echo json_encode(['success' => false, 'error' => 'Virheellinen päivämäärä.']);
+            exit;
+        }
+
+        // Tarkistetaan ettei valmistumisaika ole ennen aloitusaikaa
+        if ($started_at !== '' && $done_at !== '' && $done_at < $started_at) {
+            echo json_encode(['success' => false, 'error' => 'Valmistumisaika ei voi olla ennen aloitusaikaa.']);
+            exit;
+        }
+        
         // Tyhjä arvo tallennetaan NULL:na tietokantaan — ei tallenneta tyhjää merkkijonoa
         $started_at = $started_at !== '' ? $started_at : null;
         $done_at    = $done_at    !== '' ? $done_at    : null;
