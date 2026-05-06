@@ -108,7 +108,7 @@ h1 {
 /* Virheilmoitus — näytetään oranssinena tekstinä */
 .auth-error {
     color: #ff6600;
-    text-align: center;
+    text-align: left;
     margin-bottom: 15px;
     font-size: 2rem;
     font-weight: bold;
@@ -118,12 +118,14 @@ h1 {
 /* Onnistumisilmoitus — näytetään vihreänä tekstinä */
 .auth-success {
     color: #aaffaa;
-    text-align: center;
+    text-align: left;
     margin-bottom: 15px;
     font-size: 2rem;
     font-weight: bold;
     animation: successPulse 1.8s infinite ease-in-out;
 }
+
+
 
 /* Sykkivä hohde virheilmoitukselle — sama tyyli kuin bloodPulse */
 @keyframes errorPulse {
@@ -137,21 +139,6 @@ h1 {
     0%   { text-shadow: 1px 1px black, 0 0 2px #030; }
     50%  { text-shadow: 1px 1px black, 0 0 10px #00ff00, 0 0 20px #00cc00; }
     100% { text-shadow: 1px 1px black, 0 0 2px #030; }
-}
-
-/* Haudasta nouseminen -animaatio — kun perutaan aloitus tai valmistuminen ☠️ */
-@keyframes zombieRise {
-    0%   { transform: translateY(20px); opacity: 0; background: rgba(30, 10, 0, 0.5); }
-    20%  { transform: translateY(10px); opacity: 0.4; background: rgba(40, 20, 0, 0.7); box-shadow: 0 0 20px #2a1800; }
-    40%  { transform: translateY(-4px); opacity: 0.7; background: rgba(50, 15, 0, 0.7); box-shadow: 0 0 15px #3d2200; }
-    55%  { transform: translateY(3px);  opacity: 0.85; }
-    70%  { transform: translateY(-2px); opacity: 0.95; background: rgba(35, 5, 0, 0.7); box-shadow: 0 0 8px #1a0f00; }
-    85%  { transform: translateY(1px);  opacity: 1; }
-    100% { transform: translateY(0);    opacity: 1; background: rgba(30, 0, 0, 0.7); box-shadow: none; }
-}
-
-.task.anim-zombie-rise {
-    animation: zombieRise 0.9s ease-out;
 }
 
 /* ================================
@@ -546,6 +533,18 @@ button.link-btn:hover {
 .actions button[data-action="undo_done"]  { color: #ff4444; } /* Punainen — peru valmis  */
 .actions button[data-action="delete"]     { color: #d8d8d8; } /* Neutraali — poista     */
 
+/* Uusi tehtävä ilmestyy — herää eloon 🧟‍♂️ */
+@keyframes zombieSpawn {
+    0%   { opacity: 0; transform: scale(0.8); box-shadow: 0 0 30px #00ff00; background: rgba(0, 80, 0, 0.6); }
+    30%  { opacity: 1; transform: scale(1.05); box-shadow: 0 0 20px #00cc00; background: rgba(0, 50, 0, 0.5); }
+    60%  { transform: scale(0.98); box-shadow: 0 0 10px #009900; background: rgba(0, 30, 0, 0.4); }
+    100% { transform: scale(1); box-shadow: none; background: rgba(30, 0, 0, 0.7); }
+}
+
+.task.anim-zombie-spawn {
+    animation: zombieSpawn 0.7s ease-out;
+}
+
 /* Veriroiske-animaatio — kun tehtävä aloitetaan ⚔️ */
 @keyframes bloodSplash {
     0%   { transform: translateX(0);   background: rgba(30, 0, 0, 0.7); box-shadow: none; }
@@ -608,6 +607,21 @@ button.link-btn:hover {
         radial-gradient(circle at 15% 85%, rgba(180, 0, 0, 0.7), transparent 7%),
         radial-gradient(circle at 85% 15%, rgba(190, 0, 0, 0.75), transparent 9%),
         rgba(80, 0, 0, 0.4);
+}
+
+/* Haudasta nouseminen -animaatio — kun perutaan aloitus tai valmistuminen ☠️ */
+@keyframes zombieRise {
+    0%   { transform: translateY(20px); opacity: 0; background: rgba(30, 10, 0, 0.5); }
+    20%  { transform: translateY(10px); opacity: 0.4; background: rgba(40, 20, 0, 0.7); box-shadow: 0 0 20px #2a1800; }
+    40%  { transform: translateY(-4px); opacity: 0.7; background: rgba(50, 15, 0, 0.7); box-shadow: 0 0 15px #3d2200; }
+    55%  { transform: translateY(3px);  opacity: 0.85; }
+    70%  { transform: translateY(-2px); opacity: 0.95; background: rgba(35, 5, 0, 0.7); box-shadow: 0 0 8px #1a0f00; }
+    85%  { transform: translateY(1px);  opacity: 1; }
+    100% { transform: translateY(0);    opacity: 1; background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+}
+
+.task.anim-zombie-rise {
+    animation: zombieRise 0.9s ease-out;
 }
 
 /* ================================

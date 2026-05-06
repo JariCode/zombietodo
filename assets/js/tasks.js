@@ -189,21 +189,14 @@ function setupFormSubmit() {
             return;
         }
         e.target.reset();
-        refreshTasks();
 
-        // Onnistumisilmoitus tehtävän lisäyksen jälkeen
-        const existing = document.querySelector('.auth-success');
-        if (existing) existing.remove();
-        const msg = document.createElement('div');
-        msg.className = 'auth-success';
-        msg.textContent = 'Tehtävä lisätty! 🧟‍♂️';
-        const h1 = document.querySelector('h1');
-        h1.insertAdjacentElement('afterend', msg);
-        setTimeout(function() {
-            msg.style.transition = 'opacity 1s';
-            msg.style.opacity = '0';
-            setTimeout(function() { msg.remove(); }, 1000);
-        }, 1000);
+        await refreshTasks();
+
+        // Animoidaan uusin tehtävä — ensimmäinen ei aloitetut -listassa
+        const newest = document.querySelector('.task-list .task');
+        if (newest) {
+            newest.classList.add('anim-zombie-spawn');
+        }
     });
 }
 
