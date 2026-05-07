@@ -44,6 +44,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'register': handleRegister(); break; // Jos action on 'register', kutsutaan rekisteröintifunktiota
     case 'login':    handleLogin();    break; // Jos action on 'login', kutsutaan kirjautumisfunktiota
     case 'logout':   handleLogout();   break; // Jos action on 'logout', kutsutaan uloskirjautumisfunktiota
+    case 'update_profile': handleUpdateProfile(); break; // Jos action on 'update_profile', kutsutaan profiilin päivitysfunktiota
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -386,6 +387,108 @@ function handleLogout() {
     $_SESSION['success'] = 'Uloskirjautuminen onnistui. Nähdään taas! 🧟';
 
     header('Location: ../index.php'); // Ohjataan kirjautumissivulle
+    exit;
+}
+
+// ===========================================================
+// PROFIILIN PÄIVITYS — käyttäjänimi ja sähköposti
+// ===========================================================
+function handleUpdateProfile() {
+    global $conn; // Otetaan tietokantayhteys käyttöön
+
+    // Tarkistetaan että pyyntö tulee lomakkeelta eikä suoraan osoitteesta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405); // 405 = Method Not Allowed
+        exit('Method Not Allowed');
+    }
+
+    // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse muokkaamaan profiilia
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Tarkistetaan CSRF-token — varmistetaan että pyyntö tulee oikealta sivulta
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403); // 403 = Forbidden — pääsy kielletty
+        $_SESSION['error'] = 'Turvallisuusvirhe. Yritä uudelleen.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    $uid = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
+
+    // Luetaan lomakkeen kentät ja siivotaan välilyönnit reunoilta
+    $username = trim($_POST['username'] ?? ''); // trim() poistaa turhat välilyönnit alusta ja lopusta
+    $email    = trim($_POST['email']    ?? ''); // ?? '' tarkoittaa: jos kenttä puuttuu, käytä tyhjää merkkijonoa
+
+    // Tarkistetaan että molemmat kentät on täytetty
+    if (empty($username) || empty($email)) {
+        $_SESSION['error'] = 'Täytä kaikki kentät.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan sähköpostin muoto — filter_var tarkistaa että se on oikea sähköpostiosoite
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error'] = 'Virheellinen sähköpostiosoite.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan käyttäjänimen pituus — pitää olla 3–30 merkkiä
+    if (strlen($username) < 3 || strlen($username) > 30) {
+        $_SESSION['error'] = 'Käyttäjänimen pituuden pitää olla 3–30 merkkiä.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan käyttäjänimen merkit — sallitaan vain kirjaimet, numerot, alaviiva ja viiva
+    // Sama regex kuin rekisteröinnissä — estää myös haitallisen syötteen
+    if (!preg_match('/^[a-zA-Z0-9_äöåÄÖÅ-]+$/u', $username)) {
+        $_SESSION['error'] = 'Käyttäjänimessä on kiellettyjä merkkejä. Sallittu: kirjaimet, numerot, - ja _';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan onko sähköposti jo käytössä toisella käyttäjällä
+    // AND id != ? jättää oman tilin pois hausta — saa pitää saman sähköpostin
+    $stmt = $conn->prepare('SELECT id FROM users WHERE email = ? AND id != ?');
+    $stmt->bind_param('si', $email, $uid); // 'si' = string, integer
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+        $_SESSION['error'] = 'Sähköposti on jo käytössä toisella käyttäjällä.';
+        $stmt->close();
+        header('Location: ../profile.php');
+        exit;
+    }
+    $stmt->close();
+
+    // Tarkistetaan onko käyttäjänimi jo käytössä toisella käyttäjällä
+    $stmt = $conn->prepare('SELECT id FROM users WHERE username = ? AND id != ?');
+    $stmt->bind_param('si', $username, $uid); // Oma tili jätetään pois hausta
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+        $_SESSION['error'] = 'Käyttäjänimi on jo käytössä toisella käyttäjällä.';
+        $stmt->close();
+        header('Location: ../profile.php');
+        exit;
+    }
+    $stmt->close();
+
+    // Päivitetään tiedot tietokantaan
+    $stmt = $conn->prepare('UPDATE users SET username = ?, email = ? WHERE id = ?');
+    $stmt->bind_param('ssi', $username, $email, $uid); // 'ssi' = string, string, integer
+    $stmt->execute();
+    $stmt->close();
+
+    // Päivitetään sessioon tallennettu käyttäjänimi — näkyy heti tervetuloviestissä ja yläpalkissa
+    $_SESSION['username'] = $username;
+
+    $_SESSION['success'] = 'Tiedot päivitetty onnistuneesti! 🧟';
+    header('Location: ../profile.php');
     exit;
 }
 

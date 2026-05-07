@@ -73,7 +73,7 @@ $email = $userData['email'] ?? '';
         <div class="header-bar">
             <span class="welcome-text">Tervetuloa, <?= htmlspecialchars($_SESSION['username']) ?>!</span> <!-- Näytetään kirjautuneen käyttäjän nimi turvallisesti -->
             <div class="header-links">
-                <a href="tasks.php" class="header-link">Takaisin&nbsp;☠️</a> <!-- Profiilisivulla tämä vie takaisin tehtävälistalle — tasks.php:ssä samassa paikassa on linkki profiilisivulle -->
+                <a href="tasks.php" class="header-link">Tehtävälista&nbsp;⚔️</a> <!-- Profiilisivulla tämä vie takaisin tehtävälistalle — tasks.php:ssä samassa paikassa on linkki profiilisivulle -->
                 <?php if (($_SESSION['role'] ?? '') === 'admin'): ?><!-- Näytetään admin-linkki vain jos käyttäjällä on admin-rooli -->
                     <a href="admin.php" class="header-link">Admin&#8209;paneeli&nbsp;⚙️</a>
                 <?php endif; ?>
