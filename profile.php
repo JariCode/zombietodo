@@ -69,6 +69,22 @@ $email = $userData['email'] ?? '';
         <!-- Herokuva — suuri kuva joka esittelee sovelluksen teeman -->
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" fetchpriority="high">
 
+        <!-- Yläpalkki — tervetuloviesti ja navigointilinkit. Sama rakenne kuin tasks.php:ssä -->
+        <div class="header-bar">
+            <span class="welcome-text">Tervetuloa, <?= htmlspecialchars($_SESSION['username']) ?>!</span> <!-- Näytetään kirjautuneen käyttäjän nimi turvallisesti -->
+            <div class="header-links">
+                <a href="tasks.php" class="header-link">Takaisin&nbsp;☠️</a> <!-- Profiilisivulla tämä vie takaisin tehtävälistalle — tasks.php:ssä samassa paikassa on linkki profiilisivulle -->
+                <?php if (($_SESSION['role'] ?? '') === 'admin'): ?><!-- Näytetään admin-linkki vain jos käyttäjällä on admin-rooli -->
+                    <a href="admin.php" class="header-link">Admin&#8209;paneeli&nbsp;⚙️</a>
+                <?php endif; ?>
+                <form method="POST" action="app/actions.php"> <!-- POST koska uloskirjautuminen muuttaa istunnon tilaa -->
+                    <input type="hidden" name="action" value="logout"> <!-- Toiminto POST-datana URL:n sijaan -->
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää ulkopuolisen kirjaamasta käyttäjän ulos -->
+                    <button type="submit" class="header-link">Kirjaudu&nbsp;ulos&nbsp;❌</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Pääotsikko -->
         <h1>ZOMBIE UPDATE</h1>
 
@@ -103,8 +119,6 @@ $email = $userData['email'] ?? '';
 
                 <button type="submit">Tallenna muutokset 🧠</button>
             </form>
-
-            <a href="tasks.php" class="header-link" style="display: inline-block; margin-top: 15px;">Takaisin&nbsp;☠️</a>
         </div>
 
         <!-- SALASANAN VAIHTO — Käyttäjä voi vaihtaa salasanansa -->
