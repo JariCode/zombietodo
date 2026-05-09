@@ -46,6 +46,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'logout':   handleLogout();   break; // Jos action on 'logout', kutsutaan uloskirjautumisfunktiota
     case 'update_profile': handleUpdateProfile(); break; // Jos action on 'update_profile', kutsutaan profiilin päivitysfunktiota
     case 'change_password': handleChangePassword(); break; // Jos action on 'change_password', kutsutaan salasanan vaihtofunktiota
+    case 'delete_account':  handleDeleteAccount();  break; // Jos action on 'delete_account', kutsutaan tilin poiston funktiota
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -624,6 +625,106 @@ function handleChangePassword() {
 
     $_SESSION['success'] = 'Salasana vaihdettu onnistuneesti! 🔐';
     header('Location: ../profile.php');
+    exit;
+}
+
+// ===========================================================
+// TILIN POISTO
+// ===========================================================
+function handleDeleteAccount() {
+    global $conn; // Otetaan tietokantayhteys käyttöön
+
+    // Tarkistetaan että pyyntö tulee lomakkeelta eikä suoraan osoitteesta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405); // 405 = Method Not Allowed
+        exit('Method Not Allowed');
+    }
+
+    // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse poistamaan tiliä
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Tarkistetaan CSRF-token — varmistetaan että pyyntö tulee oikealta sivulta
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403); // 403 = Forbidden — pääsy kielletty
+        $_SESSION['error'] = 'Turvallisuusvirhe. Yritä uudelleen.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    $uid = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
+
+    // Luetaan lomakkeen kentät
+    $confirm_username = trim($_POST['confirm_username'] ?? ''); // Käyttäjänimi vahvistukseksi
+    $confirm_email    = trim($_POST['confirm_email']    ?? ''); // Sähköposti vahvistukseksi
+    $confirm_password = $_POST['confirm_password']      ?? ''; // Salasanaa ei trimmata
+
+    // Tarkistetaan että kaikki kentät on täytetty
+    if (empty($confirm_username) || empty($confirm_email) || empty($confirm_password)) {
+        $_SESSION['error'] = 'Täytä kaikki kentät.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Haetaan käyttäjän tiedot tietokannasta
+    $stmt = $conn->prepare('SELECT username, email, password FROM users WHERE id = ?');
+    $stmt->bind_param('i', $uid); // 'i' = integer eli kokonaisluku
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
+    // Jos käyttäjää ei löydy tietokannasta — istunto on vanhentunut tai tili poistettu
+    if (!$user) {
+        session_unset();
+        session_destroy();
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Tarkistetaan että käyttäjänimi täsmää — käyttäjä vahvistaa henkilöllisyytensä
+    if ($confirm_username !== $user['username']) {
+        $_SESSION['error'] = 'Käyttäjänimi ei täsmää.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan että sähköposti täsmää
+    if ($confirm_email !== $user['email']) {
+        $_SESSION['error'] = 'Sähköposti ei täsmää.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan salasana — viimeinen vahvistus ennen pysyvää poistoa
+    if (!password_verify($confirm_password, $user['password'])) {
+        $_SESSION['error'] = 'Väärä salasana. Tiliä ei poistettu.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Poistetaan käyttäjä tietokannasta
+    // ON DELETE CASCADE poistaa automaattisesti myös käyttäjän tehtävät ja lokimerkinnät
+    $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $stmt->close();
+
+    // Tuhotaan istunto — sama koodi kuin handleLogout():ssa
+    session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
+    session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
+
+    // Poistetaan eväste selaimesta asettamalla vanhenemisaika menneisyyteen
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+
+    // Käynnistetään uusi istunto onnistumisviestiä varten
+    session_start();
+    $_SESSION['success'] = 'Tilisi on poistettu pysyvästi. Nähdään hautuumaalla. 💀';
+
+    header('Location: ../index.php'); // Ohjataan etusivulle jossa viesti näkyy
     exit;
 }
 
