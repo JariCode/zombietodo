@@ -489,6 +489,14 @@ function handleUpdateProfile() {
     // Päivitetään sessioon tallennettu käyttäjänimi — näkyy heti tervetuloviestissä ja yläpalkissa
     $_SESSION['username'] = $username;
 
+    // Kirjataan tapahtuma lokiin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_updated', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null; // Käyttäjän IP-osoite tapahtuman hetkellä
+    $stmt->bind_param('is', $uid, $ip); // 'is' = integer, string
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistumisviesti ja uudelleenohjaus profiilisivulle
     $_SESSION['success'] = 'Tiedot päivitetty onnistuneesti! 🧟';
     header('Location: ../profile.php');
     exit;
@@ -616,6 +624,13 @@ function handleChangePassword() {
     $stmt->execute();
     $stmt->close();
 
+     // Kirjataan tapahtuma lokiin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_updated', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null; // Käyttäjän IP-osoite tapahtuman hetkellä
+    $stmt->bind_param('is', $uid, $ip);
+    $stmt->execute();
+    $stmt->close();
+
     // Uudistetaan session ID salasanan vaihdon jälkeen turvallisuussyistä
     // Jos vanha istunto on vuotanut, se ei enää toimi
     session_regenerate_id(true); // true poistaa vanhan sessiotiedoston palvelimelta
@@ -704,6 +719,14 @@ function handleDeleteAccount() {
         header('Location: ../profile.php');
         exit;
     }
+
+    // Kirjataan tapahtuma lokiin ENNEN käyttäjän poistoa
+    // ON DELETE CASCADE poistaa myös tämän lokimerkinnän kun käyttäjä poistetaan
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_deleted_user', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('is', $uid, $ip);
+    $stmt->execute();
+    $stmt->close();
 
     // Poistetaan käyttäjä tietokannasta
     // ON DELETE CASCADE poistaa automaattisesti myös käyttäjän tehtävät ja lokimerkinnät
