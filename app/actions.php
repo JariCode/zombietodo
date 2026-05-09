@@ -232,6 +232,13 @@ function handleRegister() {
     $_SESSION['role']          = 'user';     // Rooli — oletuksena 'user'. Tarvitaan admin-toiminnoissa vaiheessa 3
     $_SESSION['last_activity'] = time();     // Käynnistetään timeout-laskuri. Aika tallennetaan sekunteina
 
+     // Kirjataan tapahtuma lokiin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'register', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('is', $newId, $ip); // $newId koska juuri luotu käyttäjä
+    $stmt->execute();
+    $stmt->close();
+
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
     exit;
@@ -359,6 +366,13 @@ function handleLogin() {
     // Näin estetään CSRF-tokenin uudelleenkäyttö kirjautumisen jälkeen
     generateCSRFToken(true); // true pakottaa uuden tokenin luomisen
 
+     // Kirjataan tapahtuma lokiin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'login', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('is', $user['id'], $ip); // $user['id'] koska haettu tietokannasta
+    $stmt->execute();
+    $stmt->close();
+
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
     exit;
@@ -368,6 +382,7 @@ function handleLogin() {
 // ULOSKIRJAUTUMINEN
 // ===========================================================
 function handleLogout() {
+   global $conn; // Otetaan tietokantayhteys käyttöön
 
     // Tarkistetaan CSRF-token — estää ulkopuolista kirjaamasta käyttäjän ulos
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
@@ -376,6 +391,15 @@ function handleLogout() {
         header('Location: ../index.php');
         exit;
     }
+
+     // Kirjataan tapahtuma lokiin ENNEN istunnon tuhoamista
+    // session_unset() tyhjentää $_SESSION['user_id'] joten lokitus pitää tehdä ensin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'logout', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $uid = intval($_SESSION['user_id']);
+    $stmt->bind_param('is', $uid, $ip);
+    $stmt->execute();
+    $stmt->close();
 
     session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
     session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
