@@ -45,6 +45,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'login':    handleLogin();    break; // Jos action on 'login', kutsutaan kirjautumisfunktiota
     case 'logout':   handleLogout();   break; // Jos action on 'logout', kutsutaan uloskirjautumisfunktiota
     case 'update_profile': handleUpdateProfile(); break; // Jos action on 'update_profile', kutsutaan profiilin päivitysfunktiota
+    case 'change_password': handleChangePassword(); break; // Jos action on 'change_password', kutsutaan salasanan vaihtofunktiota
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -488,6 +489,140 @@ function handleUpdateProfile() {
     $_SESSION['username'] = $username;
 
     $_SESSION['success'] = 'Tiedot päivitetty onnistuneesti! 🧟';
+    header('Location: ../profile.php');
+    exit;
+}
+
+// ===========================================================
+// SALASANAN VAIHTO
+// ===========================================================
+function handleChangePassword() {
+    global $conn; // Otetaan tietokantayhteys käyttöön
+
+    // Tarkistetaan että pyyntö tulee lomakkeelta eikä suoraan osoitteesta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405); // 405 = Method Not Allowed
+        exit('Method Not Allowed');
+    }
+
+    // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse vaihtamaan salasanaa
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Tarkistetaan CSRF-token — varmistetaan että pyyntö tulee oikealta sivulta
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403); // 403 = Forbidden — pääsy kielletty
+        $_SESSION['error'] = 'Turvallisuusvirhe. Yritä uudelleen.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    $uid = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
+
+    // Luetaan lomakkeen kentät — salasanoja ei trimmata koska välilyönti voi olla tarkoituksellinen
+    $old_password     = $_POST['old_password']  ?? '';
+    $new_password     = $_POST['new_password']  ?? '';
+    $new_password2    = $_POST['new_password2'] ?? '';
+
+    // Tarkistetaan että kaikki kolme kenttää on täytetty
+    if (empty($old_password) || empty($new_password) || empty($new_password2)) {
+        $_SESSION['error'] = 'Täytä kaikki kentät.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Haetaan nykyinen salasanahash tietokannasta
+    $stmt = $conn->prepare('SELECT password FROM users WHERE id = ?');
+    $stmt->bind_param('i', $uid); // 'i' = integer eli kokonaisluku
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
+    // Jos käyttäjää ei löydy tietokannasta — istunto on vanhentunut tai tili poistettu
+    if (!$user) {
+        session_unset();   // Tyhjennetään istunnon tiedot
+        session_destroy(); // Tuhotaan istunto palvelimelta
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Tarkistetaan vanha salasana — käyttäjä todistaa henkilöllisyytensä
+    if (!password_verify($old_password, $user['password'])) {
+        $_SESSION['error'] = 'Vanha salasana on väärin.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan ettei uusi salasana ole sama kuin vanha
+    if (password_verify($new_password, $user['password'])) {
+        $_SESSION['error'] = 'Uusi salasana ei saa olla sama kuin vanha salasana.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan salasanan pituus — pitää olla vähintään 10 merkkiä
+    if (strlen($new_password) < 10) {
+        $_SESSION['error'] = 'Salasanan pitää olla vähintään 10 merkkiä.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan että salasanassa on vähintään yksi iso kirjain (A-Z ja Ä, Ö, Å)
+    if (!preg_match('/[A-ZÄÖÅ]/u', $new_password)) {
+        $_SESSION['error'] = 'Salasanassa pitää olla vähintään yksi iso kirjain.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan että salasanassa on vähintään yksi pieni kirjain (a-z ja ä, ö, å)
+    if (!preg_match('/[a-zäöå]/u', $new_password)) {
+        $_SESSION['error'] = 'Salasanassa pitää olla vähintään yksi pieni kirjain.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan että salasanassa on vähintään yksi numero (0-9)
+    if (!preg_match('/[0-9]/', $new_password)) {
+        $_SESSION['error'] = 'Salasanassa pitää olla vähintään yksi numero.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan että salasanassa on vähintään yksi sallittu erikoismerkki
+    // Sama lista kuin rekisteröinnissä: ! @ # $ % ^ & * ( ) - _ = + ? . , ; : / \ | ~ ` ' "
+    if (!preg_match('/[!@#$%^&*()\-_=+?.,:;\\/|~`\'"]/', $new_password)) {
+        $_SESSION['error'] = 'Salasanassa pitää olla vähintään yksi erikoismerkki: ! @ # $ % ^ & * ( ) - _ = + ? . , ; : / | ~ ` \' "';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Tarkistetaan että uusi salasana ja sen toisto täsmäävät
+    if ($new_password !== $new_password2) {
+        $_SESSION['error'] = 'Uudet salasanat eivät täsmää.';
+        header('Location: ../profile.php');
+        exit;
+    }
+
+    // Hashataan uusi salasana — ei koskaan tallenneta selkokielisenä tietokantaan
+    $hash = password_hash($new_password, PASSWORD_DEFAULT);
+
+    // Tallennetaan uusi salasana tietokantaan
+    $stmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmt->bind_param('si', $hash, $uid); // 'si' = string, integer
+    $stmt->execute();
+    $stmt->close();
+
+    // Uudistetaan session ID salasanan vaihdon jälkeen turvallisuussyistä
+    // Jos vanha istunto on vuotanut, se ei enää toimi
+    session_regenerate_id(true); // true poistaa vanhan sessiotiedoston palvelimelta
+
+    // Luodaan uusi CSRF-token — vanha ei enää kelpaa uudistetun istunnon kanssa
+    generateCSRFToken(true); // true pakottaa uuden tokenin luomisen
+
+    $_SESSION['success'] = 'Salasana vaihdettu onnistuneesti! 🔐';
     header('Location: ../profile.php');
     exit;
 }
