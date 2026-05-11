@@ -1,17 +1,6 @@
 <?php
 // ================================
-// profile.php
-//
-// Tämä on profiilisivu — näkyy vain
-// kirjautuneelle käyttäjälle.
-//
-// Tällä sivulla käyttäjä voi:
-// - Muokata omia tietojaan
-// - Vaihtaa salasanaa
-// - Poistaa käyttäjätilinsä
-//
-// Kirjautumaton käyttäjä ohjataan
-// automaattisesti takaisin etusivulle.
+// profile.php — käyttäjän profiilisivu, jossa käyttäjä voi muuttaa tietojaan, vaihtaa salasanansa tai poistaa tilinsä
 // ================================
 require_once 'app/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
 require_once 'app/db.php';             // Tietokantayhteys $conn-muuttujaan

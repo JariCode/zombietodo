@@ -1,21 +1,6 @@
 <?php
 // ================================
-// db.php
-//
-// Tämä tiedosto yhdistää sovelluksen tietokantaan.
-// Siellä säilytetään
-// käyttäjät, tehtävät ja kirjautumistapahtumat.
-//
-// Tämä tiedosto myös:
-// - Lukee salasanat .env-tiedostosta eikä kirjoita
-//   niitä suoraan koodiin
-// - Huolehtii että vanhat lokimerkinnät siivotaan
-//   pois silloin tällöin
-// - Sisältää apufunktiot istunnon tarkistukseen
-//   ja turvatokenien luontiin
-//
-// Tietokantataulut luodaan erikseen install.php:llä
-// joka ajetaan kerran sovelluksen asennuksen yhteydessä.
+// db.php — tietokantayhteyden muodostaminen ja yleiset tietokanta-asetukset
 // ================================
 
 // ===========================================================

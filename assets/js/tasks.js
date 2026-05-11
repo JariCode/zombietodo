@@ -28,7 +28,7 @@ function getCSRF() {
 }
 
 // ===========================================================
-// TEHTÄVÄLISTAN PÄIVITYS AJAXilla
+// TEHTÄVÄLISTAN PÄIVITYS AJAXilla (Fetch API)
 // Hakee partial-tasks.php:ltä päivitetyn tehtävälistan
 // ja korvaa sivun sisällön sillä ilman sivulatausta
 // ===========================================================
@@ -76,7 +76,7 @@ async function refreshTasks() {
 // ===========================================================
 // TOIMINTANAPIT
 // Kiinnitetään kaikille tehtävänapeille click-tapahtuma
-// Nappi lähettää AJAXilla toiminnon palvelimelle ja päivittää listan
+// Nappi lähettää AJAXilla (Fetch API) toiminnon palvelimelle ja päivittää listan
 // ===========================================================
 function attachTaskEvents() {
     document.querySelectorAll('.actions button').forEach(function(el) {
@@ -125,6 +125,7 @@ function attachTaskEvents() {
                 if (overlay) overlay.classList.remove('active');
             }
 
+            // Lähetetään  Token ja data palvelimelle
             await fetch('app/actions.php?action=' + action + '&id=' + id, {
                 method: 'POST',
                 headers: {
@@ -212,8 +213,9 @@ function focusInput() {
 }
 
 // ===========================================================
-// MUOKKAUSMODAL
-// Modal avautuu kun käyttäjä klikkaa ✏️-nappia
+// MUOKKAUSMODAL — ALUSTUS
+// Kiinnitetään modalin sulku- ja tallennusnapit
+// Tämä ajetaan kerran sivun latautuessa
 // ===========================================================
 let currentEditId = null; // Muokattavan tehtävän id — let koska arvo muuttuu aina kun modal avataan
 

@@ -1,18 +1,6 @@
 <?php
 // ================================
-// tasks.php
-//
-// Tämä on tehtäväsivu — näkyy vain
-// kirjautuneelle käyttäjälle.
-//
-// Tällä sivulla käyttäjä voi:
-// - Nähdä kaikki omat tehtävänsä
-// - Lisätä uusia tehtäviä
-// - Muokata, poistaa ja muuttaa
-//   tehtävien tilaa
-//
-// Kirjautumaton käyttäjä ohjataan
-// automaattisesti takaisin etusivulle.
+// tasks.php - Tehtävien hallintasivu, jossa käyttäjät näkevät ja hallitsevat omia tehtäviään
 // ================================
 require_once 'app/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
 require_once 'app/db.php';             // Tietokantayhteys $conn-muuttujaan
