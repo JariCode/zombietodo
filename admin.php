@@ -1,16 +1,6 @@
 <?php
 // ================================
 // admin.php — hallintasivu, jonne vain admin-käyttäjät pääsevät
-//
-// Sisältää:
-// - Käyttäjälista hakukentällä ja roolisuodattimella
-// - Muokkausmodal: käyttäjänimen, sähköpostin ja roolin vaihto
-// - Muokkausmodal: salasanan palautuslinkin lähetys
-// - Muokkausmodal: käyttäjän tilin poisto
-// - Lokitapahtumat suodattimella ja päivämäärähauilla
-//
-// Kaikki toiminnot lähetetään POST-pyyntönä
-// actions.php:lle CSRF-tokenin kanssa.
 // ================================
 
 require_once 'app/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
@@ -48,26 +38,84 @@ function clean($v) { return htmlspecialchars($v ?? '', ENT_QUOTES, 'UTF-8'); }
 $adminId = intval($_SESSION['user_id']); // intval muuttaa arvon kokonaisluvuksi — suojaa SQL-injektiolta
 
 // ===========================================================
-// HAETAAN KAIKKI KÄYTTÄJÄT TIETOKANNASTA
+// HAETAAN KÄYTTÄJÄT TIETOKANNASTA
+// Admin voi suodattaa käyttäjiä nimen/emailin ja roolin perusteella
+// Suodattimet lähetetään POST-lomakkeella CSRF-tokenin kanssa
 // ===========================================================
-$stmt = $conn->prepare("
+
+// Alustetaan suodattimet tyhjiksi — täytetään vain jos lomake on lähetetty
+$filterSearch = ''; // Käyttäjänimi/email-suodatin — tyhjä = kaikki
+$filterRole   = ''; // Rooli-suodatin — tyhjä = kaikki
+
+// Luetaan suodattimet POST-parametreista vain jos lomake on lähetetty ja CSRF-token on validi
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_filter'])) {
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) { // Tarkistetaan CSRF-token
+        $_SESSION['error'] = 'Virheellinen CSRF-token.';
+        header('Location: admin.php');
+        exit;
+    }
+    $filterSearch = $_POST['user_search'] ?? ''; // Käyttäjänimi/email POST-datasta
+    $filterRole   = $_POST['user_role']   ?? ''; // Rooli POST-datasta
+}
+
+// Rakennetaan WHERE-ehto dynaamisesti suodattimien perusteella
+$userWhere  = "WHERE 1=1"; // 1=1 mahdollistaa AND-ehtojen lisäämisen helposti
+$userParams = []; // Prepared statementin parametrit
+$userTypes  = ''; // Parametrityypit bind_param-funktiota varten
+
+// Lisätään hakusuodatin jos annettu — etsii käyttäjänimestä TAI emailista
+if ($filterSearch !== '') {
+    $userWhere   .= " AND (username LIKE ? OR email LIKE ?)"; // Etsii molemmista
+    $searchTerm = '%' . $filterSearch . '%'; // Prosenttisignit SQL LIKE:lle
+    $userParams[] = $searchTerm;
+    $userParams[] = $searchTerm;
+    $userTypes   .= 'ss'; // Kaksi stringiä
+}
+
+// Lisätään rooli-suodatin jos valittu
+if ($filterRole !== '') {
+    $userWhere   .= " AND role = ?";
+    $userParams[] = $filterRole;
+    $userTypes   .= 's';
+}
+
+// Haetaan käyttäjät — korkeintaan 200, järjestetty uusimmasta vanhimpaan
+$userStmt = $conn->prepare("
     SELECT id, username, email, role, created_at
     FROM users
+    $userWhere
     ORDER BY created_at DESC
+    LIMIT 200
 ");
-$stmt->execute();
-$users = $stmt->get_result(); // Haetaan kyselyn tulos käsiteltäväksi
-$stmt->close();
+if (!empty($userParams)) { // Sidotaan parametrit vain jos suodattimia on käytössä
+    $userStmt->bind_param($userTypes, ...$userParams); // Spread-operaattori purkaa taulukon
+}
+$userStmt->execute();
+$users = $userStmt->get_result();
+$userStmt->close();
 
 // ===========================================================
 // HAETAAN LOKITAPAHTUMAT TIETOKANNASTA
 // Admin voi suodattaa tapahtumia tyypillä ja päivämäärällä
+// Suodattimet lähetetään POST-lomakkeella CSRF-tokenin kanssa
 // ===========================================================
 
-// Luetaan suodattimet GET-parametreista — lomake lähettää ne osoitteen perässä
-$filterEvent = $_GET['log_event'] ?? ''; // Tapahtumatyyppisuodatin — tyhjä = kaikki
-$filterFrom  = $_GET['log_from']  ?? ''; // Alkamispäivämäärä — tyhjä = ei rajausta
-$filterTo    = $_GET['log_to']    ?? ''; // Loppumispäivämäärä — tyhjä = ei rajausta
+// Alustetaan suodattimet tyhjiksi — täytetään vain jos lomake on lähetetty
+$filterEvent = ''; // Tapahtumatyyppisuodatin — tyhjä = kaikki
+$filterFrom  = ''; // Alkamispäivämäärä — tyhjä = ei rajausta
+$filterTo    = ''; // Loppumispäivämäärä — tyhjä = ei rajausta
+
+// Luetaan suodattimet POST-parametreista vain jos lomake on lähetetty ja CSRF-token on validi
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['log_filter'])) {
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) { // Tarkistetaan CSRF-token — estää ulkopuolisen lomakkeen väärennöksen
+        $_SESSION['error'] = 'Virheellinen CSRF-token.';
+        header('Location: admin.php');
+        exit;
+    }
+    $filterEvent = $_POST['log_event'] ?? ''; // Tapahtumatyyppisuodatin POST-datasta
+    $filterFrom  = $_POST['log_from']  ?? ''; // Alkamispäivämäärä POST-datasta
+    $filterTo    = $_POST['log_to']    ?? ''; // Loppumispäivämäärä POST-datasta
+}
 
 // Rakennetaan WHERE-ehto dynaamisesti suodattimien perusteella
 $logWhere  = "WHERE 1=1"; // 1=1 mahdollistaa AND-ehtojen lisäämisen helposti
@@ -189,54 +237,65 @@ $eventLabels = [
         <?php endif; ?>
 
         <!-- ============================================================ -->
-        <!-- KÄYTTÄJÄLISTA — hakukenttä, roolisuodatin ja taulukko        -->
-        <!-- Käyttää auth-box-tyyliä laatikkona ja inputeille             -->
+        <!-- KÄYTTÄJÄLISTA — hakusuodatin, roolisuodatin ja taulukko      -->
+        <!-- Käyttää samaa POST-lomakerakennetta kuin lokitapahtumat      -->
         <!-- ============================================================ -->
         <div class="auth-box">
             <h2 class="auth-title">Käyttäjälista 🧟</h2>
 
-            <!-- Hakukenttä — auth-box input -tyyli, suodattaa taulukkoa JavaScriptillä -->
-            <input type="text" id="userSearch" placeholder="Hae käyttäjänimellä tai sähköpostilla..." autocomplete="off">
+            <!-- Käyttäjäsuodatuslomake — lähetetään POST-pyyntönä samalle sivulle -->
+            <form method="POST" action="admin.php">
+                <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>">
+                <input type="hidden" name="user_filter" value="1"> <!-- Tunnistetaan käyttäjäsuodatuslomake muista POST-pyynnöistä -->
 
-            <!-- Roolisuodatin — vaalea alasvetovalikko, suodattaa taulukkoa JavaScriptillä -->
-            <select id="roleFilter" class="admin-select">
-                <option value="">Kaikki roolit</option>
-                <option value="user">Käyttäjä</option>
-                <option value="admin">Admin</option>
-            </select>
+                <!-- Hakukenttä — etsii käyttäjänimestä ja emailista -->
+                <input type="text" name="user_search" placeholder="Hae käyttäjänimellä tai sähköpostilla..." value="<?= clean($filterSearch) ?>" autocomplete="off">
 
-            <!-- HAE-nappi käyttäjälistalle -->
-            <button type="button" id="userSearchBtn">HAE 💀</button>
+                <!-- Roolisuodatin — vaalea alasvetovalikko -->
+                <select name="user_role" class="admin-select">
+                    <option value="">Kaikki roolit</option>
+                    <option value="user" <?= $filterRole === 'user' ? 'selected' : '' ?>>Käyttäjä</option>
+                    <option value="admin" <?= $filterRole === 'admin' ? 'selected' : '' ?>>Admin</option>
+                </select>
 
-            <!-- Käyttäjätaulukko -->
-            <table class="admin-table" id="userTable">
-                <thead>
-                    <tr>
-                        <th>Käyttäjänimi</th>
-                        <th>Sähköposti</th>
-                        <th>Rooli</th>
-                        <th>Toiminnot</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($user = $users->fetch_assoc()): ?>
-                        <tr data-role="<?= clean($user['role']) ?>"
-                            data-id="<?= intval($user['id']) ?>"
-                            data-username="<?= clean($user['username']) ?>"
-                            data-email="<?= clean($user['email']) ?>">
-                            <td><?= clean($user['username']) ?></td>
-                            <td><?= clean($user['email']) ?></td>
-                            <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>">
-                                <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
-                            </td>
-                            <td>
-                                <!-- Muokkausnappi avaa modalin — data-id kertoo minkä käyttäjän tiedot ladataan -->
-                                <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">MUOKKAA 🪓</button>
-                            </td>
+                <!-- Hae-nappi — auth-box button -tyyli, punainen ja täysleveä -->
+                <button type="submit">HAE 💀</button>
+            </form>
+
+            <!-- Käyttäjätaulukko scrollaavassa divissä — otsikkorivi pysyy paikallaan -->
+            <div class="admin-user-scroll">
+                <table class="admin-table" id="userTable">
+                    <thead>
+                        <tr>
+                            <th>Käyttäjänimi</th>
+                            <th>Sähköposti</th>
+                            <th>Rooli</th>
+                            <th>Toiminnot</th>
                         </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if ($users->num_rows === 0): ?>
+                            <tr>
+                                <td colspan="4" class="admin-empty">Ei käyttäjiä.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php while ($user = $users->fetch_assoc()): ?>
+                                <tr data-id="<?= intval($user['id']) ?>">
+                                    <td><?= clean($user['username']) ?></td>
+                                    <td><?= clean($user['email']) ?></td>
+                                    <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>">
+                                        <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
+                                    </td>
+                                    <td>
+                                        <!-- Muokkausnappi avaa modalin — data-id kertoo minkä käyttäjän tiedot ladataan -->
+                                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">MUOKKAA 🪓</button>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div><!-- .admin-user-scroll loppuu -->
         </div><!-- .auth-box käyttäjälista loppuu -->
 
         <!-- ============================================================ -->
@@ -245,8 +304,10 @@ $eventLabels = [
         <div class="auth-box">
             <h2 class="auth-title">Lokitapahtumat 📋</h2>
 
-            <!-- Lokisuodatuslomake — lähetetään GET-pyyntönä samalle sivulle -->
-            <form method="GET" action="admin.php">
+            <!-- Lokisuodatuslomake — lähetetään POST-pyyntönä samalle sivulle -->
+           <form method="POST" action="admin.php">
+                <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>">
+                <input type="hidden" name="log_filter" value="1"> <!-- Tunnistetaan lokisuodatuslomake muista POST-pyynnöistä -->
 
                 <!-- Tapahtumatyyppisuodatin — vaalea alasvetovalikko -->
                 <select name="log_event" class="admin-select">
