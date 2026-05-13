@@ -11,7 +11,8 @@
    2. KIRJAUTUMISSIVU    — lomakkeet, inputit, napit, checkbox
    3. TEHTÄVÄSIVU        — header-bar, tehtävät, toimintonapit
    4. MUOKKAUSMODAL      — modal, footer, virheviesti
-   5. RESPONSIIVISUUS    — mobiili media query
+   5. ADMIN-PANEELI     — admin.php taulukot, dropdown, modal, lokiscroll
+   6. RESPONSIIVISUUS    — mobiili media query
    ================================ */
 
 /* ================================
@@ -859,7 +860,225 @@ body.modal-open {
 }
 
 /* ================================
-   5. RESPONSIIVISUUS
+   5. ADMIN-PANEELI
+   admin.php — vain tyylit joita ei
+   löydy muualta sovelluksesta.
+
+   Nämä tyylit perii muualta:
+   - .auth-box       → laatikon pohja
+   - .auth-box input → syöttökentät
+   - .auth-box button → HAE-nappi
+   - .auth-box label → kenttien otsikot
+   - .auth-title     → osio-otsikot
+   - .modal-*        → muokkausmodal
+   ================================ */
+
+/* Sykkivä punainen hohto admin-sivun syöttökentille — sama efekti kuin tehtävän lisäyskentässä */
+.admin-page .auth-box input {
+    animation: bloodPulse 1.8s infinite ease-in-out;
+}
+
+/* Placeholder-teksti samalla fontilla ja himmeällä värillä */
+.admin-page .auth-box input::placeholder {
+    font-family: 'Courier New', monospace;
+    color: #885555;
+}
+
+/* Alasvetovalikko — vaalea tausta tummalla tekstillä, sovelluksen ainoa select-tyyli */
+.admin-select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: #f5f5f5;
+    border: 2px solid #660000;
+    color: #222;
+    font-size: 1rem;
+    font-family: 'Courier New', monospace;
+    border-radius: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+    appearance: none; /* Poistetaan selaimen oletustyyli */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23660000' stroke-width='2' fill='none'/%3E%3C/svg%3E"); /* Punainen nuoli-ikoni */
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px; /* Tilaa nuoli-ikonille */
+}
+
+/* Taulukon perustyyli */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.95rem;
+}
+
+/* Taulukon otsikkorivi — punainen teksti, tumma tausta */
+.admin-table thead th {
+    color: #ff4444;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-align: left;
+    padding: 10px 8px;
+    border: 1px solid #660000;
+    background: rgba(40, 0, 0, 0.6);
+    text-shadow: 1px 1px black;
+}
+
+/* Taulukon solut */
+.admin-table tbody td {
+    padding: 10px 8px;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    vertical-align: middle;
+    word-break: break-word;
+}
+
+/* Parilliset rivit hieman vaaleammat — helpompi lukea */
+.admin-table tbody tr:nth-child(even) {
+    background: rgba(30, 0, 0, 0.4);
+}
+
+/* Käyttäjätaulukon rooli- ja toiminnot-sarakkeet: kiinteä leveys, ei rivinvaihtoa */
+#userTable thead th:nth-child(3),
+#userTable tbody td:nth-child(3) {
+    width: 72px;
+    white-space: nowrap;
+}
+
+#userTable thead th:nth-child(4),
+#userTable tbody td:nth-child(4) {
+    width: 132px;
+    white-space: nowrap;
+}
+
+/* Roolin värikoodaus taulukossa */
+.role-admin { color: #ff6644; font-weight: bold; } /* Oranssinpunainen adminille */
+.role-user  { color: #aaaaaa; }                    /* Harmaa tavalliselle käyttäjälle */
+
+/* Tyhjä taulukko — kursivoitu viesti keskellä */
+.admin-empty {
+    text-align: center;
+    color: #aa6666;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* MUOKKAA-nappi — pieni inline-nappi taulukon solussa, ei täysleveä kuten auth-box button */
+.admin-btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    padding: 8px 12px;
+    border: none;
+    font-family: Impact, sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #990000;
+    color: #fff;
+    width: auto; /* Ohittaa auth-box buttonin width: 100% */
+}
+
+.admin-btn-edit:hover {
+    background: #cc0000;
+    box-shadow: 0 0 10px rgba(200, 0, 0, 0.5);
+}
+
+/* Kaksi päivämääräkenttää vierekkäin — grid-asettelu */
+.admin-date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* Päivämääräkenttien otsikko — punainen ja lihavoitu, eroaa auth-box labelin väristä */
+.admin-date-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ff4444;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-shadow: 1px 1px black;
+}
+
+/* Osion erotin modalin sisällä — viiva salasanan palautuksen ja tilin poiston välissä */
+.admin-modal-section {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #550000;
+}
+
+/* Osion otsikko modalin sisällä — esim. "Unohtunut salasana" ja "Tilin poistaminen" */
+.admin-section-title {
+    font-family: Impact, sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: #ff4444;
+    text-shadow: 1px 1px black;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+}
+
+/* Punainen korostus tilin poiston otsikolle */
+.admin-section-danger {
+    color: #ff2222;
+}
+
+/* Varoitusteksti ennen tilin poistoa — oranssi erottuu muusta tekstistä */
+.admin-delete-warning {
+    color: #ff8844;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 10px 0 0 0;
+    text-shadow: 1px 1px black;
+}
+
+/* POISTA-nappi — erottuu TALLENNA-napista punaisemmalla sävyllä */
+.admin-btn-danger {
+    background: #aa0000 !important;
+}
+
+.admin-btn-danger:hover {
+    background: #dd0000 !important;
+    box-shadow: 0 0 15px rgba(220, 0, 0, 0.6);
+}
+
+/* Admin-modalin sisäiset footerit — ei yläviivaa, tiivistetty ilman sivupaddingia */
+#adminModal .modal-footer {
+    padding: 14px 0 0 0;
+    border-top: none;
+}
+
+/* Readonly-kentät modalissa — hieman himmennetty erottamaan muokattavista */
+#adminModal .modal-body input[readonly] {
+    opacity: 0.8;
+    cursor: default;
+}
+
+/* Lokitaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
+.admin-log-scroll {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-top: 12px;
+    border: 1px solid #440000;
+}
+
+/* Otsikkorivi pysyy paikallaan kun taulukkoa skrollataan */
+.admin-log-scroll .admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* ================================
+   6. RESPONSIIVISUUS
    Mukautuu eri näyttökokoihin.
    Tavoitteena toimia sekä
    tietokoneella että mobiilissa.
@@ -973,6 +1192,50 @@ body.modal-open {
     /* Toimintonappien pienentäminen mobiilissa */
     .actions button {
         font-size: 1.2rem;
+    }
+
+    /* Admin-taulukon otsikot pienemmiksi mobiilissa */
+    .admin-table thead th {
+        font-size: 0.75rem;
+        padding: 4px 3px;
+        letter-spacing: 0;
+    }
+
+    /* Admin-taulukon solut pienemmiksi mobiilissa */
+    .admin-table tbody td {
+        padding: 4px 3px;
+        font-size: 0.7rem;
+    }
+
+    /* Käyttäjätaulukon sarakkeet kapeammiksi mobiilissa */
+    #userTable thead th:nth-child(1),
+    #userTable tbody td:nth-child(1) { width: 40px; }
+
+    #userTable thead th:nth-child(2),
+    #userTable tbody td:nth-child(2) { width: 50px; }
+
+    #userTable thead th:nth-child(3),
+    #userTable tbody td:nth-child(3) { width: 35px; }
+
+    #userTable thead th:nth-child(4),
+    #userTable tbody td:nth-child(4) { width: 60px; }
+
+    /* MUOKKAA-nappi pienemmäksi mobiilissa */
+    .auth-box .admin-btn-edit {
+        font-size: 0.75rem;
+        padding: 10px 2px;
+        gap: 1px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Päivämääräkentät allekkain mobiilissa */
+    .admin-date-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Alasvetovalikko pienemmäksi mobiilissa */
+    .admin-select {
+        font-size: 0.9rem;
     }
 
 }
