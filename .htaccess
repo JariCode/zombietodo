@@ -1,0 +1,72 @@
+# ================================
+# .htaccess — Turvapoikkeamat
+# ================================
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    #########################################################
+    # 1) SALLI actions.php:
+    #    - POST-pyynnöt (lomakkeet)
+    #    - DELETE-pyynnöt (AJAX/fetch)
+    #    - Estä GET-pyynnöt kokonaan
+    #########################################################
+    RewriteCond %{REQUEST_METHOD} ^(POST|DELETE)$
+    RewriteRule ^app/actions\.php$ - [L]
+
+    RewriteCond %{REQUEST_METHOD} ^GET$
+    RewriteCond %{HTTP_ACCEPT} text/html
+    RewriteRule ^app/actions\.php$ - [F,L]
+
+    #########################################################
+    # 2) ESTÄ partial-tasks.php suora selainpyyntö
+    #########################################################
+    RewriteCond %{HTTP_ACCEPT} text/html
+    RewriteCond %{THE_REQUEST} \.php
+    RewriteRule ^app/partial-tasks\.php$ - [F,L]
+
+    #########################################################
+    # 3) ESTÄ muut app/-kansion PHP-tiedostot selaimelta
+    #########################################################
+    RewriteCond %{HTTP_ACCEPT} text/html
+    RewriteCond %{THE_REQUEST} \.php
+    RewriteRule ^app/.*\.php$ - [F,L]
+
+</IfModule>
+
+#########################################################
+# 5) Estä .env aina
+#########################################################
+<Files ".env">
+    Require all denied
+</Files>
+
+#########################################################
+# 5b) Estä .htaccess itse
+#########################################################
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+#########################################################
+# 6) Estä db.php suora HTTP-pyyntö
+#########################################################
+<Files "db.php">
+    Require all denied
+</Files>
+
+#########################################################
+# 7) Turvalliset HTTP-headerit staattisille tiedostoille
+#########################################################
+<IfModule mod_headers.c>
+    <FilesMatch "\.js$">
+        Header set Content-Type "application/javascript; charset=UTF-8"
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+
+    <FilesMatch "\.css$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>

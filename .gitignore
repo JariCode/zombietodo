@@ -11,9 +11,6 @@
 # Salasanat ja tietokanta-asetukset — ei koskaan nettiin
 .env
 
-# Palvelimen reititysasetukset — ei tarvita GitHubissa
-.htaccess
-
 # Ulkopuoliset lisäosat — jokainen lataa ne itse omalle koneelleen
 /vendor/
 
