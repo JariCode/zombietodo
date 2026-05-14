@@ -233,9 +233,9 @@ function handleRegister() {
     $_SESSION['last_activity'] = time();     // Käynnistetään timeout-laskuri. Aika tallennetaan sekunteina
 
      // Kirjataan tapahtuma lokiin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'register', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'register', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-    $stmt->bind_param('is', $newId, $ip); // $newId koska juuri luotu käyttäjä
+    $stmt->bind_param('iss', $newId, $username, $ip); // $newId koska juuri luotu käyttäjä
     $stmt->execute();
     $stmt->close();
 
@@ -367,9 +367,9 @@ function handleLogin() {
     generateCSRFToken(true); // true pakottaa uuden tokenin luomisen
 
      // Kirjataan tapahtuma lokiin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'login', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'login', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-    $stmt->bind_param('is', $user['id'], $ip); // $user['id'] koska haettu tietokannasta
+    $stmt->bind_param('iss', $user['id'], $user['username'], $ip); // $user['id'] koska haettu tietokannasta
     $stmt->execute();
     $stmt->close();
 
@@ -394,10 +394,11 @@ function handleLogout() {
 
      // Kirjataan tapahtuma lokiin ENNEN istunnon tuhoamista
     // session_unset() tyhjentää $_SESSION['user_id'] joten lokitus pitää tehdä ensin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'logout', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'logout', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
     $uid = intval($_SESSION['user_id']);
-    $stmt->bind_param('is', $uid, $ip);
+    $username = $_SESSION['username'];
+    $stmt->bind_param('iss', $uid, $username, $ip);
     $stmt->execute();
     $stmt->close();
 
@@ -514,9 +515,9 @@ function handleUpdateProfile() {
     $_SESSION['username'] = $username;
 
     // Kirjataan tapahtuma lokiin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_updated', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'account_updated', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null; // Käyttäjän IP-osoite tapahtuman hetkellä
-    $stmt->bind_param('is', $uid, $ip); // 'is' = integer, string
+    $stmt->bind_param('iss', $uid, $username, $ip); // 'iss' = integer, string, string
     $stmt->execute();
     $stmt->close();
 
@@ -649,9 +650,10 @@ function handleChangePassword() {
     $stmt->close();
 
      // Kirjataan tapahtuma lokiin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_updated', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'password_changed', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null; // Käyttäjän IP-osoite tapahtuman hetkellä
-    $stmt->bind_param('is', $uid, $ip);
+    $username = $_SESSION['username'];
+    $stmt->bind_param('iss', $uid, $username, $ip);
     $stmt->execute();
     $stmt->close();
 
@@ -744,16 +746,16 @@ function handleDeleteAccount() {
         exit;
     }
 
-    // Kirjataan tapahtuma lokiin ENNEN käyttäjän poistoa
-    // ON DELETE CASCADE poistaa myös tämän lokimerkinnän kun käyttäjä poistetaan
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_deleted_user', ?)");
+   // Kirjataan tapahtuma lokiin ENNEN käyttäjän poistoa
+    // ON DELETE SET NULL muuttaa user_id:n NULL:ksi mutta lokimerkintä ja username säilyvät
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'account_deleted_user', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-    $stmt->bind_param('is', $uid, $ip);
+    $stmt->bind_param('iss', $uid, $user['username'], $ip);
     $stmt->execute();
     $stmt->close();
 
     // Poistetaan käyttäjä tietokannasta
-    // ON DELETE CASCADE poistaa automaattisesti myös käyttäjän tehtävät ja lokimerkinnät
+    // ON DELETE CASCADE poistaa käyttäjän tehtävät, ON DELETE SET NULL säilyttää lokimerkinnät
     $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
     $stmt->bind_param('i', $uid);
     $stmt->execute();
@@ -971,3 +973,28 @@ function handleTaskAction($action) {
     header('Location: ../index.php');
     exit;
 }
+
+// ===========================================================
+// ADMIN-TOIMINNOT — vain admin-roolille
+// ===========================================================
+
+//===========================================================
+//ROOLIN VAIHTAMINEN
+//Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
+//===========================================================
+
+
+//===========================================================
+//KÄYTTÄJÄN TIETOJEN MUOKKAUS
+//Admin voi muuttaa käyttäjätietoja kuten nimeä tai sähköpostia, mutta ei salasanaa
+//===========================================================
+
+//===========================================================
+//UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
+//Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan
+//===========================================================
+
+//===========================================================
+//KÄYTTÄJÄN POISTAMINEN
+//Admin voi poistaa käyttäjän ja kaikki hänen tietonsa — mutta ei itseään
+//===========================================================

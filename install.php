@@ -58,12 +58,14 @@ CREATE TABLE IF NOT EXISTS tasks (
 $conn->query("
 CREATE TABLE IF NOT EXISTS logs (
     id INT AUTO_INCREMENT PRIMARY KEY,          -- Jokaiselle lokimerkinnälle oma numero, kasvaa automaattisesti
-    user_id INT NOT NULL,                       -- Minkä käyttäjän tapahtuma on, pakollinen
+    user_id INT NULL,                           -- Minkä käyttäjän tapahtuma on, NULL jos käyttäjä poistettu
+    username VARCHAR(50) NULL,                  -- Käyttäjänimi tapahtuman hetkellä — säilyy vaikka käyttäjä poistetaan
     event ENUM(
         'register',                             -- Käyttäjä rekisteröityi
         'login',                                -- Käyttäjä kirjautui sisään
         'logout',                               -- Käyttäjä kirjautui ulos
         'account_updated',                      -- Käyttäjä päivitti tilitietojaan
+        'password_changed',                     -- Käyttäjä vaihtoi salasanansa profiilisivulta
         'account_deleted_user',                 -- Käyttäjä poisti oman tilinsä
         'password_reset_requested',             -- Käyttäjä pyysi salasanan palautusta
         'password_reset_completed',             -- Käyttäjä vaihtoi salasanan palautuslinkin kautta
@@ -72,7 +74,7 @@ CREATE TABLE IF NOT EXISTS logs (
     ) NOT NULL,
     ip_address VARCHAR(45) NULL,                -- Käyttäjän IP-osoite tapahtuman hetkellä
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, -- Milloin tapahtuma tapahtui, täyttyy automaattisesti
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Jos käyttäjä poistetaan, poistetaan myös hänen lokimerkintänsä
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL -- Jos käyttäjä poistetaan, user_id muuttuu NULL:ksi mutta lokimerkintä säilyy
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 

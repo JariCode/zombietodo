@@ -151,10 +151,10 @@ if ($filterTo !== '') {
 }
 
 // Haetaan lokitapahtumat — korkeintaan 200 uusinta, taulukko skrollataan selaimessa
+// Username haetaan suoraan logs-taulusta — säilyy vaikka käyttäjä poistetaan
 $dataStmt = $conn->prepare("
-    SELECT l.timestamp, u.username, l.event
+    SELECT l.timestamp, l.username, l.event
     FROM logs l
-    LEFT JOIN users u ON u.id = l.user_id
     $logWhere
     ORDER BY l.timestamp DESC
     LIMIT 200
@@ -175,6 +175,7 @@ $eventLabels = [
     'login'                   => 'Kirjautuminen',
     'logout'                  => 'Uloskirjautuminen',
     'account_updated'         => 'Profiilin muokkaus käyttäjän toimesta',
+    'password_changed'        => 'Salasanan vaihto',
     'account_deleted_user'    => 'Tilin poistaminen käyttäjän toimesta',
     'password_reset_requested'=> 'Salasanan palautuspyyntö',
     'password_reset_completed'=> 'Salasanan palautus suoritettu',

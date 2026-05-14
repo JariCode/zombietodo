@@ -965,7 +965,7 @@ body.modal-open {
 }
 
 /* MUOKKAA-nappi — pieni inline-nappi taulukon solussa, ei täysleveä kuten auth-box button */
-.admin-btn-edit {
+.auth-box .admin-btn-edit {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -975,6 +975,7 @@ body.modal-open {
     border: none;
     font-family: Impact, sans-serif;
     font-size: 0.95rem;
+    font-weight: 400;
     letter-spacing: 2px;
     text-transform: uppercase;
     border-radius: 3px;
@@ -983,11 +984,6 @@ body.modal-open {
     background: #990000;
     color: #fff;
     width: auto; /* Ohittaa auth-box buttonin width: 100% */
-}
-
-.admin-btn-edit:hover {
-    background: #cc0000;
-    box-shadow: 0 0 10px rgba(200, 0, 0, 0.5);
 }
 
 /* Kaksi päivämääräkenttää vierekkäin — grid-asettelu */
