@@ -332,6 +332,7 @@ button.link-btn:hover {
 /*================================
    Survivor message API:n viestien tyylit
    ================================ */
+   /* Survivor message -laatikko */
    .quote-box {
     margin: 15px 0 25px 0;
     padding: 15px;
@@ -341,14 +342,16 @@ button.link-btn:hover {
     box-shadow: 0 0 15px #000;
 }
 
+/* Sitaattiotsikko */
 .quote-title {
     font-family: Impact, sans-serif;
     color: #ff4444;
     letter-spacing: 2px;
     margin-bottom: 10px;
-    font-size: 1rem;
+    font-size: 1.2rem;
 }
 
+/* Sitaattiteksti */
 #quoteText {
     color: #aaffaa;
     font-size: 1.1rem;
