@@ -11,6 +11,34 @@ $form_username    = $_SESSION['form_username']    ?? ''; // Käyttäjänimi pala
 $form_email       = $_SESSION['form_email']       ?? ''; // Sähköposti palautetaan rekisteröintikenttään
 $form_login_email = $_SESSION['form_login_email'] ?? ''; // Sähköposti palautetaan kirjautumiskenttään virheen jälkeen
 unset($_SESSION['form_username'], $_SESSION['form_email'], $_SESSION['form_login_email']); // Poistetaan sessiosta heti ettei näy enää seuraavalla latauksella
+
+// ===========================================================
+// HORROR QUOTE API
+// ===========================================================
+$apiKey = $_ENV['API_NINJAS_KEY'] ?? ''; // Haetaan API-avain .env tiedostosta $_ENV muuttujan kautta. Jos avainta ei löydy, käytetään tyhjää merkkijonoa.
+$quoteText = "The signal has been lost..."; // Oletusteksti joka näytetään jos API-haku epäonnistuu.
+$curl = curl_init(); // Alustetaan cURL-yhteys ulkoista API-pyyntöä varten.
+
+curl_setopt_array($curl, [ // Määritellään cURL-asetukset taulukossa.
+    CURLOPT_URL => "https://api.api-ninjas.com/v1/quotes", // API-osoite josta haetaan satunnainen sitaatti.
+    CURLOPT_RETURNTRANSFER => true, // Palauttaa API-vastauksen tekstinä muuttujaan tulostamisen sijaan.
+    CURLOPT_HTTPHEADER => [ // Lähetetään HTTP-headerit API-palvelulle.
+        "X-Api-Key: $apiKey" // Lähetetään API-avain headerissa API-palvelun tunnistautumista varten.
+    ]
+]);
+
+$response = curl_exec($curl); // Suoritetaan API-pyyntö ja tallennetaan vastaus muuttujaan.
+
+curl_close($curl); // Suljetaan cURL-yhteys kun pyyntö on valmis.
+
+if ($response !== false) { // Tarkistetaan että API palautti vastauksen onnistuneesti.
+    $quoteData = json_decode($response, true); // Muutetaan JSON-muotoinen vastaus PHP-taulukoksi.
+
+    if (!empty($quoteData[0]['quote'])) { // Tarkistetaan että vastauksessa löytyy quote-kenttä.
+        $quoteText = $quoteData[0]['quote']; // Tallennetaan API:lta saatu sitaatti muuttujaan.
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fi">
@@ -34,6 +62,14 @@ unset($_SESSION['form_username'], $_SESSION['form_email'], $_SESSION['form_login
 
         <!-- WIP-banneri — näkyy sivun yläosassa kun sovellus on kehitysvaiheessa -->
         <div class="wip-banner">🧠 WORK IN PROGRESS… BRAINS LOADING 🩸</div>
+
+        <!-- Sitaattilaatikko — hakee ja näyttää satunnaisen sitaatin ulkoisesta API:sta -->
+        <div class="quote-box">
+            <div class="quote-title">☠ SURVIVOR MESSAGE ☠</div>
+            <div id="quoteText">
+                "<?= htmlspecialchars($quoteText) ?>"<!-- Näytä API:lta haettu sitaatti. htmlspecialchars estää mahdolliset haitalliset merkit-->
+            </div>
+        </div>
 
         <!-- Pääotsikko-->
         <h1>ZOMBIE LOGIN</h1>
