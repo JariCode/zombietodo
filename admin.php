@@ -280,11 +280,11 @@ $eventLabels = [
                                 <td colspan="4" class="admin-empty">Ei käyttäjiä.</td>
                             </tr>
                         <?php else: ?>
-                            <?php while ($user = $users->fetch_assoc()): ?>
+                            <?php while ($user = $users->fetch_assoc()): ?> <!-- Käydään läpi jokainen käyttäjä ja näytetään taulukossa -->
                                 <tr data-id="<?= intval($user['id']) ?>">
-                                    <td><?= clean($user['username']) ?></td>
-                                    <td><?= clean($user['email']) ?></td>
-                                    <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>">
+                                    <td><?= clean($user['username']) ?></td> <!--Käyttäjänimi näytetään taulukossa -->
+                                    <td><?= clean($user['email']) ?></td><!-- Sähköposti näytetään taulukossa -->
+                                    <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>"><!-- Rooli näytetään taulukossa, adminit oranssinpunaisina ja tavalliset harmaana -->
                                         <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
                                     </td>
                                     <td>
