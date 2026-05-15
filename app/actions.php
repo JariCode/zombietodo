@@ -784,6 +784,13 @@ function handleTaskAction($action) {
     header('Content-Type: application/json; charset=utf-8'); // Kerrotaan selaimelle että vastaus on JSON-dataa eikä HTML — estää selainta tulkitsemasta ja suorittamasta vastauksen sisältöä HTML:nä
     global $conn; // Otetaan tietokantayhteys käyttöön
 
+    // Tarkistetaan että pyyntö tulee POST-metodilla — GET-pyynnöt eivät ole sallittuja tilanmuutoksiin
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405); // 405 = Method Not Allowed
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
     // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse tekemään mitään
     if (!isset($_SESSION['user_id'])) {
         http_response_code(403); // 403 = Forbidden — pääsy kielletty
@@ -801,7 +808,7 @@ function handleTaskAction($action) {
     }
 
     $user_id = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
-    $id      = intval($_GET['id'] ?? 0);     // Tehtävän id URL-parametrista — esim. ?action=start&id=5
+    $id = intval($_POST['id'] ?? 0);    //Tehtävä id POST-datasta.
 
     // ===========================================================
     // LISÄÄ TEHTÄVÄ

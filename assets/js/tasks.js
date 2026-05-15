@@ -14,6 +14,10 @@
 //
 // Tehtävälista päivittyy automaattisesti
 // ilman että koko sivu latautuu uudelleen.
+//
+// Kaikki pyynnöt lähetetään POST-metodilla
+// ja data kulkee POST-bodyssa — URL:ssa ei
+// näy toiminto- eikä id-tietoja.
 // ================================
 
 // ===========================================================
@@ -53,7 +57,7 @@ async function refreshTasks() {
     box.innerHTML = (form ? form.outerHTML : '') + html;
 
     // Kiinnitetään nappeihin tapahtumat uudelleen koska HTML vaihtui
-    attachTaskEvents();// Tehtävänappien tapahtumat täytyy kiinnittää uudestaan koska HTML on korvattu uudella
+    attachTaskEvents(); // Tehtävänappien tapahtumat täytyy kiinnittää uudestaan koska HTML on korvattu uudella
     setupEnterKey();
     setupFormSubmit();
 
@@ -86,8 +90,6 @@ function attachTaskEvents() {
             const action = el.dataset.action; // Luetaan mitä toimintoa nappi tekee — esim. 'start', 'delete'
             const id     = el.dataset.id;     // Luetaan minkä tehtävän id on kyseessä
             if (action === 'edit') { openEditModal(id); return; } // Muokkausnappi avaa modalin eikä lähetä pyyntöä
-            // Lähetetään toiminto palvelimelle POST-pyyntönä
-            // CSRF-token lähetetään headerissa koska actions.php vaatii sen
 
              // Veriroiske-animaatio kun tehtävä aloitetaan
             if (action === 'start') {
@@ -125,14 +127,15 @@ function attachTaskEvents() {
                 if (overlay) overlay.classList.remove('active');
             }
 
-            // Lähetetään  Token ja data palvelimelle
-            await fetch('app/actions.php?action=' + action + '&id=' + id, {
+            // Lähetetään toiminto ja tehtävän id POST-bodyssa palvelimelle
+            // CSRF-token lähetetään headerissa koska actions.php vaatii sen
+            await fetch('app/actions.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRF-Token': getCSRF()
                 },
-                body: ''
+                body: 'action=' + action + '&id=' + id // Toiminto ja id POST-datana URL:n sijaan
             });
             refreshTasks(); // Päivitetään tehtävälista näytöllä
         });
@@ -161,13 +164,15 @@ function setupEnterKey() {
 // TEHTÄVÄN LISÄYSLOMAKE
 // Kun käyttäjä painaa Lisää-nappia lähetetään tehtävä AJAXilla
 // eikä sivua ladata uudelleen
+// action=add tulee FormData:n mukana lomakkeen piilokenttänä
 // ===========================================================
 function setupFormSubmit() {
     const form = document.querySelector('form.input-area');
     if (!form) return;
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const res = await fetch('app/actions.php?action=add', {
+        // Lähetetään lomakedata POST-pyyntönä — action=add tulee piilokenttänä FormData:n mukana
+        const res = await fetch('app/actions.php', {
             method: 'POST',
             body: new FormData(e.target)
         });
@@ -258,8 +263,11 @@ async function saveEdit() {
         started_at: fpToMySQL(fpStarted), // Aloitusaika Flatpickrista MySQL-muodossa
         done_at:    fpToMySQL(fpDone)     // Valmistumisaika Flatpickrista MySQL-muodossa
     });
-    // Lähetetään muutokset palvelimelle
-    const res = await fetch('app/actions.php?action=edit_task&id=' + currentEditId, {
+    // Lisätään toiminto ja tehtävän id POST-bodyyn — ei URL-parametreiksi
+    body.append('action', 'edit_task');     // Toiminto kertoo actions.php:lle mitä tehdään
+    body.append('id', currentEditId);       // Muokattavan tehtävän id
+    // Lähetetään muutokset palvelimelle POST-pyyntönä
+    const res = await fetch('app/actions.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': getCSRF() },
         body: body.toString()
@@ -272,7 +280,7 @@ async function saveEdit() {
 // ===========================================================
 // FLATPICKR — alustetaan VASTA kun modal avataan
 // ===========================================================
-let fpStarted = null;// Flatpickr-olio aloitusajalle — let koska arvo asetetaan modalin avauksessa
+let fpStarted = null; // Flatpickr-olio aloitusajalle — let koska arvo asetetaan modalin avauksessa
 let fpDone = null; // Flatpickr-olio valmistumisajalle — let koska arvo asetetaan modalin avauksessa
 let fpOutsideClickHandler = null; // Tapahtumankuuntelija joka sulkee Flatpickrin kun klikataan sen ulkopuolelle — tallennetaan jotta voidaan poistaa se myöhemmin
 
@@ -299,7 +307,7 @@ function closeFlatpickrOnOutsideClick(instance) {
         }
     };
 
-    document.addEventListener('mousedown', fpOutsideClickHandler, true);//Kuunnellaan hiiren klikkauksia ennen kuin ne saavuttavat muut elementit (true = capture-vaihe)
+    document.addEventListener('mousedown', fpOutsideClickHandler, true); // Kuunnellaan hiiren klikkauksia ennen kuin ne saavuttavat muut elementit (true = capture-vaihe)
 }
 
 // Alustaa Flatpickr-kalenterit modalin aloitus- ja valmistumiskenttiin
@@ -360,7 +368,6 @@ function initFlatpickr() {
     }
 }
 
-
 // ===========================================================
 // Funktio joka avaa muokkausmodalin ja hakee tehtävän tiedot palvelimelta
 // Tämä on erillinen funktio koska ✏️-nappi ei lähetä AJAX-pyyntöä vaan avaa modalin suoraan
@@ -373,14 +380,15 @@ async function openEditModal(id) {
 
     document.getElementById('modalError').textContent = '';
 
-    // Haetaan tehtävän tiedot palvelimelta jotta modalin kentät voidaan täyttää niillä
-    const res = await fetch('app/actions.php?action=get_task&id=' + id, {
+    // Haetaan tehtävän tiedot palvelimelta POST-pyyntönä
+    // Toiminto ja tehtävän id lähetetään POST-bodyssa — ei URL-parametreina
+    const res = await fetch('app/actions.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-CSRF-Token': getCSRF()
         },
-        body: ''
+        body: 'action=get_task&id=' + id // Toiminto ja id POST-datana
     });
 
     const data = await res.json();
@@ -404,7 +412,7 @@ async function openEditModal(id) {
     document.body.classList.add('modal-open'); // Lukitaan taustasivun skrolli modalin ajaksi
 
     setTimeout(function() {
-        document.getElementById('editText').focus();// Siirretään fokus kuvauskenttään jotta käyttäjä voi heti alkaa kirjoittaa
+        document.getElementById('editText').focus(); // Siirretään fokus kuvauskenttään jotta käyttäjä voi heti alkaa kirjoittaa
     }, 50);
 }
 

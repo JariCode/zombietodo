@@ -17,25 +17,29 @@ unset($_SESSION['form_username'], $_SESSION['form_email'], $_SESSION['form_login
 // ===========================================================
 $apiKey = $_ENV['API_NINJAS_KEY'] ?? ''; // Haetaan API-avain .env tiedostosta $_ENV muuttujan kautta. Jos avainta ei löydy, käytetään tyhjää merkkijonoa.
 $quoteText = "The signal has been lost..."; // Oletusteksti joka näytetään jos API-haku epäonnistuu.
-$curl = curl_init(); // Alustetaan cURL-yhteys ulkoista API-pyyntöä varten.
 
-curl_setopt_array($curl, [ // Määritellään cURL-asetukset taulukossa.
-    CURLOPT_URL => "https://api.api-ninjas.com/v1/quotes", // API-osoite josta haetaan satunnainen sitaatti.
-    CURLOPT_RETURNTRANSFER => true, // Palauttaa API-vastauksen tekstinä muuttujaan tulostamisen sijaan.
-    CURLOPT_HTTPHEADER => [ // Lähetetään HTTP-headerit API-palvelulle.
-        "X-Api-Key: $apiKey" // Lähetetään API-avain headerissa API-palvelun tunnistautumista varten.
-    ]
-]);
+if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tiedostossa
+    $curl = curl_init(); // Alustetaan cURL-yhteys ulkoista API-pyyntöä varten.
 
-$response = curl_exec($curl); // Suoritetaan API-pyyntö ja tallennetaan vastaus muuttujaan.
+    curl_setopt_array($curl, [ // Määritellään cURL-asetukset taulukossa.
+        CURLOPT_URL => "https://api.api-ninjas.com/v1/quotes", // API-osoite josta haetaan satunnainen sitaatti.
+        CURLOPT_RETURNTRANSFER => true, // Palauttaa API-vastauksen tekstinä muuttujaan tulostamisen sijaan.
+        CURLOPT_TIMEOUT => 5, // Enintään 5 sekuntia — sen jälkeen näytetään oletusteksti eikä sivu jumitu.
+        CURLOPT_HTTPHEADER => [ // Lähetetään HTTP-headerit API-palvelulle.
+            "X-Api-Key: $apiKey" // Lähetetään API-avain headerissa API-palvelun tunnistautumista varten.
+        ]
+    ]);
 
-curl_close($curl); // Suljetaan cURL-yhteys kun pyyntö on valmis.
+    $response = curl_exec($curl); // Suoritetaan API-pyyntö ja tallennetaan vastaus muuttujaan.
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE); // Tarkistetaan HTTP-statuskoodi — 200 tarkoittaa onnistunutta vastausta.
+    curl_close($curl); // Suljetaan cURL-yhteys kun pyyntö on valmis.
 
-if ($response !== false) { // Tarkistetaan että API palautti vastauksen onnistuneesti.
-    $quoteData = json_decode($response, true); // Muutetaan JSON-muotoinen vastaus PHP-taulukoksi.
+    if ($response !== false && $httpCode === 200) { // Tarkistetaan että API palautti onnistuneen vastauksen.
+        $quoteData = json_decode($response, true); // Muutetaan JSON-muotoinen vastaus PHP-taulukoksi.
 
-    if (!empty($quoteData[0]['quote'])) { // Tarkistetaan että vastauksessa löytyy quote-kenttä.
-        $quoteText = $quoteData[0]['quote']; // Tallennetaan API:lta saatu sitaatti muuttujaan.
+        if (!empty($quoteData[0]['quote'])) { // Tarkistetaan että vastauksessa löytyy quote-kenttä.
+            $quoteText = $quoteData[0]['quote']; // Tallennetaan API:lta saatu sitaatti muuttujaan.
+        }
     }
 }
 

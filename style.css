@@ -981,8 +981,38 @@ body.modal-open {
 }
 
 /* Roolin värikoodaus taulukossa */
-.role-admin { color: #ff6644; font-weight: bold; } /* Oranssinpunainen adminille */
-.role-user  { color: #aaaaaa; }                    /* Harmaa tavalliselle käyttäjälle */
+.admin-table tbody td.role-admin {
+    color: #ff4444;
+    font-weight: 700;
+    animation: roleGlowAdmin 1.8s infinite ease-in-out;
+} /* Kirkas teemapunainen adminille */
+.admin-table tbody td.role-user {
+    color: #7fbf7f;
+    animation: roleGlowUser 1.8s infinite ease-in-out;
+} /* Himmennetty vihreä käyttäjälle */
+
+/* Kevyempi hehku käyttäjälistan rooleille taulukossa */
+@keyframes roleGlowAdmin {
+    0%, 100% {
+        text-shadow: 1px 1px black, 0 0 4px rgba(255, 68, 68, 0.45), 0 0 10px rgba(204, 85, 0, 0.25);
+        filter: drop-shadow(0 0 2px rgba(255, 68, 68, 0.25));
+    }
+    50% {
+        text-shadow: 1px 1px black, 0 0 10px rgba(255, 68, 68, 0.95), 0 0 20px rgba(204, 85, 0, 0.75), 0 0 32px rgba(255, 68, 68, 0.35);
+        filter: drop-shadow(0 0 8px rgba(255, 68, 68, 0.8));
+    }
+}
+
+@keyframes roleGlowUser {
+    0%, 100% {
+        text-shadow: 1px 1px black, 0 0 4px rgba(127, 191, 127, 0.35), 0 0 10px rgba(0, 204, 0, 0.18);
+        filter: drop-shadow(0 0 2px rgba(127, 191, 127, 0.2));
+    }
+    50% {
+        text-shadow: 1px 1px black, 0 0 10px rgba(127, 191, 127, 0.8), 0 0 20px rgba(0, 204, 0, 0.55), 0 0 32px rgba(127, 191, 127, 0.25);
+        filter: drop-shadow(0 0 8px rgba(127, 191, 127, 0.7));
+    }
+}
 
 /* Tyhjä taulukko — kursivoitu viesti keskellä */
 .admin-empty {
