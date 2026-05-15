@@ -804,8 +804,20 @@ body.modal-open {
 }
 
 /* Peruutusnappi hover-efekti ja virheilmoitus */
-.modal-footer .btn-cancel:hover { color: #ff6666; border-color: #880000; background: transparent; }
-.modal-error { color: #ff4444; font-size: 0.85rem; text-align: center; min-height: 18px; }
+.modal-footer .btn-cancel:hover { 
+    color: #ff6666; 
+    border-color: #880000; 
+    background: transparent; 
+}
+
+.modal-error {
+    color: #ff4444;
+    font-size: 1.4rem;
+    text-align: center;
+    min-height: 18px;
+    font-weight: bold;
+    animation: errorPulse 1.8s infinite ease-in-out;
+}
 
 /* ================================
     FLATPICKR — ZOMBIETEEMAN KORJAUKSET
@@ -964,7 +976,7 @@ body.modal-open {
 
 /* Parilliset rivit hieman vaaleammat — helpompi lukea */
 .admin-table tbody tr:nth-child(even) {
-    background: rgba(30, 0, 0, 0.4);
+    background: rgba(80, 10, 10, 0.4);
 }
 
 /* Käyttäjätaulukon rooli- ja toiminnot-sarakkeet: kiinteä leveys, ei rivinvaihtoa */
@@ -1261,6 +1273,10 @@ body.modal-open {
     /* Toimintonappien pienentäminen mobiilissa */
     .actions button {
         font-size: 1.2rem;
+    }
+
+    .modal-error {
+        font-size: 0.85rem;
     }
 
     /* Admin-taulukon otsikot pienemmiksi mobiilissa */
