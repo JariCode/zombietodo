@@ -398,6 +398,7 @@ button.link-btn:hover {
     color: #ff6666;
     text-decoration: none;
     font-size: 1.1rem;
+    line-height: 1.2;
 }
 
 .header-link:hover {
@@ -405,9 +406,10 @@ button.link-btn:hover {
 }
 
 /* Uloskirjautumisnappi näyttää samalta kuin header-linkit */
-.header-links form {
+.header-links form button.header-link{
     margin: 0;
     padding: 0;
+    line-height: 1.2;
 }
 
 .header-links button.header-link {
@@ -420,6 +422,7 @@ button.link-btn:hover {
     cursor: pointer;
     text-shadow: 2px 2px black;
     text-decoration: none;
+    line-height: 1;
 }
 
 .header-links button.header-link:hover {
