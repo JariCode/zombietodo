@@ -112,7 +112,7 @@ $doneTasks = $doneTasks->get_result();
         <div class="todo-box">
 
             <!-- Uuden tehtävän lisäyslomake -->
-            <form class="input-area" action="app/actions.php?action=add" method="POST">
+            <form class="input-area" action="app/actions.php" method="POST">
                 <input type="hidden" name="action" value="add">
                 <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"><!-- CSRF-suojaus — estää ulkopuolisen lisäämästä tehtäviä käyttäjälle -->
                 <input type="text" name="task" placeholder="Lisää tehtävä... ennen kuin kuolleet nousevat!" required autocomplete="off">

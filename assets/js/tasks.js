@@ -83,7 +83,6 @@ async function refreshTasks() {
 // Nappi lähettää AJAXilla (Fetch API) toiminnon palvelimelle ja päivittää listan
 // ===========================================================
 
-
 // Satunnainen zombie flash koko ruudulle toimintonappia painettaessa
 // Count-based suppression for jumpscare: estetään seuraavat N kutsua kun jumpscare näytetään
 let _jumpScareSuppressRemaining = 0; // jäljellä olevien suppress-kutsujen määrä
