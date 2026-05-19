@@ -539,7 +539,7 @@ button.link-btn:hover {
 .actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap:0.8rem;
     flex-shrink: 0;
     margin-left: 10px;
 }
@@ -1424,12 +1424,7 @@ body.modal-open {
     .timestamp {
         font-size: 0.8rem;
     }
-
-    /* Toimintonappien pienentäminen mobiilissa */
-    .actions button {
-        font-size: 1.2rem;
-    }
-
+    /*Moduulin virheilmoitukset pienemmiksi mobiilissa */
     .modal-error {
         font-size: 0.85rem;
     }
@@ -1476,6 +1471,26 @@ body.modal-open {
     /* Alasvetovalikko pienemmäksi mobiilissa */
     .admin-select {
         font-size: 0.9rem;
+    }
+
+    /*Toimintolinkit allekkain mobiilissa */
+    .actions {
+        flex-direction: column;
+    }
+
+    /*WIP-bannerin teksti pienemmäksi mobiilissa */
+    .wip-banner {
+        font-size: 0.75rem;
+    }
+
+    /* Navigointilinkit pienemmiksi mobiilissa */
+    .header-link {
+        font-size: 1rem;
+    }
+
+    /*Uloskirjaumispainike pienemmäksi mobiilissa */
+    .header-links form button.header-link {
+        font-size: 1rem;
     }
 
     /* Jumpscare-kasvojen skaalautuminen pienemmäksi mobiilissa */
