@@ -9,11 +9,10 @@ Options -Indexes
 
     #########################################################
     # 1) SALLI actions.php:
-    #    - POST-pyynnöt (lomakkeet)
-    #    - DELETE-pyynnöt (AJAX/fetch)
+    #    - POST-pyynnöt (lomakkeet ja AJAX)
     #    - Estä GET-pyynnöt kokonaan
     #########################################################
-    RewriteCond %{REQUEST_METHOD} ^(POST|DELETE)$
+    RewriteCond %{REQUEST_METHOD} ^POST$
     RewriteRule ^app/actions\.php$ - [L]
 
     RewriteCond %{REQUEST_METHOD} ^GET$
@@ -37,14 +36,14 @@ Options -Indexes
 </IfModule>
 
 #########################################################
-# 5) Estä .env aina
+# 4) Estä .env aina
 #########################################################
 <Files ".env">
     Require all denied
 </Files>
 
 #########################################################
-# 5b) Estä .htaccess itse
+# 5) Estä .htaccess itse
 #########################################################
 <Files ".htaccess">
     Require all denied

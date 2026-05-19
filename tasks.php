@@ -221,6 +221,15 @@ $doneTasks = $doneTasks->get_result();
     </div> 
     <!-- Muokkausmodal loppuu --> 
 
+    <!-- Jumpscare-elementti — aluksi piilossa, näytetään satunnaisesti kun tehtäviä aloitetaan tai merkitään valmiiksi -->
+    <div id="jumpScare">
+        <div class="zombie-face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+        </div>
+    </div>
+
     <!-- JavaScriptit ladataan sivun lopussa jotta HTML on valmis ennen scriptejä -->
     <script src="assets/js/ui.js"></script><!-- Yleiset UI-toiminnot -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten ladattu ulkoisesta lähteestä -->

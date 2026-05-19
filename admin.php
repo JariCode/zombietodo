@@ -289,7 +289,7 @@ $eventLabels = [
                                     </td>
                                     <td>
                                         <!-- Muokkausnappi avaa modalin — data-id kertoo minkä käyttäjän tiedot ladataan -->
-                                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">MUOKKAA 🪓</button>
+                                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">HALLINTA 🧟</button>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -370,14 +370,14 @@ $eventLabels = [
 
     <!-- ============================================================ -->
     <!-- MUOKKAUSMODAL — avautuu kun admin klikkaa MUOKKAA-nappia      -->
-    <!-- Käyttää samaa modal-rakennetta kuin tasks.php:n muokkausmodal -->
+    <!-- Kolme osiota: roolin vaihto, salasanan palautus, tilin poisto -->
     <!-- ============================================================ -->
     <div class="modal-overlay" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
         <div class="modal">
 
             <!-- Modalin otsikko ja sulje-nappi -->
             <div class="modal-header">
-                <h2 id="adminModalTitle">Muokkaa Profiilia 🪓</h2>
+                <h2 id="adminModalTitle">Hallitse käyttäjää 🪓</h2>
                 <button class="modal-close" id="adminModalClose" aria-label="Sulje">✕</button>
             </div>
 
@@ -386,28 +386,23 @@ $eventLabels = [
                 <!-- Virheilmoitus modalin sisällä -->
                 <div class="modal-error" id="adminModalError"></div>
 
-                <!-- PROFIILIN MUOKKAUS — käyttäjänimi, sähköposti ja rooli -->
-                <form id="adminEditForm" method="POST" action="app/actions.php" autocomplete="off">
-                    <input type="hidden" name="action" value="admin_edit_user"> <!-- Toiminto POST-datana -->
+                <!-- Käyttäjän tiedot — näytetään kenen tiliä hallitaan -->
+                <p class="admin-modal-user" id="adminModalUser"></p>
+
+                <!-- ROOLIN VAIHTO — admin voi vaihtaa käyttäjän roolin -->
+                <form id="adminRoleForm" method="POST" action="app/actions.php" autocomplete="off">
+                    <input type="hidden" name="action" value="admin_change_role"> <!-- Toiminto POST-datana -->
                     <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                    <input type="hidden" name="target_user_id" id="editTargetId" value=""> <!-- Kohdekayttajan id — täytetään JavaScriptillä -->
+                    <input type="hidden" name="target_user_id" id="roleTargetId" value=""> <!-- Kohdekayttajan id — täytetään JavaScriptillä -->
 
-                    <label>Vaihda käyttäjänimi</label>
-                    <input type="text" name="username" id="editUsername" placeholder="Käyttäjänimi" required minlength="3" maxlength="30" autocomplete="off">
-
-                    <label>Vaihda sähköpostiosoite</label>
-                    <input type="email" name="email" id="editEmail" placeholder="Sähköposti" required autocomplete="off">
-
-                    <label>Vaihda rooli</label>
+                    <label>Rooli</label>
                     <select name="role" id="editRole" class="admin-select">
                         <option value="user">Käyttäjä</option>
                         <option value="admin">Admin</option>
                     </select>
 
-                    <!-- Tallenna ja peruuta napit — sama modal-footer kuin tasks.php:ssä -->
                     <div class="modal-footer">
-                        <button type="button" class="btn-cancel" id="adminEditCancel">Peruuta</button>
-                        <button type="submit" class="btn-save">TALLENNA 🩸</button>
+                        <button type="submit" class="btn-save">VAIHDA ROOLI 👑</button>
                     </div>
                 </form>
 
@@ -435,12 +430,6 @@ $eventLabels = [
                         <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
                         <input type="hidden" name="target_user_id" id="deleteTargetId" value=""> <!-- Kohdekayttajan id -->
 
-                        <label>Käyttäjänimi</label>
-                        <input type="text" name="confirm_username" id="deleteUsername" required autocomplete="off" readonly> <!-- Readonly — vahvistaa oikean käyttäjän -->
-
-                        <label>Sähköposti</label>
-                        <input type="email" name="confirm_email" id="deleteEmail" required autocomplete="off" readonly> <!-- Readonly — vahvistaa oikean sähköpostin -->
-
                         <!-- Varoitusteksti ennen pysyvää poistoa -->
                         <p class="admin-delete-warning" id="deleteWarning"></p>
 
@@ -455,7 +444,7 @@ $eventLabels = [
             </div><!-- .modal-body loppuu -->
         </div><!-- .modal loppuu -->
     </div><!-- .modal-overlay loppuu -->
-
+    
     <!-- JavaScriptit — UI-toiminnallisuudet -->
     <script src="assets/js/ui.js"></script> <!-- Yleiset UI-toiminnot — viestien häivytys -->
     <script src="assets/js/admin.js"></script> <!-- Admin-sivun omat toiminnot — haku, suodatus, modal -->
