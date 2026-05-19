@@ -1331,12 +1331,21 @@ body.modal-open {
         font-size: 0.9rem;
     }
 
+    /* Jumpscare-kasvojen skaalautuminen pienemmäksi mobiilissa */
+     :root {
+        --zombie-scale: 0.65;
+    }
 }
 
 
 /* ==========================================================
    JUMPSCARE ANIMAATIO
 ========================================================== */
+.zombie-wrapper {
+    transform: scale(var(--zombie-scale, 1));
+    transform-origin: center;
+}
+
 #jumpScare {
     position: fixed;
     inset: 0;
@@ -1375,8 +1384,8 @@ body.modal-open {
 .zombie-face {
     position: relative;
 
-    width: min(88vw, 650px);
-    height: min(95vh, 820px);
+    width: 650px;
+    height: 820px;
 
     border-radius:
         46% 54%

@@ -83,22 +83,29 @@ async function refreshTasks() {
 // Nappi lähettää AJAXilla (Fetch API) toiminnon palvelimelle ja päivittää listan
 // ===========================================================
 
+
 // Satunnainen zombie flash koko ruudulle toimintonappia painettaessa
+// Count-based suppression for jumpscare: estetään seuraavat N kutsua kun jumpscare näytetään
+let _jumpScareSuppressRemaining = 0; // jäljellä olevien suppress-kutsujen määrä
+const JUMP_SCARE_SUPPRESS_COUNT = 5; // estetään seuraavat 5 kutsua
 function triggerJumpScare(chance = 0.22) {
+
+    // Jos suppress-tilassa, vähennä jäljellä oleva määrä ja lopeta
+    if (_jumpScareSuppressRemaining > 0) { _jumpScareSuppressRemaining--; return; }
 
     // Satunnainen mahdollisuus
     if (Math.random() > chance) return;
 
     const scare = document.getElementById('jumpScare');
-
     if (!scare) return;
 
     // Resetoi animaation jotta se voidaan ajaa uudelleen
     scare.classList.remove('active');
-
     void scare.offsetWidth;
-
     scare.classList.add('active');
+
+    // Estetään seuraavat kutsut tietyn määrän ajan jotta jumpscare ei toistu liian usein peräkkäin
+    _jumpScareSuppressRemaining = JUMP_SCARE_SUPPRESS_COUNT;
 }
 
 // Kiinnitetään tapahtuma kaikille toimintonapeille

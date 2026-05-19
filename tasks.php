@@ -223,10 +223,12 @@ $doneTasks = $doneTasks->get_result();
 
     <!-- Jumpscare-elementti — aluksi piilossa, näytetään satunnaisesti kun tehtäviä aloitetaan tai merkitään valmiiksi -->
     <div id="jumpScare">
-        <div class="zombie-face">
+        <div class="zombie-wrapper">
+            <div class="zombie-face">
             <div class="eye left"></div>
             <div class="eye right"></div>
             <div class="mouth"></div>
+            </div>
         </div>
     </div>
 
