@@ -1158,6 +1158,14 @@ body.modal-open {
     z-index: 1;
 }
 
+/* Käyttäjän tiedot modalin yläosassa — kertoo kenen tiliä hallitaan */
+.admin-modal-user {
+    color: #ffdddd;
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+    text-shadow: 1px 1px black;
+}
+
 /* ================================
    6. RESPONSIIVISUUS
    Mukautuu eri näyttökokoihin.
@@ -1325,3 +1333,486 @@ body.modal-open {
 
 }
 
+
+/* ==========================================================
+   JUMPSCARE ANIMAATIO
+========================================================== */
+#jumpScare {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        radial-gradient(circle at center,
+        rgba(120,0,0,0.92) 0%,
+        rgba(20,0,0,0.98) 100%);
+
+    z-index: 999999;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+/* Jumpscare-efektin animaatiot — kirkas välähdys, kasvojen zoom ja glitch-efekti */
+#jumpScare.active {
+    animation: scareFlash 2.5s forwards;
+}
+
+#jumpScare.active .zombie-face {
+    animation:
+        faceZoom 2.5s ease-out forwards,
+        faceGlitch 0.06s infinite,
+        faceRotate 0.3s infinite;
+}
+
+/* Zombikasvojen tyyli — pyöreä ja epäsymmetrinen muoto, tummat värit ja syvät varjot */
+.zombie-face {
+    position: relative;
+
+    width: min(88vw, 650px);
+    height: min(95vh, 820px);
+
+    border-radius:
+        46% 54%
+        42% 58%
+        / 44% 42%
+        58% 56%;
+
+  background:
+    radial-gradient(circle at 50% 25%,
+    #d7c2b1 0%,
+    #a48b78 20%,
+    #6b584b 42%,
+    #1d1715 100%);
+
+    box-shadow:
+        inset -40px -60px 120px rgba(0,0,0,0.95),
+        inset 30px 20px 60px rgba(255,255,255,0.04),
+        inset 0 0 120px rgba(120,0,0,0.45),
+        0 0 80px rgba(255,0,0,0.75),
+        0 0 240px rgba(80,0,0,0.95);
+
+    filter:
+        contrast(1.6)
+        brightness(0.7)
+        saturate(1.2);
+
+    overflow: hidden;
+}
+
+/* Kasvojen veriset läiskät, repeämät ja kiillot — luo rosoista ja uhkaavaa ilmettä */
+.zombie-face::before {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+
+        /* VERILÄISKÄT */
+        radial-gradient(circle at 35% 30%,
+        rgba(130,0,0,0.55) 0%,
+        transparent 18%),
+
+        radial-gradient(circle at 70% 55%,
+        rgba(90,0,0,0.65) 0%,
+        transparent 22%),
+
+        radial-gradient(circle at 52% 78%,
+        rgba(120,0,0,0.4) 0%,
+        transparent 26%),
+
+        /* REPEÄMÄT */
+        linear-gradient(
+        120deg,
+        transparent 22%,
+        rgba(0,0,0,0.95) 24%,
+        rgba(120,0,0,0.8) 26%,
+        transparent 29%),
+
+        linear-gradient(
+        -35deg,
+        transparent 48%,
+        rgba(0,0,0,0.88) 50%,
+        rgba(90,0,0,0.7) 52%,
+        transparent 55%),
+
+        /* KIILLOT */
+        radial-gradient(circle at 30% 20%,
+        rgba(255,255,255,0.09),
+        transparent 18%),
+
+        radial-gradient(circle at 70% 40%,
+        rgba(255,0,0,0.18),
+        transparent 24%),
+
+        linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(0,0,0,0.55) 20%,
+        transparent 40%);
+
+    opacity: 0.92;
+
+    mix-blend-mode: screen;
+}
+
+/* Kasvojen varjot ja tummat läiskät — luo syvyyttä ja uhkaavaa tunnelmaa */
+.zombie-face::after {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+        110deg,
+        transparent 18%,
+        rgba(0,0,0,0.9) 20%,
+        transparent 22%),
+
+        linear-gradient(
+        -20deg,
+        transparent 40%,
+        rgba(120,0,0,0.6) 43%,
+        transparent 47%),
+
+        linear-gradient(
+        70deg,
+        transparent 65%,
+        rgba(0,0,0,0.8) 68%,
+        transparent 71%);
+
+    opacity: 0.85;
+}
+
+
+/*Silmät*/
+.eye {
+    position: absolute;
+
+    width: 120px;
+    height: 140px;
+
+    top: 180px;
+
+    border-radius:
+        50% 48%
+        44% 56%
+        / 48% 40%
+        60% 52%;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 50% 50%,
+        #ff0000 0%,
+        #9b0000 18%,
+        #300000 45%,
+        #000 100%);
+
+    box-shadow:
+        0 0 40px rgba(255,0,0,0.9),
+        0 0 120px rgba(255,0,0,0.8);
+
+    animation:
+        eyeFlicker 0.08s infinite,
+        eyePulse 0.4s infinite;
+}
+
+/*Vasen silmä — hieman eri kulmassa ja skaalattuna kuin oikea, luo epäsymmetriaa ja uhkaavaa ilmettä*/
+.eye.left {
+    left: 75px;
+
+    transform:
+        rotate(-16deg)
+        scaleY(1.1);
+}
+
+/*Oikea silmä — hieman eri kulmassa ja skaalattuna kuin vasen, luo epäsymmetriaa ja uhkaavaa ilmettä*/
+.eye.right {
+    right: 60px;
+
+    transform:
+        rotate(12deg)
+        scaleY(0.9);
+}
+
+/* Verinen hohto silmissä — luo uhkaavaa ja elävää vaikutelmaa, ikään kuin silmät hehkuisivat sisältäpäin */
+.eye::before {
+    content: '';
+
+    position: absolute;
+
+    width: 170%;
+    height: 3px;
+
+    background: rgba(255,255,255,0.9);
+
+    top: 45%;
+    left: -25%;
+
+    transform: rotate(-20deg);
+
+    opacity: 0.7;
+
+    filter: blur(1px);
+}
+
+/* Kirkas valopiste silmissä — luo elävän ja uhkaavan vaikutelman, ikään kuin silmät hehkuisivat sisältäpäin */
+.eye::after {
+    content: '';
+
+    position: absolute;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    top: 28px;
+    left: 30px;
+
+    box-shadow:
+        0 0 12px white,
+        0 0 24px rgba(255,255,255,0.8);
+}
+
+/*Suu*/
+.mouth {
+    position: absolute;
+
+    width: 240px;
+    height: 170px;
+
+    left: 50%;
+    bottom: 80px;
+
+    transform:
+        translateX(-50%)
+        rotate(-3deg);
+
+    border-radius:
+        25% 25%
+        60% 60%
+        / 18% 18%
+        82% 82%;
+
+    background:
+        radial-gradient(circle at 50% 10%,
+        #600 0%,
+        #220000 30%,
+        #050000 100%);
+
+    box-shadow:
+        inset 0 -35px 60px rgba(0,0,0,0.95),
+        inset 0 20px 30px rgba(255,0,0,0.15),
+        0 0 50px rgba(255,0,0,0.5);
+}
+
+/*Hampaat*/
+.mouth::before {
+    content: '';
+
+    position: absolute;
+
+    width: 100%;
+    height: 28px;
+
+    top: 0;
+
+    background:
+        repeating-linear-gradient(
+        to right,
+        #ddd 0px,
+        #ddd 12px,
+        #111 14px,
+        #111 18px);
+
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        95% 100%,
+        90% 0,
+        80% 100%,
+        70% 0,
+        60% 100%,
+        50% 0,
+        40% 100%,
+        30% 0,
+        20% 100%,
+        10% 0,
+        5% 100%);
+
+    opacity: 0.9;
+}
+
+/*Animaatio millä koko jumpscare-efekti tapahtuu — kirkas välähdys, kasvojen zoom ja glitch-efekti*/
+@keyframes scareFlash {
+
+    0% {
+        opacity: 0;
+    }
+
+    6% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/*Zoom-efekti kasvoille — alkaa pienestä ja epätarkasta, kasvaa suuremmaksi ja kirkkaammaksi, luo uhkaavaa ja yllättävää vaikutelmaa*/
+@keyframes faceZoom {
+
+    0% {
+        transform:
+            scale(0.08)
+            rotate(-16deg);
+
+        filter:
+            blur(18px)
+            brightness(0.2)
+            contrast(3);
+    }
+
+    35% {
+        transform:
+            scale(1.1)
+            rotate(5deg);
+    }
+
+    60% {
+        transform:
+            scale(1.35)
+            rotate(-3deg);
+    }
+
+    100% {
+        transform:
+            scale(1.55)
+            rotate(1deg);
+
+        filter:
+            blur(0px)
+            brightness(1.2)
+            contrast(1.8);
+    }
+}
+
+/* Glitch-efekti kasvoille — nopea ja satunnainen siirtymä eri suuntiin, luo epävakaata ja uhkaavaa vaikutelmaa, ikään kuin kasvot olisivat vääristyneet tai hajoamassa*/
+@keyframes faceGlitch {
+
+    0% {
+        transform:
+            translateX(-12px)
+            translateY(4px);
+    }
+
+    20% {
+        transform:
+            translateX(9px)
+            translateY(-5px);
+    }
+
+    40% {
+        transform:
+            translateX(-6px)
+            translateY(8px);
+    }
+
+    60% {
+        transform:
+            translateX(7px)
+            translateY(-3px);
+    }
+
+    80% {
+        transform:
+            translateX(-10px)
+            translateY(5px);
+    }
+
+    100% {
+        transform:
+            translateX(6px)
+            translateY(-4px);
+    }
+}
+/*Pieni pyörivä liike kasvoille — luo epävakaata ja uhkaavaa vaikutelmaa, ikään kuin kasvot olisivat vääristyneet tai hajoamassa*/
+@keyframes faceRotate {
+
+    0% {
+        rotate: -1deg;
+    }
+
+    50% {
+        rotate: 1deg;
+    }
+
+    100% {
+        rotate: -1deg;
+    }
+}
+
+/*Silmien välkkymis- ja pulssiefektit — luo elävän ja uhkaavan vaikutelman, ikään kuin silmät hehkuisivat ja sykkisivät sisältäpäin*/
+@keyframes eyeFlicker {
+
+    0% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    60% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes eyePulse {
+
+    0% {
+        box-shadow:
+            0 0 30px red,
+            0 0 80px crimson;
+    }
+
+    50% {
+        box-shadow:
+            0 0 60px red,
+            0 0 160px crimson;
+    }
+
+    100% {
+        box-shadow:
+            0 0 30px red,
+            0 0 80px crimson;
+    }
+}

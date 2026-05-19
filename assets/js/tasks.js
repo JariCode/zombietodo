@@ -82,6 +82,26 @@ async function refreshTasks() {
 // Kiinnitetään kaikille tehtävänapeille click-tapahtuma
 // Nappi lähettää AJAXilla (Fetch API) toiminnon palvelimelle ja päivittää listan
 // ===========================================================
+
+// Satunnainen zombie flash koko ruudulle toimintonappia painettaessa
+function triggerJumpScare(chance = 0.22) {
+
+    // Satunnainen mahdollisuus
+    if (Math.random() > chance) return;
+
+    const scare = document.getElementById('jumpScare');
+
+    if (!scare) return;
+
+    // Resetoi animaation jotta se voidaan ajaa uudelleen
+    scare.classList.remove('active');
+
+    void scare.offsetWidth;
+
+    scare.classList.add('active');
+}
+
+// Kiinnitetään tapahtuma kaikille toimintonapeille
 function attachTaskEvents() {
     document.querySelectorAll('.actions button').forEach(function(el) {
         el.addEventListener('click', async function(e) {
@@ -93,6 +113,9 @@ function attachTaskEvents() {
 
              // Veriroiske-animaatio kun tehtävä aloitetaan
             if (action === 'start') {
+
+                triggerJumpScare(0.16);// Aloitettaessa on pienempi mahdollisuus jump scareen
+
                 const task = el.closest('.task');
                 task.classList.add('anim-blood-splash');
                 await new Promise(function(resolve) { setTimeout(resolve, 800); });
@@ -100,6 +123,9 @@ function attachTaskEvents() {
 
             // Mullan heitto -animaatio kun tehtävä merkataan valmiiksi
             if (action === 'done') {
+
+                triggerJumpScare(0.20);// Valmiiksi merkatessa on hieman suurempi mahdollisuus jump scareen
+
                 const task = el.closest('.task');
                 task.classList.add('anim-grave-drop');
                 await new Promise(function(resolve) { setTimeout(resolve, 1000); });
@@ -107,6 +133,9 @@ function attachTaskEvents() {
 
             // Haudasta nouseminen kun perutaan aloitus tai valmistuminen
             if (action === 'undo_start' || action === 'undo_done') {
+
+                triggerJumpScare(0.24);// Peruutettaessa on kohtalainen mahdollisuus jump scareen
+
                 const task = el.closest('.task');
                 task.classList.add('anim-zombie-rise');
                 await new Promise(function(resolve) { setTimeout(resolve, 900); });
