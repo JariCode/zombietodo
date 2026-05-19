@@ -112,7 +112,7 @@ $doneTasks = $doneTasks->get_result();
         <div class="todo-box">
 
             <!-- Uuden tehtävän lisäyslomake -->
-            <form class="input-area" action="app/actions.php?action=add" method="POST">
+            <form class="input-area" action="app/actions.php" method="POST">
                 <input type="hidden" name="action" value="add">
                 <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"><!-- CSRF-suojaus — estää ulkopuolisen lisäämästä tehtäviä käyttäjälle -->
                 <input type="text" name="task" placeholder="Lisää tehtävä... ennen kuin kuolleet nousevat!" required autocomplete="off">
@@ -223,16 +223,18 @@ $doneTasks = $doneTasks->get_result();
 
     <!-- Jumpscare-elementti — aluksi piilossa, näytetään satunnaisesti kun tehtäviä aloitetaan tai merkitään valmiiksi -->
     <div id="jumpScare">
-        <div class="zombie-face">
+        <div class="zombie-wrapper">
+            <div class="zombie-face">
             <div class="eye left"></div>
             <div class="eye right"></div>
             <div class="mouth"></div>
+            </div>
         </div>
     </div>
 
     <!-- JavaScriptit ladataan sivun lopussa jotta HTML on valmis ennen scriptejä -->
     <script src="assets/js/ui.js"></script><!-- Yleiset UI-toiminnot -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten ladattu ulkoisesta lähteestä -->
+    <script src="assets/js/flatpickr.min.js"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten — ladataan paikallisesti -->
     <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka -->
     
 </body>

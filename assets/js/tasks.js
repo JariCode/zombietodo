@@ -77,31 +77,39 @@ async function refreshTasks() {
     });
 }
 
+
+
 // ===========================================================
 // TOIMINTANAPIT
 // Kiinnitetään kaikille tehtävänapeille click-tapahtuma
 // Nappi lähettää AJAXilla (Fetch API) toiminnon palvelimelle ja päivittää listan
 // ===========================================================
 
-// Satunnainen zombie flash koko ruudulle toimintonappia painettaessa
-function triggerJumpScare(chance = 0.22) {
 
-    // Satunnainen mahdollisuus
+// JUMPSCARE
+// Näyttää satunnaisen zombiefektin ja estää sen toistumista liian usein
+let _jumpScareSuppressRemaining = 0;
+const JUMP_SCARE_SUPPRESS_COUNT = 5;
+
+function triggerJumpScare(chance = 0.22) {
+    if (_jumpScareSuppressRemaining > 0) {
+        _jumpScareSuppressRemaining--;
+        return;
+    }
+
     if (Math.random() > chance) return;
 
     const scare = document.getElementById('jumpScare');
-
     if (!scare) return;
 
-    // Resetoi animaation jotta se voidaan ajaa uudelleen
     scare.classList.remove('active');
-
     void scare.offsetWidth;
-
     scare.classList.add('active');
+
+    _jumpScareSuppressRemaining = JUMP_SCARE_SUPPRESS_COUNT;
 }
 
-// Kiinnitetään tapahtuma kaikille toimintonapeille
+// Kiinnitetään tapahtuma kaikille tehtävänapeille
 function attachTaskEvents() {
     document.querySelectorAll('.actions button').forEach(function(el) {
         el.addEventListener('click', async function(e) {
