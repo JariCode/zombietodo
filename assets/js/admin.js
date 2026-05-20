@@ -24,6 +24,10 @@ async function refreshUsers(form) {
 
     const prevScroll = window.scrollY; // Tallennetaan scroll-positio
 
+    // Safari-korjaus — estää sivun hyppimisen päivityksen aikana
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) { scroll.style.height = scroll.offsetHeight + 'px'; scroll.style.overflow = 'hidden'; }
+
     // Kootaan suodattimet FormDataan ja lisätään type-parametri
     const formData = new FormData(form);
     formData.append('type', 'users'); // Kertoo partial-admin.php:lle mitä osiota haetaan
@@ -34,6 +38,8 @@ async function refreshUsers(form) {
         headers: { 'X-CSRF-Token': getCSRF() },
         body: formData
     });
+
+    if (isSafari) { scroll.style.height = ''; scroll.style.overflow = ''; }// Safari-korjaus palautus
 
     const html = await res.text();
     scroll.innerHTML = html; // Korvataan taulukon sisältö
@@ -55,6 +61,10 @@ async function refreshLogs(form) {
 
     const prevScroll = window.scrollY; // Tallennetaan scroll-positio
 
+    // Safari-korjaus — estää sivun hyppimisen päivityksen aikana
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) { scroll.style.height = scroll.offsetHeight + 'px'; scroll.style.overflow = 'hidden'; }
+
     // Kootaan suodattimet FormDataan ja lisätään type-parametri
     const formData = new FormData(form);
     formData.append('type', 'logs'); // Kertoo partial-admin.php:lle mitä osiota haetaan
@@ -65,6 +75,8 @@ async function refreshLogs(form) {
         headers: { 'X-CSRF-Token': getCSRF() },
         body: formData
     });
+
+    if (isSafari) { scroll.style.height = ''; scroll.style.overflow = ''; }// Safari-korjaus palautus
 
     const html = await res.text();
     scroll.innerHTML = html; // Korvataan taulukon sisältö
