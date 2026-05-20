@@ -166,28 +166,13 @@ $dataStmt->execute();
 $logs = $dataStmt->get_result();
 $dataStmt->close();
 
-// ===========================================================
-// TAPAHTUMIEN NIMET SUOMEKSI
-// Käytetään taulukossa ja suodattimen vaihtoehdoissa
-// ===========================================================
-$eventLabels = [
-    'register'                => 'Rekisteröityminen',
-    'login'                   => 'Kirjautuminen',
-    'logout'                  => 'Uloskirjautuminen',
-    'account_updated'         => 'Profiilin muokkaus käyttäjän toimesta',
-    'password_changed'        => 'Salasanan vaihto',
-    'account_deleted_user'    => 'Tilin poistaminen käyttäjän toimesta',
-    'password_reset_requested'=> 'Salasanan palautuspyyntö',
-    'password_reset_completed'=> 'Salasanan palautus suoritettu',
-    'account_deleted_admin'   => 'Tilin poistaminen adminin toimesta',
-    'role_changed'            => 'Roolin vaihto',
-];
 ?>
 <!DOCTYPE html>
 <html lang="fi">
 <head>
     <meta charset="UTF-8"> <!-- Merkistö — tukee suomen kielen merkkejä -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Skaalautuu eri laitteille -->
+    <meta name="csrf-token" content="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-token meta-tietona admin.js käyttöön -->
     <title>Zombie Admin</title>
     <meta name="description" content="Zombie To-Do — admin-paneeli käyttäjien hallintaan."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->

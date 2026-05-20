@@ -84,3 +84,20 @@ function generateCSRFToken(bool $regenerate = false) { // Luodaan uusi CSRF-toke
 function verifyCSRFToken($token) { // Tarkistetaan että lomakkeesta lähetetty token vastaa istunnossa olevaa tokenia
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token ?? ''); // Jos täsmää, pyyntö on turvallinen
 }
+
+// ===========================================================
+// TAPAHTUMIEN NIMET SUOMEKSI
+// Käytetään admin.php:ssä ja partial-admin.php:ssä
+// ===========================================================
+$eventLabels = [
+    'register'                => 'Rekisteröityminen',
+    'login'                   => 'Kirjautuminen',
+    'logout'                  => 'Uloskirjautuminen',
+    'account_updated'         => 'Profiilin muokkaus käyttäjän toimesta',
+    'password_changed'        => 'Salasanan vaihto',
+    'account_deleted_user'    => 'Tilin poistaminen käyttäjän toimesta',
+    'password_reset_requested'=> 'Salasanan palautuspyyntö',
+    'password_reset_completed'=> 'Salasanan palautus suoritettu',
+    'account_deleted_admin'   => 'Tilin poistaminen adminin toimesta',
+    'role_changed'            => 'Roolin vaihto',
+];
