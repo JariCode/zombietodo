@@ -52,7 +52,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
     <title>Zombie To-Do</title>
     <meta name="description" content="Zombie To-Do — selviä apokalypsistä hallitsemalla tehtäväsi. Kirjaudu sisään ja pidä zombit loitolla."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
-    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit -->
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit -->
 </head>
 <body>
     <!-- Veriantimaatio — valuu sivun yläreunasta ja häviää -->

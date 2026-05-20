@@ -191,7 +191,7 @@ $eventLabels = [
     <title>Zombie Admin</title>
     <meta name="description" content="Zombie To-Do — admin-paneeli käyttäjien hallintaan."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
-    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit -->
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit -->
 </head>
 <body>
 

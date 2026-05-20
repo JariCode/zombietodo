@@ -57,8 +57,8 @@ $doneTasks = $doneTasks->get_result();
     <title>Zombie To-Do</title>
     <meta name="description" content="Zombie To-Do — hallitse tehtäväsi ja selviä apokalypsistä.">
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
-    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit. Tämä oltava viimeisenä -->
+    <link rel="stylesheet" href="assets/css/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit. Tämä oltava viimeisenä -->
 </head>
 <body>
     <!-- Veri-overlay — peittää sivun punaisella efektillä, käytetään kun tehtävä merkitään valmiiksi -->
