@@ -18,11 +18,4 @@ if (session_status() === PHP_SESSION_NONE) {
     session_name('Bub');  // Vaihdetaan istuntoevästeen oletusnimi PHPSESSID -> Bub. Zombie teemaan sopiva nimi.
     session_start(); // Käynnistetään istunto. Tämä on pakollista, jotta istunto toimii ja käyttäjätiedot säilyvät sivujen välillä.
 
-// ===========================================================
-// HTTP-TURVAHEADERIT
-// ===========================================================
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none'"); // Sallii skriptit ja tyylit vain omalta sivulta — estää hyökkääjää injektoimasta omia skriptejä sivulle
-header("X-Content-Type-Options: nosniff"); // Estää selainta arvaamasta tiedoston tyyppiä — ilman tätä selain voi tulkita esim. JSON-vastauksen HTML:nä ja suorittaa siihen piilotetun koodin
-header("X-Frame-Options: DENY"); // Estää sivun upottamisen iframe-kehykseen toisella sivustolla — suojaa clickjacking-hyökkäyksiltä joissa käyttäjä huijataan klikkaamaan piilotettua nappia
-header("Referrer-Policy: strict-origin-when-cross-origin"); // Rajoittaa mitä tietoja selain lähettää edellisestä sivusta kun käyttäjä siirtyy ulkoiselle sivulle — estää osoitetietojen vuotamisen
 }

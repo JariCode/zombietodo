@@ -26,6 +26,10 @@ Options -Indexes
     RewriteCond %{THE_REQUEST} \.php
     RewriteRule ^app/partial-tasks\.php$ - [F,L]
 
+    RewriteCond %{HTTP_ACCEPT} text/html
+    RewriteCond %{THE_REQUEST} \.php
+    RewriteRule ^app/partial-admin\.php$ - [F,L]
+
     #########################################################
     # 3) ESTÄ muut app/-kansion PHP-tiedostot selaimelta
     #########################################################
@@ -57,9 +61,24 @@ Options -Indexes
 </Files>
 
 #########################################################
-# 7) Turvalliset HTTP-headerit staattisille tiedostoille
+# 7) HTTP-turvaheaderit
 #########################################################
 <IfModule mod_headers.c>
+    Header unset X-Frame-Options
+    Header always set X-Frame-Options "DENY"
+
+    Header unset X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+
+    Header unset Referrer-Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    Header unset Content-Security-Policy
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none'"
+
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
+
     <FilesMatch "\.js$">
         Header set Content-Type "application/javascript; charset=UTF-8"
         Header set Cache-Control "no-cache, must-revalidate"

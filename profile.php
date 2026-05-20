@@ -56,7 +56,7 @@ $email = $userData['email'] ?? '';
     <div class="container">
 
         <!-- Herokuva — suuri kuva joka esittelee sovelluksen teeman -->
-        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" fetchpriority="high">
+        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630" fetchpriority="high">
 
         <!-- Yläpalkki — tervetuloviesti ja navigointilinkit. Sama rakenne kuin tasks.php:ssä -->
         <div class="header-bar">

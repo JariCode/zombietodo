@@ -68,6 +68,7 @@ body {
 /* Hero-kuva joka sivulla */
 .hero {
     width: 80%;
+    height: auto;
     margin: 0 auto 10px auto;
     display: block;
 }

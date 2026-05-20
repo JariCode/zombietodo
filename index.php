@@ -62,7 +62,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
     <div class="container">
 
         <!--Herokuva — suuri kuva joka esittelee sovelluksen teeman ja tunnelman.-->
-        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" fetchpriority="high">
+        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630"fetchpriority="high">
 
         <!-- WIP-banneri — näkyy sivun yläosassa kun sovellus on kehitysvaiheessa -->
         <div class="wip-banner">🧠 WORK IN PROGRESS… BRAINS LOADING 🩸</div>
@@ -157,7 +157,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
         </div>
         <div class="legal-body">
 
-            <p><small>Päivitetty viimeksi: 20.5.2026</small></p>
+        <p><small>Päivitetty viimeksi: 20.5.2026</small></p>
             <h3>1. YLEISTÄ</h3>
             <p>Zombie To-Do -palvelun käyttö edellyttää näiden käyttöehtojen hyväksymistä. Palvelun käyttäminen tarkoittaa, että käyttäjä sitoutuu noudattamaan näitä ehtoja.</p>
 
