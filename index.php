@@ -157,6 +157,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
         </div>
         <div class="legal-body">
 
+            <p><small>Päivitetty viimeksi: 20.5.2026</small></p>
             <h3>1. YLEISTÄ</h3>
             <p>Zombie To-Do -palvelun käyttö edellyttää näiden käyttöehtojen hyväksymistä. Palvelun käyttäminen tarkoittaa, että käyttäjä sitoutuu noudattamaan näitä ehtoja.</p>
 
@@ -170,13 +171,13 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
             <p>Rekisteröitymisen yhteydessä käyttäjä hyväksyy Zombie To-Do -palvelun tietosuojaselosteen. Tietosuojaseloste määrittelee, mitä tietoja kerätään ja miten niitä käsitellään.</p>
 
             <h3>5. PALVELUN KÄYTTÖ</h3>
-            <p>Palvelua tulee käyttää lain ja hyvän tavan mukaisesti. Häiritsevä, haitallinen, laiton tai muulla tavoin sopimaton toiminta voi johtaa käyttäjätilin sulkemiseen. Ennen tilin sulkemista käyttäjälle ilmoitetaan asiasta sähköpostitse ja annetaan mahdollisuus korjata toimintansa, ellei kyseessä ole vakava tai toistuva rikkomus.</p>
+            <p><p>Palvelua tulee käyttää lain ja hyvän tavan mukaisesti. Häiritsevä, haitallinen, laiton tai muulla tavoin sopimaton toiminta voi johtaa käyttäjätilin sulkemiseen ilman erillistä varoitusta.</p></p>
 
             <h3>6. VASTUUNRAJOITUS</h3>
             <p>Palvelu tarjotaan "sellaisena kuin se on" ilman takuita saatavuudesta, virheettömyydestä tai keskeytymättömyydestä. Ylläpitäjä ei vastaa tietojen katoamisesta, palvelun käyttökatkoista tai muista vahingoista, jotka aiheutuvat palvelun käytöstä.</p>
 
             <h3>7. MUUTOKSET EHTOIHIN</h3>
-            <p>Palvelun ylläpitäjä voi päivittää käyttöehtoja tarvittaessa. Oleellisista muutoksista ilmoitetaan käyttäjille sähköpostitse. Päivitetyt ehdot astuvat voimaan ilmoituksessa mainitusta ajankohdasta lähtien.</p>
+            <p>Palvelun ylläpitäjä voi päivittää käyttöehtoja tarvittaessa. Muutokset astuvat voimaan kun ne julkaistaan palvelussa. Käyttäjän suositellaan tarkistavan ehdot säännöllisesti.</p>
 
             <h3>8. YHTEYSTIEDOT</h3>
             <p>Kysymyksissä tai epäselvyyksissä voi ottaa yhteyttä palvelun ylläpitäjään:</p>
@@ -200,7 +201,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
             <button class="legal-close" aria-label="Sulje">✕</button>
         </div>
         <div class="legal-body">
-
+            <p><small>Päivitetty viimeksi: 20.5.2026</small></p>
             <h3>REKISTERINPITÄJÄ</h3>
             <p>JariCode<br>Sähköposti: jaricode@elisanet.fi<br>Kotisivu: <a href="https://www.jaricode.fi" target="_blank" rel="noopener">www.jaricode.fi</a></p>
 
