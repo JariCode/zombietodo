@@ -65,6 +65,17 @@ body {
     z-index: 20;
 }
 
+.no-caret {
+  caret-color: transparent;
+  user-select: none;
+}
+
+form, form * {
+  caret-color: auto;
+  user-select: text;
+}
+
+
 /* Hero-kuva joka sivulla */
 .hero {
     width: 80%;

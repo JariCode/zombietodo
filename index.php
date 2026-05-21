@@ -57,9 +57,8 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
 <body>
     <!-- Veriantimaatio — valuu sivun yläreunasta ja häviää -->
     <div class="blood"></div>
-
     <!--Pääkontaineri joka sisältää kaikki sivun elementit ja toiminnallisuudet.-->
-    <div class="container">
+    <div class="container no-caret" >
 
         <!--Herokuva — suuri kuva joka esittelee sovelluksen teeman ja tunnelman.-->
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630"fetchpriority="high">
@@ -135,7 +134,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
                     <input type="password" name="password_confirm" placeholder="********" required minlength="10" maxlength="72" autocomplete="off"> <!-- Samat rajat kuin salasanakentässä -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
                 </div>
-                <div class="checkbox-wrapper">
+                <div class="checkbox-wrapper no-caret">
                     <label for="acceptPrivacyPolicy" class="checkbox-label">
                         <input type="checkbox" id="acceptPrivacyPolicy" name="terms" required>
                         Hyväksyn
@@ -149,7 +148,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
     </div>
 
     <!-- KÄYTTÖEHDOT — Modal -->
-<div class="legal-overlay" id="legalTerms" role="dialog" aria-modal="true" aria-labelledby="legalTermsTitle">
+<div class="legal-overlay no-caret" id="legalTerms" role="dialog" aria-modal="true" aria-labelledby="legalTermsTitle">
     <div class="legal-modal">
         <div class="legal-header">
             <h2 id="legalTermsTitle">KÄYTTÖEHDOT 📜</h2>
@@ -194,7 +193,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
      TIETOSUOJASELOSTE — Modal
      Avautuu kun käyttäjä klikkaa "tietosuojaseloste"-linkkiä rekisteröintilomakkeessa
      ============================================ -->
-<div class="legal-overlay" id="legalPrivacy" role="dialog" aria-modal="true" aria-labelledby="legalPrivacyTitle">
+<div class="legal-overlay no-caret" id="legalPrivacy" role="dialog" aria-modal="true" aria-labelledby="legalPrivacyTitle">
     <div class="legal-modal">
         <div class="legal-header">
             <h2 id="legalPrivacyTitle">Tietosuojaseloste 🔒</h2>

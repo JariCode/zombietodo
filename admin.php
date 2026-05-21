@@ -184,7 +184,7 @@ $dataStmt->close();
     <div class="blood"></div>
 
     <!-- Pääkontaineri — admin-page-luokka mahdollistaa admin-sivun omien tyylien kohdistamisen -->
-    <div class="container admin-page">
+    <div class="container admin-page no-caret">
 
         <!-- Herokuva — suuri kuva joka esittelee sovelluksen teeman -->
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630" fetchpriority="high">
@@ -249,7 +249,7 @@ $dataStmt->close();
             </form>
 
             <!-- Käyttäjätaulukko scrollaavassa divissä — otsikkorivi pysyy paikallaan -->
-            <div class="admin-user-scroll">
+            <div class="admin-user-scroll no-caret">
                 <table class="admin-table" id="userTable">
                     <thead>
                         <tr>
@@ -322,7 +322,7 @@ $dataStmt->close();
             </form>
 
             <!-- Lokitaulukko scrollaavassa divissä — otsikkorivi pysyy paikallaan -->
-            <div class="admin-log-scroll">
+            <div class="admin-log-scroll no-caret">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -392,7 +392,7 @@ $dataStmt->close();
                 </form>
 
                 <!-- SALASANAN PALAUTUS — admin lähettää palautuslinkin käyttäjän sähköpostiin -->
-                <div class="admin-modal-section">
+                <div class="admin-modal-section no-caret">
                     <h3 class="admin-section-title">Unohtunut salasana 📧</h3>
                     <form id="adminResetForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_reset_password"> <!-- Toiminto POST-datana -->
@@ -408,7 +408,7 @@ $dataStmt->close();
                 </div>
 
                 <!-- TILIN POISTO — admin poistaa käyttäjän tilin pysyvästi -->
-                <div class="admin-modal-section">
+                <div class="admin-modal-section no-caret">
                     <h3 class="admin-section-title admin-section-danger">Tilin poistaminen 🔒</h3>
                     <form id="adminDeleteForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_delete_user"> <!-- Toiminto POST-datana -->

@@ -68,7 +68,7 @@ $doneTasks = $doneTasks->get_result();
     <div class="blood"></div>
 
     <!-- Pääkontaineri joka sisältää kaikki sivun elementit -->
-    <div class="container">
+    <div class="container no-caret">
 
         <!-- Herokuva — suuri kuva joka esittelee sovelluksen teeman -->
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630" fetchpriority="high">
@@ -222,7 +222,7 @@ $doneTasks = $doneTasks->get_result();
     <!-- Muokkausmodal loppuu --> 
 
     <!-- Jumpscare-elementti — aluksi piilossa, näytetään satunnaisesti kun tehtäviä aloitetaan tai merkitään valmiiksi -->
-    <div id="jumpScare">
+    <div id="jumpScare" class="no-caret">
         <div class="zombie-wrapper">
             <div class="zombie-face">
             <div class="eye left"></div>
