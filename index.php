@@ -65,7 +65,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630"fetchpriority="high">
 
         <!-- WIP-banneri — näkyy sivun yläosassa kun sovellus on kehitysvaiheessa -->
-        <div class="wip-banner">🧠 WORK IN PROGRESS… BRAINS LOADING 🩸</div>
+        <div class="wip-banner">🩸 THE UNDEAD ARE ORGANIZING TASKS... 🩸</div>
 
         <!-- Sitaattilaatikko — hakee ja näyttää satunnaisen sitaatin ulkoisesta API:sta -->
         <div class="quote-box">

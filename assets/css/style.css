@@ -238,12 +238,6 @@ h1 {
     margin-bottom: 0;
 }
 
-/* Piilota Edge/IE:n oma silmä/clear -ikoni, käytetään omaa painiketta */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-    display: none;
-}
-
 /* Silmäpainike näyttämään salasana salasanakentän sisällä */
 .password-field .password-eye {
     position: absolute;
