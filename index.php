@@ -22,7 +22,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
     $curl = curl_init(); // Alustetaan cURL-yhteys ulkoista API-pyyntöä varten.
 
     curl_setopt_array($curl, [ // Määritellään cURL-asetukset taulukossa.
-        CURLOPT_URL => "https://api.api-ninjas.com/v1/quotes", // API-osoite josta haetaan satunnainen sitaatti.
+        CURLOPT_URL => "https://api.api-ninjas.com/v2/randomquotes", // API-osoite josta haetaan satunnainen sitaatti.
         CURLOPT_RETURNTRANSFER => true, // Palauttaa API-vastauksen tekstinä muuttujaan tulostamisen sijaan.
         CURLOPT_TIMEOUT => 5, // Enintään 5 sekuntia — sen jälkeen näytetään oletusteksti eikä sivu jumitu.
         CURLOPT_HTTPHEADER => [ // Lähetetään HTTP-headerit API-palvelulle.
