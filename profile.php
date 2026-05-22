@@ -97,7 +97,8 @@ $email = $userData['email'] ?? '';
         <div class="auth-box">
             <h2 class="auth-title">Zombie Profiili</h2>
 
-            <form method="POST" action="app/actions.php?action=update_profile" autocomplete="off">
+            <form method="POST" action="app/actions.php" autocomplete="off"> <!-- Toiminto kulkee nyt piilokenttänä POST-bodyssa eikä URL-parametrina -->
+                <input type="hidden" name="action" value="update_profile"> <!-- Toiminto POST-datana URL:n sijaan — yhtenäinen tyyli muiden lomakkeiden kanssa -->
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Käyttäjänimi</label>
@@ -114,7 +115,8 @@ $email = $userData['email'] ?? '';
         <div class="auth-box">
             <h2 class="auth-title">Vaihda salasana 🔒</h2>
 
-            <form method="POST" action="app/actions.php?action=change_password">
+            <form method="POST" action="app/actions.php"> <!-- Toiminto kulkee nyt piilokenttänä POST-bodyssa eikä URL-parametrina -->
+                <input type="hidden" name="action" value="change_password"> <!-- Toiminto POST-datana URL:n sijaan — yhtenäinen tyyli muiden lomakkeiden kanssa -->
                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Vanha salasana</label>
@@ -143,7 +145,8 @@ $email = $userData['email'] ?? '';
         <div class="auth-box">
             <h2 class="auth-title">Poista tili 🪦</h2>
 
-            <form method="POST" action="app/actions.php?action=delete_account" autocomplete="off">
+            <form method="POST" action="app/actions.php" autocomplete="off"> <!-- Toiminto kulkee nyt piilokenttänä POST-bodyssa eikä URL-parametrina -->
+                <input type="hidden" name="action" value="delete_account"> <!-- Toiminto POST-datana URL:n sijaan — yhtenäinen tyyli muiden lomakkeiden kanssa -->
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Käyttäjänimi</label>
@@ -169,4 +172,3 @@ $email = $userData['email'] ?? '';
 
 </body>
 </html>
-

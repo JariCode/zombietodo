@@ -990,12 +990,6 @@ function handleTaskAction($action) {
 //Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
 //===========================================================
 
-
-//===========================================================
-//KÄYTTÄJÄN TIETOJEN MUOKKAUS
-//Admin voi muuttaa käyttäjätietoja kuten nimeä tai sähköpostia, mutta ei salasanaa
-//===========================================================
-
 //===========================================================
 //UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
 //Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan

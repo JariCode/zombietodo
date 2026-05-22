@@ -1154,13 +1154,13 @@ body.modal-open {
 /* Käyttäjätaulukon rooli- ja toiminnot-sarakkeet: kiinteä leveys, ei rivinvaihtoa */
 #userTable thead th:nth-child(3),
 #userTable tbody td:nth-child(3) {
-    width: 72px;
+    width: 50px;
     white-space: nowrap;
 }
 
 #userTable thead th:nth-child(4),
 #userTable tbody td:nth-child(4) {
-    width: 132px;
+    width: 100px;
     white-space: nowrap;
 }
 
@@ -1457,13 +1457,13 @@ body.modal-open {
     /* Admin-taulukon otsikot pienemmiksi mobiilissa */
     .admin-table thead th {
         font-size: 0.75rem;
-        padding: 4px 3px;
+        padding: 4px 2px;
         letter-spacing: 0;
     }
 
     /* Admin-taulukon solut pienemmiksi mobiilissa */
     .admin-table tbody td {
-        padding: 4px 3px;
+        padding: 4px 2px;
         font-size: 0.7rem;
     }
 
@@ -1478,13 +1478,13 @@ body.modal-open {
     #userTable tbody td:nth-child(3) { width: 35px; }
 
     #userTable thead th:nth-child(4),
-    #userTable tbody td:nth-child(4) { width: 60px; }
+    #userTable tbody td:nth-child(4) { width: 50px; }
 
     /* MUOKKAA-nappi pienemmäksi mobiilissa */
     .auth-box .admin-btn-edit {
-        font-size: 0.75rem;
-        padding: 10px 2px;
-        gap: 1px;
+        font-size: 0.6rem;
+        padding: 10px 1px;
+        gap: 0.5px;
         letter-spacing: 0.5px;
     }
 
