@@ -186,7 +186,7 @@ function handleRegister() {
     $stmt->store_result(); // Tallennetaan tulos muistiin jotta voidaan laskea rivit
     if ($stmt->num_rows > 0) { // Jos rivejä löytyy, sähköposti on jo käytössä
         saveFormData($username, $email); // Tallennetaan täytetyt kentät jotta ne palautuvat lomakkeelle
-        $_SESSION['error'] = 'Sähköposti on jo käytössä.';
+        $_SESSION['error'] = 'Käyttäjänimi tai sähköposti on jo käytössä.';
         $stmt->close();
         header('Location: ../index.php');
         exit;
@@ -200,7 +200,7 @@ function handleRegister() {
     $stmt->store_result();
     if ($stmt->num_rows > 0) { // Jos rivejä löytyy, käyttäjänimi on jo käytössä
         saveFormData($username, $email); // Tallennetaan täytetyt kentät jotta ne palautuvat lomakkeelle
-        $_SESSION['error'] = 'Käyttäjänimi on jo käytössä.';
+        $_SESSION['error'] = 'Käyttäjänimi tai sähköposti on jo käytössä.';
         $stmt->close();
         header('Location: ../index.php');
         exit;
