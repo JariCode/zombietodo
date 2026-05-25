@@ -1084,6 +1084,9 @@ body.modal-open {
    - .auth-title     → osio-otsikot
    - .modal-*        → muokkausmodal
    ================================ */
+.admin-title {
+  animation: roleGlowAdmin 1.8s infinite ease-in-out;
+}
 
 /* Sykkivä punainen hohto admin-sivun syöttökentille — sama efekti kuin tehtävän lisäyskentässä */
 .admin-page .auth-box input {

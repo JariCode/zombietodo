@@ -62,26 +62,16 @@ document.querySelectorAll('.link-btn').forEach(function(btn) {
     });
 });
 
-// ===========================================================
-// KÄYTTÖEHDOT JA TIETOSUOJASELOSTE — MODALIN AVAUS
-// ===========================================================
-document.querySelectorAll('.link-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        const type = btn.textContent.trim().startsWith('käyttöehdot') ? 'terms' : 'privacy';
-        openLegalModal(type);
-    });
-});
-
 // Avaa käyttöehdot- tai tietosuojaseloste-modalin
 function openLegalModal(type) {
-    var id = type === 'terms' ? 'legalTerms' : 'legalPrivacy'; // Valitaan oikea modal
-    var overlay = document.getElementById(id);
+    const id = type === 'terms' ? 'legalTerms' : 'legalPrivacy'; // Valitaan oikea modal
+    const overlay = document.getElementById(id);
     if (!overlay) return;
     overlay.classList.add('open'); // Näytetään modal
     document.body.classList.add('modal-open'); // Lukitaan taustasivun skrolli
 
     // Scrollataan sisältö alkuun jos modal on avattu aiemmin ja scrollattu alas
-    var body = overlay.querySelector('.legal-body');
+    const body = overlay.querySelector('.legal-body');
     if (body) body.scrollTop = 0;
 }
 
@@ -95,12 +85,12 @@ function closeLegalModal(overlay) {
 // Kiinnitetään sulkemistapahtumat kaikkiin legal-modaleihin
 document.querySelectorAll('.legal-overlay').forEach(function(overlay) {
     // X-nappi headerissa
-    var closeBtn = overlay.querySelector('.legal-close');
+    const closeBtn = overlay.querySelector('.legal-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', function() { closeLegalModal(overlay); });
     }
     // SULJE 🔒 nappi footerissa
-    var closeFooterBtn = overlay.querySelector('.legal-close-btn');
+    const closeFooterBtn = overlay.querySelector('.legal-close-btn');
     if (closeFooterBtn) {
         closeFooterBtn.addEventListener('click', function() { closeLegalModal(overlay); });
     }

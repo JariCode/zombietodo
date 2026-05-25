@@ -204,7 +204,7 @@ $dataStmt->close();
         </div>
 
         <!-- Pääotsikko -->
-        <h1>ZOMBIE MASTER</h1>
+        <h1 class="admin-title">ZOMBIE MASTER</h1>
 
         <!-- Virheilmoitus — näytetään vain jos virheitä on -->
         <?php if (!empty($_SESSION['error'])): ?>
