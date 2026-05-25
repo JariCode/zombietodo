@@ -180,6 +180,17 @@ $dataStmt->close();
 </head>
 <body>
 
+        <!-- Admin paneelin sisääntulo animaatio -->
+        <div class="admin-intro" id="adminIntro">
+            <div class="admin-intro-overlay"></div>
+
+            <div class="admin-intro-content">
+                <p class="admin-warning">AUTHORIZED PERSONNEL ONLY</p>
+                <h1 class="admin-loading">ZOMBIE MASTER</h1>
+                <p class="admin-status">Loading containment systems...</p>
+            </div>
+        </div>
+
     <!-- Veriantimaatio — valuu sivun yläreunasta ja häviää -->
     <div class="blood"></div>
 
@@ -204,7 +215,7 @@ $dataStmt->close();
         </div>
 
         <!-- Pääotsikko -->
-        <h1 class="admin-title">ZOMBIE MASTER</h1>
+        <h1>ZOMBIE MASTER</h1>
 
         <!-- Virheilmoitus — näytetään vain jos virheitä on -->
         <?php if (!empty($_SESSION['error'])): ?>

@@ -115,7 +115,57 @@ function setupAdminForms() {
 }
 
 // ===========================================================
+// ADMIN INTRO ANIMAATIO
+// ===========================================================
+// Funktio joka hoitaa admin-paneelin tervetuloanimaation
+function startAdminIntro() {
+
+    // Haetaan intro-elementti HTML:stä
+    const intro = document.getElementById('adminIntro');
+
+    // Lopetetaan funktio jos intro-elementtiä ei löydy
+    if (!intro) return;
+
+    // Haetaan status-tekstielementti introsta
+    const status = intro.querySelector('.admin-status');
+
+    // Tekstit joita näytetään vuorotellen intro-animaation aikana
+    const messages = [
+        'Loading containment systems...',
+        'Scanning infected database...',
+        'Checking zombie activity...',
+        'Access granted...'
+    ];
+
+    // Aloitetaan ensimmäisestä viestistä
+    let i = 0;
+
+    // Vaihdetaan status-tekstiä tietyin väliajoin
+    const interval = setInterval(function() {
+
+        // Siirrytään seuraavaan viestiin
+        i++;
+
+        // Lopetetaan animaation tekstinvaihto kun kaikki viestit on näytetty
+        if (i >= messages.length) {
+            clearInterval(interval);
+            return;
+        }
+
+        // Päivitetään näkyvä status-teksti
+        status.textContent = messages[i];
+
+    }, 700);
+
+    // Poistetaan intro-elementti lopuksi kokonaan DOM:ista
+    setTimeout(function() {
+        intro.remove();
+    }, 5000);
+}
+
+// ===========================================================
 // KÄYNNISTYS
 // Kiinnitetään tapahtumat kun sivu on latautunut
 // ===========================================================
 setupAdminForms();
+startAdminIntro();
