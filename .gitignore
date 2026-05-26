@@ -8,14 +8,14 @@
 # koska siellä on salasanat!
 # ================================
 
-# Salasanat ja tietokanta-asetukset — ei koskaan nettiin
+# Salasanat ja tietokanta-asetukset - ei koskaan nettiin
 .env
 
-# Ulkopuoliset lisäosat — jokainen lataa ne itse omalle koneelleen
+# Ulkopuoliset lisäosat - jokainen lataa ne itse omalle koneelleen
 /vendor/
 
-# Palvelimen päiväkirja — kirjaa ylös virheet ja tapahtumat
+# Palvelimen päiväkirja - kirjaa ylös virheet ja tapahtumat
 *.log
 
-# Tietokantavedos — voi sisältää käyttäjien tietoja
+# Tietokantavedos - voi sisältää käyttäjien tietoja
 *.sql
