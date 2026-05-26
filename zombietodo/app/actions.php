@@ -19,8 +19,13 @@
 // tänne tietoa taustalla.
 // ================================
 
-require_once __DIR__ . '/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
-require_once __DIR__ . '/db.php';             // Tietokantayhteys $conn-muuttujaan
+// Etsitään zombie-config-kansio — tarkistetaan ensin kaksi tasoa ylös, sitten kolme
+// App-kansio on yhden tason syvemmällä kuin juuritiedostot
+$cfgDir = is_dir(dirname(dirname(__DIR__)) . '/zombie-config')
+    ? dirname(dirname(__DIR__)) . '/zombie-config'
+    : dirname(dirname(dirname(__DIR__))) . '/zombie-config';
+require_once $cfgDir . '/session-config.php'; // Istuntoasetukset ENSIN
+require_once $cfgDir . '/db.php';             // Tietokantayhteys
 
 // ===========================================================
 // TOIMINNON REITITYS
@@ -186,7 +191,7 @@ function handleRegister() {
     $stmt->store_result(); // Tallennetaan tulos muistiin jotta voidaan laskea rivit
     if ($stmt->num_rows > 0) { // Jos rivejä löytyy, sähköposti on jo käytössä
         saveFormData($username, $email); // Tallennetaan täytetyt kentät jotta ne palautuvat lomakkeelle
-        $_SESSION['error'] = 'Sähköposti on jo käytössä.';
+        $_SESSION['error'] = 'Käyttäjänimi tai sähköposti on jo käytössä.';
         $stmt->close();
         header('Location: ../index.php');
         exit;
@@ -200,7 +205,7 @@ function handleRegister() {
     $stmt->store_result();
     if ($stmt->num_rows > 0) { // Jos rivejä löytyy, käyttäjänimi on jo käytössä
         saveFormData($username, $email); // Tallennetaan täytetyt kentät jotta ne palautuvat lomakkeelle
-        $_SESSION['error'] = 'Käyttäjänimi on jo käytössä.';
+        $_SESSION['error'] = 'Käyttäjänimi tai sähköposti on jo käytössä.';
         $stmt->close();
         header('Location: ../index.php');
         exit;
@@ -231,6 +236,13 @@ function handleRegister() {
     $_SESSION['username']      = $username;  // Käyttäjänimi näytetään tervetuloviestissä
     $_SESSION['role']          = 'user';     // Rooli — oletuksena 'user'. Tarvitaan admin-toiminnoissa vaiheessa 3
     $_SESSION['last_activity'] = time();     // Käynnistetään timeout-laskuri. Aika tallennetaan sekunteina
+
+     // Kirjataan tapahtuma lokiin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'register', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('iss', $newId, $username, $ip); // $newId koska juuri luotu käyttäjä
+    $stmt->execute();
+    $stmt->close();
 
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
@@ -359,6 +371,13 @@ function handleLogin() {
     // Näin estetään CSRF-tokenin uudelleenkäyttö kirjautumisen jälkeen
     generateCSRFToken(true); // true pakottaa uuden tokenin luomisen
 
+     // Kirjataan tapahtuma lokiin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'login', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('iss', $user['id'], $user['username'], $ip); // $user['id'] koska haettu tietokannasta
+    $stmt->execute();
+    $stmt->close();
+
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
     exit;
@@ -368,6 +387,7 @@ function handleLogin() {
 // ULOSKIRJAUTUMINEN
 // ===========================================================
 function handleLogout() {
+   global $conn; // Otetaan tietokantayhteys käyttöön
 
     // Tarkistetaan CSRF-token — estää ulkopuolista kirjaamasta käyttäjän ulos
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
@@ -376,6 +396,16 @@ function handleLogout() {
         header('Location: ../index.php');
         exit;
     }
+
+     // Kirjataan tapahtuma lokiin ENNEN istunnon tuhoamista
+    // session_unset() tyhjentää $_SESSION['user_id'] joten lokitus pitää tehdä ensin
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'logout', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $uid = intval($_SESSION['user_id']);
+    $username = $_SESSION['username'];
+    $stmt->bind_param('iss', $uid, $username, $ip);
+    $stmt->execute();
+    $stmt->close();
 
     session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
     session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
@@ -490,9 +520,9 @@ function handleUpdateProfile() {
     $_SESSION['username'] = $username;
 
     // Kirjataan tapahtuma lokiin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_updated', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'account_updated', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null; // Käyttäjän IP-osoite tapahtuman hetkellä
-    $stmt->bind_param('is', $uid, $ip); // 'is' = integer, string
+    $stmt->bind_param('iss', $uid, $username, $ip); // 'iss' = integer, string, string
     $stmt->execute();
     $stmt->close();
 
@@ -625,9 +655,10 @@ function handleChangePassword() {
     $stmt->close();
 
      // Kirjataan tapahtuma lokiin
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_updated', ?)");
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'password_changed', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null; // Käyttäjän IP-osoite tapahtuman hetkellä
-    $stmt->bind_param('is', $uid, $ip);
+    $username = $_SESSION['username'];
+    $stmt->bind_param('iss', $uid, $username, $ip);
     $stmt->execute();
     $stmt->close();
 
@@ -720,16 +751,16 @@ function handleDeleteAccount() {
         exit;
     }
 
-    // Kirjataan tapahtuma lokiin ENNEN käyttäjän poistoa
-    // ON DELETE CASCADE poistaa myös tämän lokimerkinnän kun käyttäjä poistetaan
-    $stmt = $conn->prepare("INSERT INTO logs (user_id, event, ip_address) VALUES (?, 'account_deleted_user', ?)");
+   // Kirjataan tapahtuma lokiin ENNEN käyttäjän poistoa
+    // ON DELETE SET NULL muuttaa user_id:n NULL:ksi mutta lokimerkintä ja username säilyvät
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'account_deleted_user', ?)");
     $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-    $stmt->bind_param('is', $uid, $ip);
+    $stmt->bind_param('iss', $uid, $user['username'], $ip);
     $stmt->execute();
     $stmt->close();
 
     // Poistetaan käyttäjä tietokannasta
-    // ON DELETE CASCADE poistaa automaattisesti myös käyttäjän tehtävät ja lokimerkinnät
+    // ON DELETE CASCADE poistaa käyttäjän tehtävät, ON DELETE SET NULL säilyttää lokimerkinnät
     $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
     $stmt->bind_param('i', $uid);
     $stmt->execute();
@@ -758,6 +789,13 @@ function handleTaskAction($action) {
     header('Content-Type: application/json; charset=utf-8'); // Kerrotaan selaimelle että vastaus on JSON-dataa eikä HTML — estää selainta tulkitsemasta ja suorittamasta vastauksen sisältöä HTML:nä
     global $conn; // Otetaan tietokantayhteys käyttöön
 
+    // Tarkistetaan että pyyntö tulee POST-metodilla — GET-pyynnöt eivät ole sallittuja tilanmuutoksiin
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405); // 405 = Method Not Allowed
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
     // Tarkistetaan kirjautuminen — kirjautumaton käyttäjä ei pääse tekemään mitään
     if (!isset($_SESSION['user_id'])) {
         http_response_code(403); // 403 = Forbidden — pääsy kielletty
@@ -775,7 +813,7 @@ function handleTaskAction($action) {
     }
 
     $user_id = intval($_SESSION['user_id']); // Kirjautuneen käyttäjän id
-    $id      = intval($_GET['id'] ?? 0);     // Tehtävän id URL-parametrista — esim. ?action=start&id=5
+    $id = intval($_POST['id'] ?? 0);    //Tehtävä id POST-datasta.
 
     // ===========================================================
     // LISÄÄ TEHTÄVÄ
@@ -947,3 +985,22 @@ function handleTaskAction($action) {
     header('Location: ../index.php');
     exit;
 }
+
+// ===========================================================
+// ADMIN-TOIMINNOT — vain admin-roolille
+// ===========================================================
+
+//===========================================================
+//ROOLIN VAIHTAMINEN
+//Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
+//===========================================================
+
+//===========================================================
+//UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
+//Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan
+//===========================================================
+
+//===========================================================
+//KÄYTTÄJÄN POISTAMINEN
+//Admin voi poistaa käyttäjän ja kaikki hänen tietonsa — mutta ei itseään
+//===========================================================

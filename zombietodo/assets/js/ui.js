@@ -61,3 +61,50 @@ document.querySelectorAll('.link-btn').forEach(function(btn) {
         openLegalModal(type);
     });
 });
+
+// Avaa käyttöehdot- tai tietosuojaseloste-modalin
+function openLegalModal(type) {
+    const id = type === 'terms' ? 'legalTerms' : 'legalPrivacy'; // Valitaan oikea modal
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.add('open'); // Näytetään modal
+    document.body.classList.add('modal-open'); // Lukitaan taustasivun skrolli
+
+    // Scrollataan sisältö alkuun jos modal on avattu aiemmin ja scrollattu alas
+    const body = overlay.querySelector('.legal-body');
+    if (body) body.scrollTop = 0;
+}
+
+// Sulkee legal-modalin
+function closeLegalModal(overlay) {
+    if (!overlay) return;
+    overlay.classList.remove('open'); // Piilotetaan modal
+    document.body.classList.remove('modal-open'); // Vapautetaan taustasivun skrolli
+}
+
+// Kiinnitetään sulkemistapahtumat kaikkiin legal-modaleihin
+document.querySelectorAll('.legal-overlay').forEach(function(overlay) {
+    // X-nappi headerissa
+    const closeBtn = overlay.querySelector('.legal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() { closeLegalModal(overlay); });
+    }
+    // SULJE 🔒 nappi footerissa
+    const closeFooterBtn = overlay.querySelector('.legal-close-btn');
+    if (closeFooterBtn) {
+        closeFooterBtn.addEventListener('click', function() { closeLegalModal(overlay); });
+    }
+    // Klikkaus taustan päälle sulkee modalin
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeLegalModal(overlay);
+    });
+});
+
+// ESC-näppäin sulkee legal-modalin
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.legal-overlay.open').forEach(function(overlay) {
+            closeLegalModal(overlay);
+        });
+    }
+});

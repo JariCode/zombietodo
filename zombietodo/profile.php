@@ -1,20 +1,14 @@
 <?php
 // ================================
-// profile.php
-//
-// Tämä on profiilisivu — näkyy vain
-// kirjautuneelle käyttäjälle.
-//
-// Tällä sivulla käyttäjä voi:
-// - Muokata omia tietojaan
-// - Vaihtaa salasanaa
-// - Poistaa käyttäjätilinsä
-//
-// Kirjautumaton käyttäjä ohjataan
-// automaattisesti takaisin etusivulle.
+// profile.php — käyttäjän profiilisivu, jossa käyttäjä voi muuttaa tietojaan, vaihtaa salasanansa tai poistaa tilinsä
 // ================================
-require_once 'app/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
-require_once 'app/db.php';             // Tietokantayhteys $conn-muuttujaan
+// Etsitään zombie-config-kansio — tarkistetaan ensin yksi taso ylös, sitten kaksi
+// Paikallisesti kansio on yhden tason päässä, palvelimella kahden
+$cfgDir = is_dir(dirname(__DIR__) . '/zombie-config')
+    ? dirname(__DIR__) . '/zombie-config'
+    : dirname(dirname(__DIR__)) . '/zombie-config';
+require_once $cfgDir . '/session-config.php'; // Istuntoasetukset ENSIN
+require_once $cfgDir . '/db.php';             // Tietokantayhteys
 
 // Tarkistetaan että käyttäjä on kirjautunut sisään
 // Kirjautumaton käyttäjä ohjataan takaisin kirjautumissivulle
@@ -56,7 +50,7 @@ $email = $userData['email'] ?? '';
     <title>Zombie Profile</title>
     <meta name="description" content="Zombie To-Do — muokkaa profiiliasi, vaihda salasana tai poista tilisi."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
-    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit -->
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit -->
 </head>
 <body>
 
@@ -64,10 +58,10 @@ $email = $userData['email'] ?? '';
     <div class="blood"></div>
 
     <!-- Pääkontaineri joka sisältää kaikki sivun elementit -->
-    <div class="container">
+    <div class="container no-caret">
 
         <!-- Herokuva — suuri kuva joka esittelee sovelluksen teeman -->
-        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" fetchpriority="high">
+        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630" fetchpriority="high">
 
         <!-- Yläpalkki — tervetuloviesti ja navigointilinkit. Sama rakenne kuin tasks.php:ssä -->
         <div class="header-bar">
@@ -108,7 +102,8 @@ $email = $userData['email'] ?? '';
         <div class="auth-box">
             <h2 class="auth-title">Zombie Profiili</h2>
 
-            <form method="POST" action="app/actions.php?action=update_profile" autocomplete="off">
+            <form method="POST" action="app/actions.php" autocomplete="off"> <!-- Toiminto kulkee nyt piilokenttänä POST-bodyssa eikä URL-parametrina -->
+                <input type="hidden" name="action" value="update_profile"> <!-- Toiminto POST-datana URL:n sijaan — yhtenäinen tyyli muiden lomakkeiden kanssa -->
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Käyttäjänimi</label>
@@ -125,7 +120,8 @@ $email = $userData['email'] ?? '';
         <div class="auth-box">
             <h2 class="auth-title">Vaihda salasana 🔒</h2>
 
-            <form method="POST" action="app/actions.php?action=change_password">
+            <form method="POST" action="app/actions.php"> <!-- Toiminto kulkee nyt piilokenttänä POST-bodyssa eikä URL-parametrina -->
+                <input type="hidden" name="action" value="change_password"> <!-- Toiminto POST-datana URL:n sijaan — yhtenäinen tyyli muiden lomakkeiden kanssa -->
                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Vanha salasana</label>
@@ -154,7 +150,8 @@ $email = $userData['email'] ?? '';
         <div class="auth-box">
             <h2 class="auth-title">Poista tili 🪦</h2>
 
-            <form method="POST" action="app/actions.php?action=delete_account" autocomplete="off">
+            <form method="POST" action="app/actions.php" autocomplete="off"> <!-- Toiminto kulkee nyt piilokenttänä POST-bodyssa eikä URL-parametrina -->
+                <input type="hidden" name="action" value="delete_account"> <!-- Toiminto POST-datana URL:n sijaan — yhtenäinen tyyli muiden lomakkeiden kanssa -->
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Käyttäjänimi</label>
@@ -180,4 +177,3 @@ $email = $userData['email'] ?? '';
 
 </body>
 </html>
-

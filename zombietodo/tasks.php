@@ -1,21 +1,14 @@
 <?php
 // ================================
-// tasks.php
-//
-// Tämä on tehtäväsivu — näkyy vain
-// kirjautuneelle käyttäjälle.
-//
-// Tällä sivulla käyttäjä voi:
-// - Nähdä kaikki omat tehtävänsä
-// - Lisätä uusia tehtäviä
-// - Muokata, poistaa ja muuttaa
-//   tehtävien tilaa
-//
-// Kirjautumaton käyttäjä ohjataan
-// automaattisesti takaisin etusivulle.
+// tasks.php - Tehtävien hallintasivu, jossa käyttäjät näkevät ja hallitsevat omia tehtäviään
 // ================================
-require_once 'app/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
-require_once 'app/db.php';             // Tietokantayhteys $conn-muuttujaan
+// Etsitään zombie-config-kansio — tarkistetaan ensin yksi taso ylös, sitten kaksi
+// Paikallisesti kansio on yhden tason päässä, palvelimella kahden
+$cfgDir = is_dir(dirname(__DIR__) . '/zombie-config')
+    ? dirname(__DIR__) . '/zombie-config'
+    : dirname(dirname(__DIR__)) . '/zombie-config';
+require_once $cfgDir . '/session-config.php'; // Istuntoasetukset ENSIN
+require_once $cfgDir . '/db.php';             // Tietokantayhteys
 
 // Tarkistetaan että käyttäjä on kirjautunut sisään
 // Kirjautumaton käyttäjä ohjataan takaisin kirjautumissivulle
@@ -69,8 +62,8 @@ $doneTasks = $doneTasks->get_result();
     <title>Zombie To-Do</title>
     <meta name="description" content="Zombie To-Do — hallitse tehtäväsi ja selviä apokalypsistä.">
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
-    <link rel="stylesheet" href="style.css"> <!-- Sovelluksen omat tyylit. Tämä oltava viimeisenä -->
+    <link rel="stylesheet" href="assets/css/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit. Tämä oltava viimeisenä -->
 </head>
 <body>
     <!-- Veri-overlay — peittää sivun punaisella efektillä, käytetään kun tehtävä merkitään valmiiksi -->
@@ -80,10 +73,10 @@ $doneTasks = $doneTasks->get_result();
     <div class="blood"></div>
 
     <!-- Pääkontaineri joka sisältää kaikki sivun elementit -->
-    <div class="container">
+    <div class="container no-caret">
 
         <!-- Herokuva — suuri kuva joka esittelee sovelluksen teeman -->
-        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" fetchpriority="high">
+        <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630" fetchpriority="high">
 
         <!-- Yläpalkki — tervetuloviesti ja navigointilinkit -->
         <div class="header-bar">
@@ -124,8 +117,9 @@ $doneTasks = $doneTasks->get_result();
         <div class="todo-box">
 
             <!-- Uuden tehtävän lisäyslomake -->
-            <form class="input-area" action="app/actions.php?action=add" method="POST">
-                <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
+            <form class="input-area" action="app/actions.php" method="POST">
+                <input type="hidden" name="action" value="add">
+                <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"><!-- CSRF-suojaus — estää ulkopuolisen lisäämästä tehtäviä käyttäjälle -->
                 <input type="text" name="task" placeholder="Lisää tehtävä... ennen kuin kuolleet nousevat!" required autocomplete="off">
                 <button type="submit">Lisää</button>
             </form>
@@ -232,9 +226,20 @@ $doneTasks = $doneTasks->get_result();
     </div> 
     <!-- Muokkausmodal loppuu --> 
 
+    <!-- Jumpscare-elementti — aluksi piilossa, näytetään satunnaisesti kun tehtäviä aloitetaan tai merkitään valmiiksi -->
+    <div id="jumpScare" class="no-caret">
+        <div class="zombie-wrapper">
+            <div class="zombie-face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScriptit ladataan sivun lopussa jotta HTML on valmis ennen scriptejä -->
     <script src="assets/js/ui.js"></script><!-- Yleiset UI-toiminnot -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten ladattu ulkoisesta lähteestä -->
+    <script src="assets/js/flatpickr.min.js"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten — ladataan paikallisesti -->
     <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka -->
     
 </body>

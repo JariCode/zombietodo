@@ -14,6 +14,10 @@
 //
 // Tehtävälista päivittyy automaattisesti
 // ilman että koko sivu latautuu uudelleen.
+//
+// Kaikki pyynnöt lähetetään POST-metodilla
+// ja data kulkee POST-bodyssa — URL:ssa ei
+// näy toiminto- eikä id-tietoja.
 // ================================
 
 // ===========================================================
@@ -28,7 +32,7 @@ function getCSRF() {
 }
 
 // ===========================================================
-// TEHTÄVÄLISTAN PÄIVITYS AJAXilla
+// TEHTÄVÄLISTAN PÄIVITYS AJAXilla (Fetch API)
 // Hakee partial-tasks.php:ltä päivitetyn tehtävälistan
 // ja korvaa sivun sisällön sillä ilman sivulatausta
 // ===========================================================
@@ -53,7 +57,7 @@ async function refreshTasks() {
     box.innerHTML = (form ? form.outerHTML : '') + html;
 
     // Kiinnitetään nappeihin tapahtumat uudelleen koska HTML vaihtui
-    attachTaskEvents();// Tehtävänappien tapahtumat täytyy kiinnittää uudestaan koska HTML on korvattu uudella
+    attachTaskEvents(); // Tehtävänappien tapahtumat täytyy kiinnittää uudestaan koska HTML on korvattu uudella
     setupEnterKey();
     setupFormSubmit();
 
@@ -73,11 +77,39 @@ async function refreshTasks() {
     });
 }
 
+
+
 // ===========================================================
 // TOIMINTANAPIT
 // Kiinnitetään kaikille tehtävänapeille click-tapahtuma
-// Nappi lähettää AJAXilla toiminnon palvelimelle ja päivittää listan
+// Nappi lähettää AJAXilla (Fetch API) toiminnon palvelimelle ja päivittää listan
 // ===========================================================
+
+
+// JUMPSCARE
+// Näyttää satunnaisen zombiefektin ja estää sen toistumista liian usein
+let _jumpScareSuppressRemaining = 0;
+const JUMP_SCARE_SUPPRESS_COUNT = 5;
+
+function triggerJumpScare(chance = 0.22) {
+    if (_jumpScareSuppressRemaining > 0) {
+        _jumpScareSuppressRemaining--;
+        return;
+    }
+
+    if (Math.random() > chance) return;
+
+    const scare = document.getElementById('jumpScare');
+    if (!scare) return;
+
+    scare.classList.remove('active');
+    void scare.offsetWidth;
+    scare.classList.add('active');
+
+    _jumpScareSuppressRemaining = JUMP_SCARE_SUPPRESS_COUNT;
+}
+
+// Kiinnitetään tapahtuma kaikille tehtävänapeille
 function attachTaskEvents() {
     document.querySelectorAll('.actions button').forEach(function(el) {
         el.addEventListener('click', async function(e) {
@@ -86,11 +118,12 @@ function attachTaskEvents() {
             const action = el.dataset.action; // Luetaan mitä toimintoa nappi tekee — esim. 'start', 'delete'
             const id     = el.dataset.id;     // Luetaan minkä tehtävän id on kyseessä
             if (action === 'edit') { openEditModal(id); return; } // Muokkausnappi avaa modalin eikä lähetä pyyntöä
-            // Lähetetään toiminto palvelimelle POST-pyyntönä
-            // CSRF-token lähetetään headerissa koska actions.php vaatii sen
 
              // Veriroiske-animaatio kun tehtävä aloitetaan
             if (action === 'start') {
+
+                triggerJumpScare(0.16);// Aloitettaessa on pienempi mahdollisuus jump scareen
+
                 const task = el.closest('.task');
                 task.classList.add('anim-blood-splash');
                 await new Promise(function(resolve) { setTimeout(resolve, 800); });
@@ -98,6 +131,9 @@ function attachTaskEvents() {
 
             // Mullan heitto -animaatio kun tehtävä merkataan valmiiksi
             if (action === 'done') {
+
+                triggerJumpScare(0.20);// Valmiiksi merkatessa on hieman suurempi mahdollisuus jump scareen
+
                 const task = el.closest('.task');
                 task.classList.add('anim-grave-drop');
                 await new Promise(function(resolve) { setTimeout(resolve, 1000); });
@@ -105,6 +141,9 @@ function attachTaskEvents() {
 
             // Haudasta nouseminen kun perutaan aloitus tai valmistuminen
             if (action === 'undo_start' || action === 'undo_done') {
+
+                triggerJumpScare(0.24);// Peruutettaessa on kohtalainen mahdollisuus jump scareen
+
                 const task = el.closest('.task');
                 task.classList.add('anim-zombie-rise');
                 await new Promise(function(resolve) { setTimeout(resolve, 900); });
@@ -125,13 +164,15 @@ function attachTaskEvents() {
                 if (overlay) overlay.classList.remove('active');
             }
 
-            await fetch('app/actions.php?action=' + action + '&id=' + id, {
+            // Lähetetään toiminto ja tehtävän id POST-bodyssa palvelimelle
+            // CSRF-token lähetetään headerissa koska actions.php vaatii sen
+            await fetch('app/actions.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRF-Token': getCSRF()
                 },
-                body: ''
+                body: 'action=' + action + '&id=' + id // Toiminto ja id POST-datana URL:n sijaan
             });
             refreshTasks(); // Päivitetään tehtävälista näytöllä
         });
@@ -160,13 +201,15 @@ function setupEnterKey() {
 // TEHTÄVÄN LISÄYSLOMAKE
 // Kun käyttäjä painaa Lisää-nappia lähetetään tehtävä AJAXilla
 // eikä sivua ladata uudelleen
+// action=add tulee FormData:n mukana lomakkeen piilokenttänä
 // ===========================================================
 function setupFormSubmit() {
     const form = document.querySelector('form.input-area');
     if (!form) return;
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const res = await fetch('app/actions.php?action=add', {
+        // Lähetetään lomakedata POST-pyyntönä — action=add tulee piilokenttänä FormData:n mukana
+        const res = await fetch('app/actions.php', {
             method: 'POST',
             body: new FormData(e.target)
         });
@@ -212,8 +255,9 @@ function focusInput() {
 }
 
 // ===========================================================
-// MUOKKAUSMODAL
-// Modal avautuu kun käyttäjä klikkaa ✏️-nappia
+// MUOKKAUSMODAL — ALUSTUS
+// Kiinnitetään modalin sulku- ja tallennusnapit
+// Tämä ajetaan kerran sivun latautuessa
 // ===========================================================
 let currentEditId = null; // Muokattavan tehtävän id — let koska arvo muuttuu aina kun modal avataan
 
@@ -256,8 +300,11 @@ async function saveEdit() {
         started_at: fpToMySQL(fpStarted), // Aloitusaika Flatpickrista MySQL-muodossa
         done_at:    fpToMySQL(fpDone)     // Valmistumisaika Flatpickrista MySQL-muodossa
     });
-    // Lähetetään muutokset palvelimelle
-    const res = await fetch('app/actions.php?action=edit_task&id=' + currentEditId, {
+    // Lisätään toiminto ja tehtävän id POST-bodyyn — ei URL-parametreiksi
+    body.append('action', 'edit_task');     // Toiminto kertoo actions.php:lle mitä tehdään
+    body.append('id', currentEditId);       // Muokattavan tehtävän id
+    // Lähetetään muutokset palvelimelle POST-pyyntönä
+    const res = await fetch('app/actions.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': getCSRF() },
         body: body.toString()
@@ -270,7 +317,7 @@ async function saveEdit() {
 // ===========================================================
 // FLATPICKR — alustetaan VASTA kun modal avataan
 // ===========================================================
-let fpStarted = null;// Flatpickr-olio aloitusajalle — let koska arvo asetetaan modalin avauksessa
+let fpStarted = null; // Flatpickr-olio aloitusajalle — let koska arvo asetetaan modalin avauksessa
 let fpDone = null; // Flatpickr-olio valmistumisajalle — let koska arvo asetetaan modalin avauksessa
 let fpOutsideClickHandler = null; // Tapahtumankuuntelija joka sulkee Flatpickrin kun klikataan sen ulkopuolelle — tallennetaan jotta voidaan poistaa se myöhemmin
 
@@ -297,7 +344,7 @@ function closeFlatpickrOnOutsideClick(instance) {
         }
     };
 
-    document.addEventListener('mousedown', fpOutsideClickHandler, true);//Kuunnellaan hiiren klikkauksia ennen kuin ne saavuttavat muut elementit (true = capture-vaihe)
+    document.addEventListener('mousedown', fpOutsideClickHandler, true); // Kuunnellaan hiiren klikkauksia ennen kuin ne saavuttavat muut elementit (true = capture-vaihe)
 }
 
 // Alustaa Flatpickr-kalenterit modalin aloitus- ja valmistumiskenttiin
@@ -358,7 +405,6 @@ function initFlatpickr() {
     }
 }
 
-
 // ===========================================================
 // Funktio joka avaa muokkausmodalin ja hakee tehtävän tiedot palvelimelta
 // Tämä on erillinen funktio koska ✏️-nappi ei lähetä AJAX-pyyntöä vaan avaa modalin suoraan
@@ -371,14 +417,15 @@ async function openEditModal(id) {
 
     document.getElementById('modalError').textContent = '';
 
-    // Haetaan tehtävän tiedot palvelimelta jotta modalin kentät voidaan täyttää niillä
-    const res = await fetch('app/actions.php?action=get_task&id=' + id, {
+    // Haetaan tehtävän tiedot palvelimelta POST-pyyntönä
+    // Toiminto ja tehtävän id lähetetään POST-bodyssa — ei URL-parametreina
+    const res = await fetch('app/actions.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-CSRF-Token': getCSRF()
         },
-        body: ''
+        body: 'action=get_task&id=' + id // Toiminto ja id POST-datana
     });
 
     const data = await res.json();
@@ -402,7 +449,7 @@ async function openEditModal(id) {
     document.body.classList.add('modal-open'); // Lukitaan taustasivun skrolli modalin ajaksi
 
     setTimeout(function() {
-        document.getElementById('editText').focus();// Siirretään fokus kuvauskenttään jotta käyttäjä voi heti alkaa kirjoittaa
+        document.getElementById('editText').focus(); // Siirretään fokus kuvauskenttään jotta käyttäjä voi heti alkaa kirjoittaa
     }, 50);
 }
 
