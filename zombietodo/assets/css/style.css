@@ -1092,13 +1092,16 @@ h1.admin-title {
         0 0 40px rgba(122,90,30,0.8);
 }
 
-.admin-page .auth-box input {
-    animation: bloodPulse 1.8s infinite ease-in-out;
-}
-
-.admin-page .auth-box input::placeholder {
- font-family: 'Courier New', monospace;
- color:#885555;
+.admin-page .auth-box input:not([type="hidden"]) {
+    flex: 1;
+    padding: 10px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none; /* Poistetaan selaimen oletusreunus */
+    animation: bloodPulse 1.8s infinite ease-in-out; /* Sykkivä punainen hehku joka on aina päällä */
 }
 
 .admin-select {
@@ -1607,6 +1610,11 @@ h1.admin-title {
     .admin-status {
         font-size: 1rem;
         letter-spacing: 1px;
+    }
+
+    /*Amin-paneelin syöttökentät pienemmiksi mobiilissa */
+    .admin-page .auth-box input:not([type="hidden"]) {
+        font-size: 0.8rem;
     }
 
     /*Toimintolinkit allekkain mobiilissa */
