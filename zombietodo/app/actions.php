@@ -19,8 +19,13 @@
 // tänne tietoa taustalla.
 // ================================
 
-require_once __DIR__ . '/session-config.php'; // Istuntoasetukset. ENSIN ennen kaikkea muuta
-require_once __DIR__ . '/db.php';             // Tietokantayhteys $conn-muuttujaan
+// Etsitään zombie-config-kansio — tarkistetaan ensin kaksi tasoa ylös, sitten kolme
+// App-kansio on yhden tason syvemmällä kuin juuritiedostot
+$cfgDir = is_dir(dirname(dirname(__DIR__)) . '/zombie-config')
+    ? dirname(dirname(__DIR__)) . '/zombie-config'
+    : dirname(dirname(dirname(__DIR__))) . '/zombie-config';
+require_once $cfgDir . '/session-config.php'; // Istuntoasetukset ENSIN
+require_once $cfgDir . '/db.php';             // Tietokantayhteys
 
 // ===========================================================
 // TOIMINNON REITITYS
