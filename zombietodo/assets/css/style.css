@@ -1084,6 +1084,23 @@ body.modal-open {
    - .auth-title     → osio-otsikot
    - .modal-*        → muokkausmodal
    ================================ */
+h1.admin-title {
+    color: #d8b36a;
+    text-shadow:
+        0 0 10px rgba(216,179,106,0.8),
+        0 0 20px rgba(216,179,106,0.6),
+        0 0 40px rgba(122,90,30,0.8);
+}
+
+.admin-page .auth-box input {
+    animation: bloodPulse 1.8s infinite ease-in-out;
+}
+
+.admin-page .auth-box input::placeholder {
+ font-family: 'Courier New', monospace;
+ color:#885555;
+}
+
 .admin-select {
     width: 100%;
     padding: 10px 12px;
