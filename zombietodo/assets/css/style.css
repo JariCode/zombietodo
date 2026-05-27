@@ -1305,6 +1305,30 @@ h1.admin-title {
     cursor: default;
 }
 
+#adminModal .modal-body {
+    padding-top: 5px;
+    gap: 5px;
+}
+
+/* Admin-modalin email-kentät — sama tyyli kuin text-kentillä */
+#adminModal .modal-body input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0d0000;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+
+#adminModal .modal-body input[type="email"]:focus {
+    outline: none;
+    border-color: #cc0000;
+    box-shadow: 0 0 8px rgba(180,0,0,0.4);
+}
+
 /* Käyttäjätaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
 .admin-user-scroll {
     max-height: 500px;
@@ -1318,6 +1342,30 @@ h1.admin-title {
     position: sticky;
     top: 0;
     z-index: 1;
+}
+
+/* Admin-modalin käyttäjätiedot — sama vihreä tyyli kuin tervetuloviestissä */
+#adminModal .admin-modal-user {
+    color: #aaffaa;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0 0 16px 0;
+    text-shadow: 1px 1px black;
+}
+
+/* Admin-modalin label-tekstit — sama punainen tyyli kuin taulukon otsikoissa */
+#adminModal .modal-body label {
+    color: #ff4444;
+    font-family: Impact, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px black;
+}
+
+#adminModal .modal-error {
+    font-size: 1.2rem;
+    text-align: left;
+    margin-bottom: 20px;
 }
 
 /* Lokitaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */

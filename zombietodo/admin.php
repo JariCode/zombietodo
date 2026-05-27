@@ -385,7 +385,7 @@ $dataStmt->close();
     </div><!-- .container loppuu -->
 
     <!-- ============================================================ -->
-    <!-- MUOKKAUSMODAL — avautuu kun admin klikkaa MUOKKAA-nappia      -->
+    <!-- MUOKKAUSMODAL — avautuu kun admin klikkaa HALLINTA-nappia      -->
     <!-- Kolme osiota: roolin vaihto, salasanan palautus, tilin poisto -->
     <!-- ============================================================ -->
     <div class="modal-overlay" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
@@ -399,7 +399,7 @@ $dataStmt->close();
 
             <div class="modal-body">
 
-                <!-- Virheilmoitus modalin sisällä -->
+                <!-- Virheilmoitus modalin yläosassa -->
                 <div class="modal-error" id="adminModalError"></div>
 
                 <!-- Käyttäjän tiedot — näytetään kenen tiliä hallitaan -->
@@ -409,7 +409,9 @@ $dataStmt->close();
                 <form id="adminRoleForm" method="POST" action="app/actions.php" autocomplete="off">
                     <input type="hidden" name="action" value="admin_change_role"> <!-- Toiminto POST-datana -->
                     <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                    <input type="hidden" name="target_user_id" id="roleTargetId" value=""> <!-- Kohdekayttajan id — täytetään JavaScriptillä -->
+                    <input type="hidden" name="target_user_id" id="roleTargetId" value=""> <!-- Kohdekäyttäjän id — täytetään JavaScriptillä -->
+
+                    <div class="modal-error" id="roleMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
 
                     <label>Rooli</label>
                     <select name="role" id="editRole" class="admin-select">
@@ -418,7 +420,8 @@ $dataStmt->close();
                     </select>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn-save">VAIHDA ROOLI 👑</button>
+                        <button type="submit" class="btn-save" id="roleSubmit">VAIHDA ROOLI 👑</button> <!-- Alkuperäinen nappi -->
+                        <button type="submit" class="btn-save" id="roleConfirm" style="display:none;">VAHVISTA 👑</button> <!-- Vahvistusnappi — näytetään vasta kun admin on klikannut ensimmäisen kerran -->
                     </div>
                 </form>
 
@@ -428,12 +431,15 @@ $dataStmt->close();
                     <form id="adminResetForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_reset_password"> <!-- Toiminto POST-datana -->
                         <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                        <input type="hidden" name="target_user_id" id="resetTargetId" value=""> <!-- Kohdekayttajan id -->
+                        <input type="hidden" name="target_user_id" id="resetTargetId" value=""> <!-- Kohdekäyttäjän id -->
 
-                        <input type="email" name="email" id="resetEmail" placeholder="Sähköposti" required autocomplete="off" readonly> <!-- Readonly — näkee sähköpostin mutta ei muokkaa -->
+                        <div class="modal-error" id="resetMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
+
+                        <input type="email" name="email" id="resetEmail" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
 
                         <div class="modal-footer">
-                            <button type="submit" class="btn-save">LÄHETÄ 📧</button>
+                            <button type="submit" class="btn-save" id="resetSubmit">LÄHETÄ 📧</button> <!-- Alkuperäinen nappi -->
+                            <button type="submit" class="btn-save" id="resetConfirm" style="display:none;">VAHVISTA 📧</button> <!-- Vahvistusnappi -->
                         </div>
                     </form>
                 </div>
@@ -444,15 +450,24 @@ $dataStmt->close();
                     <form id="adminDeleteForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_delete_user"> <!-- Toiminto POST-datana -->
                         <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                        <input type="hidden" name="target_user_id" id="deleteTargetId" value=""> <!-- Kohdekayttajan id -->
+                        <input type="hidden" name="target_user_id" id="deleteTargetId" value=""> <!-- Kohdekäyttäjän id -->
 
-                        <!-- Varoitusteksti ennen pysyvää poistoa -->
+                        <div class="modal-error" id="deleteMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
+
+                        <label>Käyttäjänimi</label>
+                        <input type="text" name="confirm_username" id="deleteUsername" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
+
+                        <label>Sähköposti</label>
+                        <input type="email" name="confirm_email" id="deleteEmail" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
+
+                        <!-- Varoitusteksti — JS täyttää käyttäjänimellä modalin avautuessa -->
                         <p class="admin-delete-warning" id="deleteWarning"></p>
 
                         <!-- Poista ja peruuta napit -->
                         <div class="modal-footer">
                             <button type="button" class="btn-cancel" id="adminDeleteCancel">Peruuta</button>
-                            <button type="submit" class="btn-save admin-btn-danger">POISTA 🩸</button>
+                            <button type="submit" class="btn-save admin-btn-danger" id="deleteSubmit">POISTA 🩸</button> <!-- Alkuperäinen nappi -->
+                            <button type="submit" class="btn-save admin-btn-danger" id="deleteConfirm" style="display:none;">VAHVISTA 🩸</button> <!-- Vahvistusnappi -->
                         </div>
                     </form>
                 </div>
@@ -460,7 +475,7 @@ $dataStmt->close();
             </div><!-- .modal-body loppuu -->
         </div><!-- .modal loppuu -->
     </div><!-- .modal-overlay loppuu -->
-    
+        
     <!-- JavaScriptit — UI-toiminnallisuudet -->
     <script src="assets/js/ui.js"></script> <!-- Yleiset UI-toiminnot — viestien häivytys -->
     <script src="assets/js/flatpickr.min.js"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten — ladataan paikallisesti -->
