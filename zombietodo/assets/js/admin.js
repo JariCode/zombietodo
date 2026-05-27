@@ -174,16 +174,30 @@ function startAdminIntro() {
 // FLATPICKR-PÄIVÄMÄÄRÄVALITSIMET
 // Alustetaan Flatpickr-kirjasto lokitapahtumien input-kenttiin
 // ===========================================================
+const finnishLocale = {
+    firstDayOfWeek: 1,
+    weekdays: {
+        shorthand: ['Su','Ma','Ti','Ke','To','Pe','La'],
+        longhand:  ['Sunnuntai','Maanantai','Tiistai','Keskiviikko','Torstai','Perjantai','Lauantai']
+    },
+    months: {
+        shorthand: ['Tam','Hel','Maa','Huh','Tou','Kes','Hei','Elo','Syy','Lok','Mar','Jou'],
+        longhand:  ['Tammikuu','Helmikuu','Maaliskuu','Huhtikuu','Toukokuu','Kesäkuu',
+                    'Heinäkuu','Elokuu','Syyskuu','Lokakuu','Marraskuu','Joulukuu']
+    }
+};
 flatpickr('#logFrom', {
     dateFormat: 'd.m.Y',
-    allowInput: true,
-    static: true
+    allowInput: false,
+    static: true,
+    locale: finnishLocale
 });
 
 flatpickr('#logTo', {
     dateFormat: 'd.m.Y',
-    allowInput: true,
-    static: true
+    allowInput: false,
+    static: true,
+    locale: finnishLocale
 });
 
 // ===========================================================
