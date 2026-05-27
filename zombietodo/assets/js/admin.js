@@ -253,19 +253,22 @@ document.addEventListener('click', function(e) {
 // VAHVISTUSNAPPIEN NOLLAUS
 // Palauttaa kaikki napit alkutilaan — kutsutaan modalin
 // avautuessa ja sulkeutuessa
+// Käytetään CSS-luokkaa 'hidden' inline-tyylien sijaan
+// CSP-yhteensopivuuden vuoksi (Content-Security-Policy
+// estää inline style -attribuuttien käytön)
 // ===========================================================
 function resetConfirmButtons() {
     // Roolin vaihto — näytetään alkuperäinen, piilotetaan vahvistus
-    document.getElementById('roleSubmit').style.display = '';
-    document.getElementById('roleConfirm').style.display = 'none';
+    document.getElementById('roleSubmit').classList.remove('hidden');
+    document.getElementById('roleConfirm').classList.add('hidden');
 
     // Salasanan palautus — näytetään alkuperäinen, piilotetaan vahvistus
-    document.getElementById('resetSubmit').style.display = '';
-    document.getElementById('resetConfirm').style.display = 'none';
+    document.getElementById('resetSubmit').classList.remove('hidden');
+    document.getElementById('resetConfirm').classList.add('hidden');
 
     // Tilin poisto — näytetään alkuperäinen, piilotetaan vahvistus
-    document.getElementById('deleteSubmit').style.display = '';
-    document.getElementById('deleteConfirm').style.display = 'none';
+    document.getElementById('deleteSubmit').classList.remove('hidden');
+    document.getElementById('deleteConfirm').classList.add('hidden');
 }
 
 // ===========================================================
@@ -299,21 +302,23 @@ document.addEventListener('keydown', function(e) {
 // LOMAKKEIDEN VAHVISTUSLOGIIKKA
 // Ensimmäinen klikkaus näyttää vahvistusviestin ja vaihtaa
 // napin — toinen klikkaus lähettää lomakkeen backendiin
+// Käytetään classList.contains/add/remove -metodeja
+// inline-tyylien sijaan CSP-yhteensopivuuden vuoksi
 // ===========================================================
 
 // ROOLIN VAIHTO — vahvistus ennen lähetystä
 document.getElementById('adminRoleForm').addEventListener('submit', function(e) {
     const confirmBtn = document.getElementById('roleConfirm');
 
-    // Jos vahvistusnappi ei ole vielä näkyvissä — estetään lähetys ja näytetään viesti
-    if (confirmBtn.style.display === 'none') {
+    // Jos vahvistusnappi on piilotettu — estetään lähetys ja näytetään viesti
+    if (confirmBtn.classList.contains('hidden')) {
         e.preventDefault(); // Estetään lomakkeen lähetys
         const roleSelect = document.getElementById('editRole'); // Haetaan select-elementti
         const roleText = roleSelect.options[roleSelect.selectedIndex].text; // Luetaan näkyvä teksti "Käyttäjä" tai "Admin"
         const username = document.getElementById('adminModalUser').textContent.split(' — ')[0]; // Luetaan käyttäjänimi modalin otsikosta
         document.getElementById('roleMessage').textContent = 'Vaihdetaanko ' + username + ' rooliksi ' + roleText + '?'; // Näytetään vahvistusviesti
-        document.getElementById('roleSubmit').style.display = 'none'; // Piilotetaan alkuperäinen nappi
-        confirmBtn.style.display = ''; // Näytetään vahvistusnappi
+        document.getElementById('roleSubmit').classList.add('hidden'); // Piilotetaan alkuperäinen nappi
+        confirmBtn.classList.remove('hidden'); // Näytetään vahvistusnappi
         return;
     }
     // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin
@@ -323,13 +328,13 @@ document.getElementById('adminRoleForm').addEventListener('submit', function(e) 
 document.getElementById('adminResetForm').addEventListener('submit', function(e) {
     const confirmBtn = document.getElementById('resetConfirm');
 
-    // Jos vahvistusnappi ei ole vielä näkyvissä — estetään lähetys ja näytetään viesti
-    if (confirmBtn.style.display === 'none') {
+    // Jos vahvistusnappi on piilotettu — estetään lähetys ja näytetään viesti
+    if (confirmBtn.classList.contains('hidden')) {
         e.preventDefault(); // Estetään lomakkeen lähetys
         const email = document.getElementById('resetEmail').value; // Luetaan syötetty sähköposti
         document.getElementById('resetMessage').textContent = 'Lähetetäänkö salasanan palautuslinkki osoitteeseen ' + email + '?'; // Näytetään vahvistusviesti
-        document.getElementById('resetSubmit').style.display = 'none'; // Piilotetaan alkuperäinen nappi
-        confirmBtn.style.display = ''; // Näytetään vahvistusnappi
+        document.getElementById('resetSubmit').classList.add('hidden'); // Piilotetaan alkuperäinen nappi
+        confirmBtn.classList.remove('hidden'); // Näytetään vahvistusnappi
         return;
     }
     // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin
@@ -339,13 +344,13 @@ document.getElementById('adminResetForm').addEventListener('submit', function(e)
 document.getElementById('adminDeleteForm').addEventListener('submit', function(e) {
     const confirmBtn = document.getElementById('deleteConfirm');
 
-    // Jos vahvistusnappi ei ole vielä näkyvissä — estetään lähetys ja näytetään viesti
-    if (confirmBtn.style.display === 'none') {
+    // Jos vahvistusnappi on piilotettu — estetään lähetys ja näytetään viesti
+    if (confirmBtn.classList.contains('hidden')) {
         e.preventDefault(); // Estetään lomakkeen lähetys
         const username = document.getElementById('adminModalUser').textContent.split(' — ')[0]; // Luetaan käyttäjänimi
         document.getElementById('deleteMessage').textContent = 'Käyttäjä ' + username + ' poistetaan pysyvästi. Vahvista toiminto.'; // Näytetään vahvistusviesti
-        document.getElementById('deleteSubmit').style.display = 'none'; // Piilotetaan alkuperäinen nappi
-        confirmBtn.style.display = ''; // Näytetään vahvistusnappi
+        document.getElementById('deleteSubmit').classList.add('hidden'); // Piilotetaan alkuperäinen nappi
+        confirmBtn.classList.remove('hidden'); // Näytetään vahvistusnappi
         return;
     }
     // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin

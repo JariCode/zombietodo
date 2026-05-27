@@ -423,7 +423,7 @@ $dataStmt->close();
 
                     <div class="modal-footer">
                         <button type="submit" class="btn-save" id="roleSubmit">VAIHDA ROOLI 👑</button> <!-- Alkuperäinen nappi -->
-                        <button type="submit" class="btn-save" id="roleConfirm" style="display:none;">VAHVISTA 👑</button> <!-- Vahvistusnappi — näytetään vasta kun admin on klikannut ensimmäisen kerran -->
+                        <button type="submit" class="btn-save hidden" id="roleConfirm">VAHVISTA 👑</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla, näytetään JS:llä kun admin klikkaa ensimmäisen kerran -->
                     </div>
                     </form>
                 </div>
@@ -437,13 +437,13 @@ $dataStmt->close();
                         <input type="hidden" name="target_user_id" id="resetTargetId" value=""> <!-- Kohdekäyttäjän id -->
 
                         <div class="modal-error" id="resetMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
-                        
+
                         <label>Sähköposti</label>
                         <input type="email" name="email" id="resetEmail" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
 
                         <div class="modal-footer">
                             <button type="submit" class="btn-save" id="resetSubmit">LÄHETÄ 📧</button> <!-- Alkuperäinen nappi -->
-                            <button type="submit" class="btn-save" id="resetConfirm" style="display:none;">VAHVISTA 📧</button> <!-- Vahvistusnappi -->
+                            <button type="submit" class="btn-save hidden" id="resetConfirm">VAHVISTA 📧</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla -->
                         </div>
                     </form>
                 </div>
@@ -471,7 +471,7 @@ $dataStmt->close();
                         <div class="modal-footer">
                             <button type="button" class="btn-cancel" id="adminDeleteCancel">Peruuta</button>
                             <button type="submit" class="btn-save admin-btn-danger" id="deleteSubmit">POISTA 🩸</button> <!-- Alkuperäinen nappi -->
-                            <button type="submit" class="btn-save admin-btn-danger" id="deleteConfirm" style="display:none;">VAHVISTA 🩸</button> <!-- Vahvistusnappi -->
+                            <button type="submit" class="btn-save admin-btn-danger hidden" id="deleteConfirm">VAHVISTA 🩸</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla -->
                         </div>
                     </form>
                 </div>

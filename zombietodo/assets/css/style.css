@@ -1294,6 +1294,11 @@ h1.admin-title {
     border-top: none;
 }
 
+/* Piilotettu elementti — käytetään inline-tyylien sijaan CSP-yhteensopivuuden vuoksi */
+#adminModal .hidden {
+    display: none;
+}
+
 /* Readonly-kentät modalissa — hieman himmennetty erottamaan muokattavista */
 #adminModal .modal-body input[readonly] {
     opacity: 0.8;
@@ -1674,7 +1679,12 @@ h1.admin-title {
     .admin-page .auth-box input:not([type="hidden"])::placeholder {
         font-size: 0.8rem;
     }
-    
+
+    /* Admin-modalin otsikko pienemmäksi mobiilissa */
+    #adminModalTitle {
+        font-size: 1.2rem;
+    }
+   
     /*Toimintolinkit allekkain mobiilissa */
     .actions {
         flex-direction: column;
