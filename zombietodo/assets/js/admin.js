@@ -202,7 +202,7 @@ flatpickr('#logTo', {
     static: true, // Estää datepickerin hyppimisen, pitää sen paikallaan
     disableMobile: true, // Estää mobiililaitteiden omien datepickereiden käytön
     altInput: true,
-    altFormat: 'd.m.Y',
+    altFormat: 'd.m.Y',    
     locale: finnishLocale // Asetetaan suomenkieliset nimet ja viikon aloituspäivä
 });
 

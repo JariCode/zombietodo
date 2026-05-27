@@ -1151,19 +1151,6 @@ h1.admin-title {
     background: rgba(80, 10, 10, 0.4);
 }
 
-/* Käyttäjätaulukon rooli- ja toiminnot-sarakkeet: kiinteä leveys, ei rivinvaihtoa */
-#userTable thead th:nth-child(3),
-#userTable tbody td:nth-child(3) {
-    width: 50px;
-    white-space: nowrap;
-}
-
-#userTable thead th:nth-child(4),
-#userTable tbody td:nth-child(4) {
-    width: 100px;
-    white-space: nowrap;
-}
-
 /* Roolin värikoodaus taulukossa */
 .admin-table tbody td.role-admin {
     color: #ff4444;
@@ -1206,14 +1193,14 @@ h1.admin-title {
     padding: 20px;
 }
 
-/* MUOKKAA-nappi — pieni inline-nappi taulukon solussa, ei täysleveä kuten auth-box button */
+/* HALLINTA-nappi — pieni inline-nappi taulukon solussa*/
 .auth-box .admin-btn-edit {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     white-space: nowrap;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border: none;
     font-family: Impact, sans-serif;
     font-size: 0.95rem;
@@ -1225,7 +1212,6 @@ h1.admin-title {
     transition: 0.2s;
     background: #990000;
     color: #fff;
-    width: auto; /* Ohittaa auth-box buttonin width: 100% */
 }
 
 /* Kaksi päivämääräkenttää vierekkäin — grid-asettelu */
@@ -1373,6 +1359,12 @@ h1.admin-title {
     position: sticky;
     top: 0;
     z-index: 1;
+}
+
+/* Käyttäjätaulukko täyttää koko alueen kuten lokitaulukko */
+.admin-user-scroll table {
+    table-layout: fixed;
+    width: 100%;
 }
 
 /* Lokitaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
@@ -1610,7 +1602,7 @@ h1.admin-title {
 
     /* Admin-taulukon otsikot pienemmiksi mobiilissa */
     .admin-table thead th {
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         padding: 4px 2px;
         letter-spacing: 0;
     }
@@ -1621,11 +1613,11 @@ h1.admin-title {
         font-size: 0.7rem;
     }
 
-    /* MUOKKAA-nappi pienemmäksi mobiilissa */
+    /* HALLINTA-nappi pienemmäksi mobiilissa */
     .auth-box .admin-btn-edit {
-        font-size: 0.8rem;
-        padding: 10px 5px;
-        gap: 1px;
+        font-size: 0.5rem;
+        padding: 12px 1px;
+        gap: 0.1px;
         letter-spacing: 1px;
     }
 
