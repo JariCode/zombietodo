@@ -100,7 +100,7 @@ if ($type === 'users') {
                     <td><?= e($user['username']) ?></td>
                     <td><?= e($user['email']) ?></td>
                     <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>">
-                        <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
+                        <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?>
                     </td>
                     <td>
                         <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">HALLINTA 🧟</button>

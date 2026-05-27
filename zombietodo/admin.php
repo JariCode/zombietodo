@@ -301,7 +301,7 @@ $dataStmt->close();
                                     <td><?= clean($user['username']) ?></td> <!--Käyttäjänimi näytetään taulukossa -->
                                     <td><?= clean($user['email']) ?></td><!-- Sähköposti näytetään taulukossa -->
                                     <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>"><!-- Rooli näytetään taulukossa, adminit oranssinpunaisina ja tavalliset harmaana -->
-                                        <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
+                                        <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?><!-- Näytä rooli tekstinä -->
                                     </td>
                                     <td>
                                         <!-- Muokkausnappi avaa modalin — data-id kertoo minkä käyttäjän tiedot ladataan -->
