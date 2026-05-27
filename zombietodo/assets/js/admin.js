@@ -69,6 +69,13 @@ async function refreshLogs(form) {
     const formData = new FormData(form);
     formData.append('type', 'logs'); // Kertoo partial-admin.php:lle mitä osiota haetaan
 
+    // Liitetään käyttäjälistan hakuarvo lokipyyntöön
+    const userForm = document.querySelector('input[name="user_filter"]').closest('form');
+    const userSearch = userForm ? userForm.querySelector('input[name="user_search"]') : null;
+    if (userSearch && userSearch.value) {
+        formData.append('user_search', userSearch.value);
+    }
+
     // Lähetetään suodattimet POST-pyyntönä
     const res = await fetch('app/partial-admin.php', {
         method: 'POST',
@@ -162,6 +169,22 @@ function startAdminIntro() {
         intro.remove();
     }, 5000);
 }
+
+// ===========================================================
+// FLATPICKR-PÄIVÄMÄÄRÄVALITSIMET
+// Alustetaan Flatpickr-kirjasto lokitapahtumien input-kenttiin
+// ===========================================================
+flatpickr('#logFrom', {
+    dateFormat: 'd.m.Y',
+    allowInput: true,
+    static: true
+});
+
+flatpickr('#logTo', {
+    dateFormat: 'd.m.Y',
+    allowInput: true,
+    static: true
+});
 
 // ===========================================================
 // KÄYNNISTYS

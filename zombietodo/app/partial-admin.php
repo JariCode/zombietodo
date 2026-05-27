@@ -121,6 +121,7 @@ if ($type === 'logs') {
     $filterEvent = $_POST['log_event'] ?? '';
     $filterFrom  = $_POST['log_from']  ?? '';
     $filterTo    = $_POST['log_to']    ?? '';
+    $filterSearch = $_POST['user_search'] ?? ''; // Käyttäjähaku — admin.js lähettää mukana
 
     // Rakennetaan WHERE-ehto dynaamisesti
     $logWhere  = "WHERE 1=1";
@@ -149,6 +150,14 @@ if ($type === 'logs') {
             $logParams[] = $toDate->format('Y-m-d') . ' 23:59:59';
             $logTypes   .= 's';
         }
+    }
+
+    // Lisätään käyttäjäsuodatin jos käyttäjälista on suodatettu
+    // $filterSearch on sama arvo joka on jo käytössä käyttäjälistan haussa
+    if ($filterSearch !== '') {
+        $logWhere   .= " AND l.username LIKE ?";
+        $logParams[] = '%' . $filterSearch . '%';
+        $logTypes   .= 's';
     }
 
     // Haetaan lokitapahtumat

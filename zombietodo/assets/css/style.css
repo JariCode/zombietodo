@@ -207,7 +207,7 @@ h1 {
 }
 
 /* Input-kentät */
-.auth-box input {
+.auth-box input:not(.numInput) {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
@@ -1092,7 +1092,7 @@ h1.admin-title {
         0 0 40px rgba(122,90,30,0.8);
 }
 
-.admin-page .auth-box input:not([type="hidden"]) {
+.admin-page .auth-box input:not([type="hidden"]):not(.numInput) {
     flex: 1;
     padding: 10px;
     background: #111;
@@ -1236,6 +1236,11 @@ h1.admin-title {
     margin-bottom: 12px;
 }
 
+/* Flatpickr päivämääräkentät täyttävät kummankin sarakkeen kokonaan */
+.admin-date-row .flatpickr-wrapper {
+    width: 100%;
+}
+
 /* Päivämääräkenttien otsikko — punainen ja lihavoitu, eroaa auth-box labelin väristä */
 .admin-date-label {
     display: block;
@@ -1328,6 +1333,12 @@ h1.admin-title {
     position: sticky;
     top: 0;
     z-index: 1;
+}
+
+/* Taulukko täyttää koko scrollattavan alueen leveydeltään */
+.admin-log-scroll table {
+    table-layout: fixed;
+    width: 100%;
 }
 
 /* Käyttäjän tiedot modalin yläosassa — kertoo kenen tiliä hallitaan */

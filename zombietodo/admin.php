@@ -155,6 +155,14 @@ if ($filterTo !== '') {
     }
 }
 
+// Lisätään käyttäjäsuodatin jos käyttäjälista on suodatettu
+// $filterSearch on sama arvo joka on jo käytössä käyttäjälistan haussa
+if ($filterSearch !== '') {
+    $logWhere   .= " AND l.username LIKE ?";
+    $logParams[] = '%' . $filterSearch . '%';
+    $logTypes   .= 's';
+}
+
 // Haetaan lokitapahtumat — korkeintaan 200 uusinta, taulukko skrollataan selaimessa
 // Username haetaan suoraan logs-taulusta — säilyy vaikka käyttäjä poistetaan
 $dataStmt = $conn->prepare("
@@ -181,6 +189,7 @@ $dataStmt->close();
     <title>Zombie Admin</title>
     <meta name="description" content="Zombie To-Do — admin-paneeli käyttäjien hallintaan."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
+    <link rel="stylesheet" href="assets/css/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
     <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit -->
 </head>
 <body>
@@ -331,11 +340,11 @@ $dataStmt->close();
                 <div class="admin-date-row">
                     <div>
                         <label class="admin-date-label">Alkamispäivämäärä</label>
-                        <input type="text" name="log_from" placeholder="pp.kk.vvvv" value="<?= clean($filterFrom) ?>" autocomplete="off">
+                        <input type="text" name="log_from" id="logFrom" placeholder="pp.kk.vvvv" value="<?= clean($filterFrom) ?>" autocomplete="off">
                     </div>
                     <div>
                         <label class="admin-date-label">Loppumispäivämäärä</label>
-                        <input type="text" name="log_to" placeholder="pp.kk.vvvv" value="<?= clean($filterTo) ?>" autocomplete="off">
+                        <input type="text" name="log_to" id="logTo" placeholder="pp.kk.vvvv" value="<?= clean($filterTo) ?>" autocomplete="off">
                     </div>
                 </div>
 
@@ -454,6 +463,7 @@ $dataStmt->close();
     
     <!-- JavaScriptit — UI-toiminnallisuudet -->
     <script src="assets/js/ui.js"></script> <!-- Yleiset UI-toiminnot — viestien häivytys -->
+    <script src="assets/js/flatpickr.min.js"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten — ladataan paikallisesti -->
     <script src="assets/js/admin.js"></script> <!-- Admin-sivun omat toiminnot — haku, suodatus, modal -->
 
 </body>
