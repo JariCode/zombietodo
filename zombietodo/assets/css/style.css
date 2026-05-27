@@ -1253,8 +1253,8 @@ h1.admin-title {
 
 /* Osion erotin modalin sisällä — viiva salasanan palautuksen ja tilin poiston välissä */
 .admin-modal-section {
-    margin-top: 20px;
-    padding-top: 18px;
+    margin-top: 12px;
+    padding-top: 5px;
     border-top: 1px solid #550000;
 }
 
@@ -1265,13 +1265,8 @@ h1.admin-title {
     letter-spacing: 2px;
     color: #ff4444;
     text-shadow: 1px 1px black;
-    margin: 0 0 12px 0;
+    margin: 0 0 5px 0;
     text-transform: uppercase;
-}
-
-/* Punainen korostus tilin poiston otsikolle */
-.admin-section-danger {
-    color: #ff2222;
 }
 
 /* Varoitusteksti ennen tilin poistoa — oranssi erottuu muusta tekstistä */
@@ -1306,7 +1301,7 @@ h1.admin-title {
 }
 
 #adminModal .modal-body {
-    padding-top: 3px;
+    padding-top: 0; /* siirretään sisältöä ylöspäin, jotta käyttäjänimi ei työntyisi alas */
     gap: 3px;
 }
 
@@ -1340,7 +1335,8 @@ h1.admin-title {
     color: #aaffaa;
     font-size: 1.1rem;
     font-weight: bold;
-    margin: 0 0 16px 0;
+    padding: 0;
+    margin: 0 0 8px 0; /* ylämarginaali nollattu — käyttäjänimi nousee lähemmäs otsikkoa */
     text-shadow: 1px 1px black;
 }
 
@@ -1356,9 +1352,8 @@ h1.admin-title {
 #adminModal .modal-error {
     font-size: 1.2rem;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
-
 
 /* Käyttäjätaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
 .admin-user-scroll {

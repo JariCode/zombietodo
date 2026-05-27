@@ -405,8 +405,10 @@ $dataStmt->close();
                 <!-- Käyttäjän tiedot — näytetään kenen tiliä hallitaan -->
                 <p class="admin-modal-user" id="adminModalUser"></p>
 
-                <!-- ROOLIN VAIHTO — admin voi vaihtaa käyttäjän roolin -->
-                <form id="adminRoleForm" method="POST" action="app/actions.php" autocomplete="off">
+                <div class="admin-modal-section no-caret">
+                    <h3 class="admin-section-title">Roolin vaihto</h3>
+                    <!-- ROOLIN VAIHTO — admin voi vaihtaa käyttäjän roolin -->
+                    <form id="adminRoleForm" method="POST" action="app/actions.php" autocomplete="off">
                     <input type="hidden" name="action" value="admin_change_role"> <!-- Toiminto POST-datana -->
                     <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
                     <input type="hidden" name="target_user_id" id="roleTargetId" value=""> <!-- Kohdekäyttäjän id — täytetään JavaScriptillä -->
@@ -423,7 +425,8 @@ $dataStmt->close();
                         <button type="submit" class="btn-save" id="roleSubmit">VAIHDA ROOLI 👑</button> <!-- Alkuperäinen nappi -->
                         <button type="submit" class="btn-save" id="roleConfirm" style="display:none;">VAHVISTA 👑</button> <!-- Vahvistusnappi — näytetään vasta kun admin on klikannut ensimmäisen kerran -->
                     </div>
-                </form>
+                    </form>
+                </div>
 
                 <!-- SALASANAN PALAUTUS — admin lähettää palautuslinkin käyttäjän sähköpostiin -->
                 <div class="admin-modal-section no-caret">
@@ -434,7 +437,8 @@ $dataStmt->close();
                         <input type="hidden" name="target_user_id" id="resetTargetId" value=""> <!-- Kohdekäyttäjän id -->
 
                         <div class="modal-error" id="resetMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
-
+                        
+                        <label>Sähköposti</label>
                         <input type="email" name="email" id="resetEmail" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
 
                         <div class="modal-footer">
@@ -446,7 +450,7 @@ $dataStmt->close();
 
                 <!-- TILIN POISTO — admin poistaa käyttäjän tilin pysyvästi -->
                 <div class="admin-modal-section no-caret">
-                    <h3 class="admin-section-title admin-section-danger">Tilin poistaminen 🔒</h3>
+                    <h3 class="admin-section-title">Tilin poistaminen 🔒</h3>
                     <form id="adminDeleteForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_delete_user"> <!-- Toiminto POST-datana -->
                         <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
