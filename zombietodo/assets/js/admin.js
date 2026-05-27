@@ -174,7 +174,7 @@ function startAdminIntro() {
 // FLATPICKR-PÄIVÄMÄÄRÄVALITSIMET
 // Alustetaan Flatpickr-kirjasto lokitapahtumien input-kenttiin
 // ===========================================================
-const finnishLocale = {
+const finnishLocale = { // Määritellään suomenkieliset nimet ja viikon aloituspäivä
     firstDayOfWeek: 1,
     weekdays: {
         shorthand: ['Su','Ma','Ti','Ke','To','Pe','La'],
@@ -188,16 +188,22 @@ const finnishLocale = {
 };
 flatpickr('#logFrom', {
     dateFormat: 'd.m.Y',
-    allowInput: false,
-    static: true,
-    locale: finnishLocale
+    allowInput: false, //Estää manuaalisen syötteen, pakottaa käyttämään datepickeria
+    static: true, // Estää datepickerin hyppimisen, pitää sen paikallaan
+    disableMobile: true, // Estää mobiililaitteiden omien datepickereiden käytön
+    altInput: true, 
+    altFormat: 'd.m.Y',
+    locale: finnishLocale // Asetetaan suomenkieliset nimet ja viikon aloituspäivä
 });
 
 flatpickr('#logTo', {
     dateFormat: 'd.m.Y',
-    allowInput: false,
-    static: true,
-    locale: finnishLocale
+    allowInput: false, //Estää manuaalisen syötteen, pakottaa käyttämään datepickeria
+    static: true, // Estää datepickerin hyppimisen, pitää sen paikallaan
+    disableMobile: true, // Estää mobiililaitteiden omien datepickereiden käytön
+    altInput: true,
+    altFormat: 'd.m.Y',
+    locale: finnishLocale // Asetetaan suomenkieliset nimet ja viikon aloituspäivä
 });
 
 // ===========================================================
