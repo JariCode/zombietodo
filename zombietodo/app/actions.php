@@ -52,6 +52,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'update_profile': handleUpdateProfile(); break; // Jos action on 'update_profile', kutsutaan profiilin päivitysfunktiota
     case 'change_password': handleChangePassword(); break; // Jos action on 'change_password', kutsutaan salasanan vaihtofunktiota
     case 'delete_account':  handleDeleteAccount();  break; // Jos action on 'delete_account', kutsutaan tilin poiston funktiota
+    case 'admin_change_role': handleAdminChangeRole(); break; // Admin vaihtaa käyttäjän roolin
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -991,10 +992,121 @@ function handleTaskAction($action) {
 // ===========================================================
 
 //===========================================================
-//ROOLIN VAIHTAMINEN
-//Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
+//ROOLIN VAIHTAMINEN/Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
 //===========================================================
+function handleAdminChangeRole() {
+    header('Content-Type: application/json; charset=utf-8'); // Vastaus on JSON — admin.js lukee sen
+    global $conn;
 
+    // Pyyntö tultava lomakkeelta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
+    // Kirjautumistarkistus
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut.']);
+        exit;
+    }
+
+    $adminId = intval($_SESSION['user_id']); // Toiminnon tekijän id
+
+    // ADMIN-ROOLITARKISTUS — luetaan tekijän rooli SUORAAN KANNASTA, ei sessiosta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $adminId);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$admin || $admin['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon.']);
+        exit;
+    }
+
+    // CSRF-tarkistus — fetch lähettää headerissa, lomake POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Turvallisuusvirhe. Yritä uudelleen.']);
+        exit;
+    }
+
+    $targetId = intval($_POST['target_user_id'] ?? 0);
+    $newRole  = $_POST['role'] ?? '';
+
+    // ITSESUOJA — admin ei voi muuttaa omaa rooliaan
+    if ($targetId === $adminId) {
+        echo json_encode(['success' => false, 'error' => 'Et voi muuttaa omaa rooliasi.']);
+        exit;
+    }
+
+    // Rooli vain 'user' tai 'admin' (whitelist)
+    if (!in_array($newRole, ['user', 'admin'], true)) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen rooli.']);
+        exit;
+    }
+
+    if ($targetId <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen kohdekäyttäjä.']);
+        exit;
+    }
+
+    // Haetaan kohteen nykyinen rooli kannasta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $target = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$target) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjää ei löytynyt.']);
+        exit;
+    }
+
+    // Ei turhaa päivitystä jos rooli on jo haluttu
+    if ($target['role'] === $newRole) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjällä on jo tämä rooli.']);
+        exit;
+    }
+
+    // VIIMEISEN ADMININ SUOJA — ainoaa adminia ei voi alentaa
+    if ($target['role'] === 'admin' && $newRole === 'user') {
+        $stmt = $conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE role = 'admin'");
+        $stmt->execute();
+        $adminCount = intval($stmt->get_result()->fetch_assoc()['admin_count']);
+        $stmt->close();
+
+        if ($adminCount <= 1) {
+            echo json_encode(['success' => false, 'error' => 'Et voi alentaa järjestelmän ainoaa ylläpitäjää. Anna ensin admin-oikeudet toiselle käyttäjälle.']);
+            exit;
+        }
+    }
+
+    // Päivitetään rooli
+    $stmt = $conn->prepare('UPDATE users SET role = ? WHERE id = ?');
+    $stmt->bind_param('si', $newRole, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // LOKITUS — tekijä user_id/username, kohde target_user_id
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address, target_user_id) VALUES (?, ?, 'role_changed', ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('issi', $adminId, $admin['username'], $ip, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistuminen — viesti näytetään modalissa, lista päivitetään JS:llä
+    $roleText = $newRole === 'admin' ? 'Admin' : 'Käyttäjä';
+    echo json_encode([
+        'success' => true,
+        'message' => 'Käyttäjän ' . $target['username'] . ' rooliksi vaihdettiin: ' . $roleText . '. 👑'
+    ]);
+    exit;
+}
 //===========================================================
 //UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
 //Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan

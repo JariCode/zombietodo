@@ -162,8 +162,9 @@ if ($type === 'logs') {
 
     // Haetaan lokitapahtumat
     $dataStmt = $conn->prepare("
-        SELECT l.timestamp, l.username, l.event
+        SELECT l.timestamp, l.username, l.event, tu.username AS target_username
         FROM logs l
+        LEFT JOIN users tu ON tu.id = l.target_user_id
         $logWhere
         ORDER BY l.timestamp DESC
         LIMIT 200
@@ -192,7 +193,7 @@ if ($type === 'logs') {
             <?php while ($log = $logs->fetch_assoc()): ?>
                 <tr>
                     <td><?= date('d.m.Y H:i', strtotime($log['timestamp'])) ?></td>
-                    <td><?= e($log['username'] ?? 'Poistettu käyttäjä') ?></td>
+                    <td><?= e($log['target_username'] ?? $log['username'] ?? 'Poistettu käyttäjä') ?></td>
                     <td><?= e($eventLabels[$log['event']] ?? $log['event']) ?></td>
                 </tr>
             <?php endwhile; ?>

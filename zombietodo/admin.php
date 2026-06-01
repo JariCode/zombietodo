@@ -166,8 +166,9 @@ if ($filterSearch !== '') {
 // Haetaan lokitapahtumat — korkeintaan 200 uusinta, taulukko skrollataan selaimessa
 // Username haetaan suoraan logs-taulusta — säilyy vaikka käyttäjä poistetaan
 $dataStmt = $conn->prepare("
-    SELECT l.timestamp, l.username, l.event
+    SELECT l.timestamp, l.username, l.event, tu.username AS target_username
     FROM logs l
+    LEFT JOIN users tu ON tu.id = l.target_user_id
     $logWhere
     ORDER BY l.timestamp DESC
     LIMIT 200
@@ -371,7 +372,7 @@ $dataStmt->close();
                             <?php while ($log = $logs->fetch_assoc()): ?>
                                 <tr>
                                     <td><?= date('d.m.Y H:i', strtotime($log['timestamp'])) ?></td>
-                                    <td><?= clean($log['username'] ?? 'Poistettu käyttäjä') ?></td>
+                                    <td><?= clean($log['target_username'] ?? $log['username'] ?? 'Poistettu käyttäjä') ?></td>
                                     <td><?= clean($eventLabels[$log['event']] ?? $log['event']) ?></td>
                                 </tr>
                             <?php endwhile; ?>

@@ -69,8 +69,9 @@ async function refreshLogs(form) {
     const formData = new FormData(form);
     formData.append('type', 'logs'); // Kertoo partial-admin.php:lle mitä osiota haetaan
 
-    // Liitetään käyttäjälistan hakuarvo lokipyyntöön
-    const userForm = document.querySelector('input[name="user_filter"]').closest('form');
+   // Liitetään käyttäjälistan hakuarvo lokipyyntöön — turvallisesti, jos kenttää ei löydy
+    const userFilterInput = document.querySelector('input[name="user_filter"]');
+    const userForm = userFilterInput ? userFilterInput.closest('form') : null;
     const userSearch = userForm ? userForm.querySelector('input[name="user_search"]') : null;
     if (userSearch && userSearch.value) {
         formData.append('user_search', userSearch.value);
@@ -312,22 +313,71 @@ document.addEventListener('keydown', function(e) {
 // inline-tyylien sijaan CSP-yhteensopivuuden vuoksi
 // ===========================================================
 
-// ROOLIN VAIHTO — vahvistus ennen lähetystä
-document.getElementById('adminRoleForm').addEventListener('submit', function(e) {
-    const confirmBtn = document.getElementById('roleConfirm');
+// Admin-modalin viestien yhteinen häivytysajastin — tyhjentää kaikki kolme viestikenttää 8 s kuluttua (sama aika kuin ui.js)
+let modalMessageTimer = null;
+function scheduleModalMessageClear() {
+    clearTimeout(modalMessageTimer);
+    modalMessageTimer = setTimeout(function() {
+        ['roleMessage', 'deleteMessage', 'resetMessage'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = ''; el.classList.remove('is-success'); }
+        });
+    }, 8000);
+}
 
-    // Jos vahvistusnappi on piilotettu — estetään lähetys ja näytetään viesti
+// ROOLIN VAIHTO — vahvistus ennen lähetystä, sitten AJAX-lähetys
+document.getElementById('adminRoleForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); // Estetään aina normaali lähetys — hoidetaan fetchillä
+    const confirmBtn = document.getElementById('roleConfirm');
+    const roleMessage = document.getElementById('roleMessage');
+
+    // Ensimmäinen klikkaus — näytetään vahvistusviesti (punainen varoitus) ja vaihdetaan nappi
     if (confirmBtn.classList.contains('hidden')) {
-        e.preventDefault(); // Estetään lomakkeen lähetys
-        const roleSelect = document.getElementById('editRole'); // Haetaan select-elementti
-        const roleText = roleSelect.options[roleSelect.selectedIndex].text; // Luetaan näkyvä teksti "Käyttäjä" tai "Admin"
-        const username = document.getElementById('adminModalUser').textContent.split(' — ')[0]; // Luetaan käyttäjänimi modalin otsikosta
-        document.getElementById('roleMessage').textContent = 'Vaihdetaanko ' + username + ' rooliksi ' + roleText + '?'; // Näytetään vahvistusviesti
-        document.getElementById('roleSubmit').classList.add('hidden'); // Piilotetaan alkuperäinen nappi
-        confirmBtn.classList.remove('hidden'); // Näytetään vahvistusnappi
+        const roleSelect = document.getElementById('editRole');
+        const roleText = roleSelect.options[roleSelect.selectedIndex].text;
+        const username = document.getElementById('adminModalUser').textContent.split(' — ')[0];
+        roleMessage.textContent = 'Vaihdetaanko ' + username + ' rooliksi ' + roleText + '?';
+        document.getElementById('roleSubmit').classList.add('hidden');
+        confirmBtn.classList.remove('hidden');
         return;
     }
-    // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin
+
+    // Toinen klikkaus — lähetetään lomake AJAXilla
+    const formData = new FormData(this);
+    try {
+        const res = await fetch('app/actions.php', {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': getCSRF() },
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            roleMessage.textContent = data.message || 'Rooli vaihdettu.';
+            roleMessage.classList.add('is-success'); // Vihreä onnistumiselle
+        } else {
+            roleMessage.textContent = data.error || 'Toiminto epäonnistui.';
+            roleMessage.classList.remove('is-success'); // Punainen virheelle
+        }
+
+        scheduleModalMessageClear(); // Häivytetään viesti 8 s kuluttua
+        resetConfirmButtons();
+
+      if (data.success) {
+            const userFilterInput = document.querySelector('input[name="user_filter"]');
+            const userForm = userFilterInput ? userFilterInput.closest('form') : null;
+            if (userForm) refreshUsers(userForm); // Päivitetään käyttäjälista taustalla
+
+            const logFilterInput = document.querySelector('input[name="log_filter"]');
+            const logForm = logFilterInput ? logFilterInput.closest('form') : null;
+            if (logForm) refreshLogs(logForm); // Päivitetään lokitaulukko taustalla
+        }
+    } catch (err) {
+        roleMessage.textContent = 'Verkkovirhe. Yritä uudelleen.';
+        roleMessage.classList.remove('is-success');
+        scheduleModalMessageClear();
+        resetConfirmButtons();
+    }
 });
 
 // SALASANAN PALAUTUS — vahvistus ennen lähetystä

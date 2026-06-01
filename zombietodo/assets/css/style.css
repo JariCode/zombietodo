@@ -1346,6 +1346,12 @@ h1.admin-title {
     margin-bottom: 10px;
 }
 
+/* Onnistumisviesti modalissa — vihreä, peruu punaisen modal-error-värin */
+.modal-error.is-success {
+    color: #aaffaa;
+    animation: successPulse 1.8s infinite ease-in-out;
+}
+
 /* Käyttäjätaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
 .admin-user-scroll {
     max-height: 500px;
