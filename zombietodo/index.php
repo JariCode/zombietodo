@@ -68,7 +68,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
         <!--Herokuva — suuri kuva joka esittelee sovelluksen teeman ja tunnelman.-->
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630"fetchpriority="high">
 
-        <!-- WIP-banneri — näkyy sivun yläosassa kun sovellus on kehitysvaiheessa -->
+        <!-- WIP-banneri — näkyy sivun yläosassa mihin voi vaihtaa sopivan tekstin -->
         <div class="wip-banner">🩸 THE UNDEAD ARE ORGANIZING TASKS... 🩸</div>
 
         <!-- Sitaattilaatikko — hakee ja näyttää satunnaisen sitaatin ulkoisesta API:sta -->

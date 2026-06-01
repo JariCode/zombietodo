@@ -84,7 +84,7 @@ form, form * {
     display: block;
 }
 
-/* WIP-banneri on vilkkuva teksti joka kertoo että sovellus on vielä keskeneräinen */
+/* WIP-banneri on vilkkuva teksti kirjautumissivulla */
 .wip-banner {
     text-align: center;
     font-family: Impact, sans-serif;
@@ -132,8 +132,6 @@ h1 {
     font-weight: bold;
     animation: successPulse 1.8s infinite ease-in-out;
 }
-
-
 
 /* Sykkivä hohde virheilmoitukselle — sama tyyli kuin bloodPulse */
 @keyframes errorPulse {
@@ -434,6 +432,7 @@ button.link-btn:hover {
     color: #ff9999;
     background: none;
 }
+
 /* Tehtävälistan wrapper */
 .todo-box {
     margin-top: 10px;
@@ -1071,6 +1070,7 @@ body.modal-open {
     background: #880000 !important;
     color: #fff !important;
 }
+
 /* ================================
    5. ADMIN-PANEELI
    admin.php — vain tyylit joita ei
@@ -1649,12 +1649,12 @@ h1.admin-title {
         letter-spacing: 1px;
     }
 
-    /*Amin-paneelin syöttökentät pienemmiksi mobiilissa */
+    /*Admin-paneelin syöttökentät pienemmiksi mobiilissa */
     .admin-page .auth-box input:not([type="hidden"]) {
         font-size: 0.8rem;
     }
 
-    /*Admin-paneelin syöttökenttien placeholdedin fontti pienemmäksi mobiilissa */
+    /*Addmin-paneelin syöttökenttien placeholderin fontti pienemmäksi mobiilissa */
     .admin-page .auth-box input:not([type="hidden"])::placeholder {
         font-size: 0.8rem;
     }
