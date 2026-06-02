@@ -1103,7 +1103,7 @@ function handleAdminChangeRole() {
     $roleText = $newRole === 'admin' ? 'Admin' : 'Käyttäjä';
     echo json_encode([
         'success' => true,
-        'message' => 'Käyttäjän ' . $target['username'] . ' rooliksi vaihdettiin: ' . $roleText . '. 👑'
+        'message' => 'Käyttäjän ' . $target['username'] . ' rooliksi vaihdettiin: ' . $roleText . '. 🧟'
     ]);
     exit;
 }

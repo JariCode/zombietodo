@@ -1344,10 +1344,11 @@ h1.admin-title {
     font-size: 1.2rem;
     text-align: left;
     margin-bottom: 10px;
+    color: #ff6600;
 }
 
 /* Onnistumisviesti modalissa — vihreä, peruu punaisen modal-error-värin */
-.modal-error.is-success {
+#adminModal .modal-error.is-success {
     color: #aaffaa;
     animation: successPulse 1.8s infinite ease-in-out;
 }
