@@ -53,6 +53,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'change_password': handleChangePassword(); break; // Jos action on 'change_password', kutsutaan salasanan vaihtofunktiota
     case 'delete_account':  handleDeleteAccount();  break; // Jos action on 'delete_account', kutsutaan tilin poiston funktiota
     case 'admin_change_role': handleAdminChangeRole(); break; // Admin vaihtaa käyttäjän roolin
+    case 'admin_delete_user': handleAdminDeleteUser(); break; // Admin poistaa käyttäjän tilin
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -716,7 +717,7 @@ function handleDeleteAccount() {
     }
 
     // Haetaan käyttäjän tiedot tietokannasta
-    $stmt = $conn->prepare('SELECT username, email, password FROM users WHERE id = ?');
+    $stmt = $conn->prepare('SELECT username, email, password, role FROM users WHERE id = ?');
     $stmt->bind_param('i', $uid); // 'i' = integer eli kokonaisluku
     $stmt->execute();
     $result = $stmt->get_result();
@@ -728,6 +729,13 @@ function handleDeleteAccount() {
         session_unset();
         session_destroy();
         header('Location: ../index.php');
+        exit;
+    }
+
+    // ADMIN-SUOJA — admin ei voi poistaa omaa tiliään profiilisivulta
+    if ($user['role'] === 'admin') {
+        $_SESSION['error'] = 'Admin ei voi poistaa omaa tiliään. ⛔';
+        header('Location: ../profile.php');
         exit;
     }
 
@@ -1023,7 +1031,7 @@ function handleAdminChangeRole() {
 
     if (!$admin || $admin['role'] !== 'admin') {
         http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon.']);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon. ⛔']);
         exit;
     }
 
@@ -1040,7 +1048,7 @@ function handleAdminChangeRole() {
 
     // ITSESUOJA — admin ei voi muuttaa omaa rooliaan
     if ($targetId === $adminId) {
-        echo json_encode(['success' => false, 'error' => 'Et voi muuttaa omaa rooliasi.']);
+        echo json_encode(['success' => false, 'error' => 'Et voi muuttaa omaa rooliasi. ⛔']);
         exit;
     }
 
@@ -1081,7 +1089,7 @@ function handleAdminChangeRole() {
         $stmt->close();
 
         if ($adminCount <= 1) {
-            echo json_encode(['success' => false, 'error' => 'Et voi alentaa järjestelmän ainoaa ylläpitäjää. Anna ensin admin-oikeudet toiselle käyttäjälle.']);
+            echo json_encode(['success' => false, 'error' => 'Et voi alentaa järjestelmän ainoaa ylläpitäjää. Anna ensin admin-oikeudet toiselle käyttäjälle. ⛔']);
             exit;
         }
     }
@@ -1114,5 +1122,118 @@ function handleAdminChangeRole() {
 
 //===========================================================
 //KÄYTTÄJÄN POISTAMINEN
-//Admin voi poistaa käyttäjän ja kaikki hänen tietonsa — mutta ei itseään
+//Admin voi poistaa käyttäjän tilin — mutta ei itseään eikä viimeistä adminia
 //===========================================================
+function handleAdminDeleteUser() {
+    header('Content-Type: application/json; charset=utf-8'); // Vastaus on JSON — admin.js lukee sen
+    global $conn;
+
+    // Pyyntö tultava lomakkeelta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
+    // Kirjautumistarkistus
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut.']);
+        exit;
+    }
+
+    $adminId = intval($_SESSION['user_id']); // Toiminnon tekijän id
+
+    // ADMIN-ROOLITARKISTUS — luetaan tekijän rooli SUORAAN KANNASTA, ei sessiosta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $adminId);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$admin || $admin['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon. ⛔']);
+        exit;
+    }
+
+    // CSRF-tarkistus — fetch lähettää headerissa, lomake POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Turvallisuusvirhe. Yritä uudelleen.']);
+        exit;
+    }
+
+    // Luetaan kohde ja vahvistuskentät
+    $targetId         = intval($_POST['target_user_id'] ?? 0);
+    $confirmUsername  = trim($_POST['confirm_username'] ?? '');
+    $confirmEmail     = trim($_POST['confirm_email'] ?? '');
+
+    // ITSESUOJA — admin ei voi poistaa omaa tiliään tämän kautta
+    if ($targetId === $adminId) {
+        echo json_encode(['success' => false, 'error' => 'Admin ei voi poistaa omaa tiliään. ⛔']);
+        exit;
+    }
+
+    // Kohde-id:n validointi
+    if ($targetId <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen kohdekäyttäjä.']);
+        exit;
+    }
+
+    // Haetaan kohteen tiedot kannasta
+    $stmt = $conn->prepare('SELECT username, email, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $target = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$target) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjää ei löytynyt.']);
+        exit;
+    }
+
+    // VAHVISTUS — admin kirjoittaa kohteen käyttäjänimen ja sähköpostin oikein
+    // Lisävarmistus vahinkopoistoa vastaan
+    if ($confirmUsername !== $target['username'] || $confirmEmail !== $target['email']) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjänimi tai sähköposti ei täsmää.']);
+        exit;
+    }
+
+    // VIIMEISEN ADMININ SUOJA — ainoaa adminia ei voi poistaa
+    // Järjestelmässä on aina oltava vähintään yksi admin
+    if ($target['role'] === 'admin') {
+        $stmt = $conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE role = 'admin'");
+        $stmt->execute();
+        $adminCount = intval($stmt->get_result()->fetch_assoc()['admin_count']);
+        $stmt->close();
+
+        if ($adminCount <= 1) {
+            echo json_encode(['success' => false, 'error' => 'Et voi poistaa järjestelmän ainoaa ylläpitäjää. ⛔']);
+            exit;
+        }
+    }
+
+    // LOKITUS ENNEN POISTOA — kohteen nimi tallennetaan username-kenttään tekstinä
+    // koska target_user_id nollaantuu poistossa (ON DELETE SET NULL), jolloin
+    // JOIN ei enää löytäisi kohteen nimeä. Nimi "jäädytetään" lokiriville.
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address, target_user_id) VALUES (?, ?, 'account_deleted_admin', ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('issi', $adminId, $target['username'], $ip, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Poistetaan käyttäjä — ON DELETE CASCADE poistaa myös tehtävät ja palautuspyynnöt
+    $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistuminen — viesti näytetään modalissa, lista päivitetään JS:llä
+    echo json_encode([
+        'success' => true,
+        'message' => 'Käyttäjä ' . $target['username'] . ' poistettu pysyvästi. 🪦'
+    ]);
+    exit;
+}

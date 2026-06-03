@@ -396,20 +396,67 @@ document.getElementById('adminResetForm').addEventListener('submit', function(e)
     // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin
 });
 
-// TILIN POISTO — vahvistus ennen lähetystä
-document.getElementById('adminDeleteForm').addEventListener('submit', function(e) {
+// TILIN POISTO — vahvistus ennen lähetystä, sitten AJAX-lähetys
+document.getElementById('adminDeleteForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); // Estetään aina normaali lähetys — hoidetaan fetchillä
     const confirmBtn = document.getElementById('deleteConfirm');
+    const deleteMessage = document.getElementById('deleteMessage');
 
-    // Jos vahvistusnappi on piilotettu — estetään lähetys ja näytetään viesti
+    // Ensimmäinen klikkaus — näytetään vahvistusviesti ja vaihdetaan nappi
     if (confirmBtn.classList.contains('hidden')) {
-        e.preventDefault(); // Estetään lomakkeen lähetys
-        const username = document.getElementById('adminModalUser').textContent.split(' — ')[0]; // Luetaan käyttäjänimi
-        document.getElementById('deleteMessage').textContent = 'Käyttäjä ' + username + ' poistetaan pysyvästi. Vahvista toiminto.'; // Näytetään vahvistusviesti
-        document.getElementById('deleteSubmit').classList.add('hidden'); // Piilotetaan alkuperäinen nappi
-        confirmBtn.classList.remove('hidden'); // Näytetään vahvistusnappi
+        const username = document.getElementById('adminModalUser').textContent.split(' — ')[0];
+        deleteMessage.textContent = 'Käyttäjä ' + username + ' poistetaan pysyvästi. Vahvista toiminto.';
+        document.getElementById('deleteSubmit').classList.add('hidden');
+        confirmBtn.classList.remove('hidden');
         return;
     }
-    // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin
+
+    // Toinen klikkaus — lähetetään lomake AJAXilla
+    const formData = new FormData(this);
+    try {
+        const res = await fetch('app/actions.php', {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': getCSRF() },
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            deleteMessage.textContent = data.message || 'Käyttäjä poistettu.';
+            deleteMessage.classList.add('is-success'); // Vihreä onnistumiselle
+
+            // Käyttäjä poistettu — tyhjennetään modalin tiedot ettei ne viittaa poistettuun
+            document.getElementById('adminModalUser').textContent = '';
+            document.getElementById('roleTargetId').value = '';
+            document.getElementById('resetTargetId').value = '';
+            document.getElementById('deleteTargetId').value = '';
+            document.getElementById('deleteUsername').value = '';
+            document.getElementById('deleteUsername').placeholder = '';
+            document.getElementById('deleteEmail').value = '';
+            document.getElementById('deleteEmail').placeholder = '';
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('resetEmail').placeholder = '';
+
+            const userFilterInput = document.querySelector('input[name="user_filter"]');
+            const userForm = userFilterInput ? userFilterInput.closest('form') : null;
+            if (userForm) refreshUsers(userForm); // Päivitetään käyttäjälista taustalla
+
+            const logFilterInput = document.querySelector('input[name="log_filter"]');
+            const logForm = logFilterInput ? logFilterInput.closest('form') : null;
+            if (logForm) refreshLogs(logForm); // Päivitetään lokitaulukko taustalla
+        } else {
+            deleteMessage.textContent = data.error || 'Toiminto epäonnistui.';
+            deleteMessage.classList.remove('is-success'); // Virheelle ei vihreää
+        }
+
+        scheduleModalMessageClear(); // Häivytetään viesti 8 s kuluttua
+        resetConfirmButtons();
+    } catch (err) {
+        deleteMessage.textContent = 'Verkkovirhe. Yritä uudelleen.';
+        deleteMessage.classList.remove('is-success');
+        scheduleModalMessageClear();
+        resetConfirmButtons();
+    }
 });
 // ===========================================================
 // KÄYNNISTYS
