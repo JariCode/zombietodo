@@ -1264,14 +1264,42 @@ h1.admin-title {
     text-shadow: 1px 1px black;
 }
 
-/* POISTA-nappi — erottuu TALLENNA-napista punaisemmalla sävyllä */
+/* Vahvistusnappi tilin poiston yhteydessä — kirkas punainen, erottuu muista napeista */
 .admin-btn-danger {
-    background: #aa0000 !important;
+    background: #aa0000;
 }
 
 .admin-btn-danger:hover {
-    background: #dd0000 !important;
+    background: #dd0000;
     box-shadow: 0 0 15px rgba(220, 0, 0, 0.6);
+}
+
+/* Vahvistusnapit — tumma pohja, hehkuva punainen reunus ja teksti, nopea syke. Sama kaikissa kolmessa. */
+#adminModal .btn-save#roleConfirm,
+#adminModal .btn-save#resetConfirm,
+#adminModal .btn-save.admin-btn-danger#deleteConfirm {
+    background: #1a0000;
+    color: #ff2a2a;
+    border: 2px solid #ff0000;
+    text-shadow: 0 0 8px rgba(255, 40, 40, 1);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.6), inset 0 0 8px rgba(255, 0, 0, 0.25);
+    animation: confirmPulse 0.9s infinite ease-in-out;
+}
+
+#adminModal .btn-save#roleConfirm:hover,
+#adminModal .btn-save#resetConfirm:hover,
+#adminModal .btn-save.admin-btn-danger#deleteConfirm:hover {
+    background: #ff0000;
+    color: #1a0000;
+    text-shadow: none;
+    box-shadow: 0 0 24px rgba(255, 30, 30, 1);
+}
+
+/* Sykkivä punainen hehku vahvistusnapeille */
+@keyframes confirmPulse {
+    0%   { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }
+    50%  { box-shadow: 0 0 24px 8px rgba(255, 30, 30, 0.95), inset 0 0 14px rgba(255, 0, 0, 0.45); }
+    100% { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }
 }
 
 /* Admin-modalin sisäiset footerit — ei yläviivaa, tiivistetty ilman sivupaddingia */
