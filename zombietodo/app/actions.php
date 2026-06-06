@@ -54,6 +54,8 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'delete_account':  handleDeleteAccount();  break; // Jos action on 'delete_account', kutsutaan tilin poiston funktiota
     case 'admin_change_role': handleAdminChangeRole(); break; // Admin vaihtaa käyttäjän roolin
     case 'admin_delete_user': handleAdminDeleteUser(); break; // Admin poistaa käyttäjän tilin
+    case 'request_password_reset': handleRequestPasswordReset(); break; // Käyttäjä pyytää palautuslinkkiä etusivulta
+    case 'complete_password_reset': handleCompletePasswordReset(); break; // Käyttäjä asettaa uuden salasanan linkistä
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -382,6 +384,211 @@ function handleLogin() {
 
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
+    exit;
+}
+
+//===========================================================
+//SALASANAN PALAUTUSPYYNTÖ (etusivu)
+//Käyttäjä syöttää käyttäjänimen + sähköpostin, saa palautuslinkin sähköpostiin
+//===========================================================
+function handleRequestPasswordReset() {
+    global $conn;
+    require_once __DIR__ . '/mail.php'; // Sähköpostin lähetysfunktio
+
+    // Pyyntö vain POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error'] = 'Virheellinen pyyntö.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // CSRF-tarkistus
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $_SESSION['error'] = 'Turvallisuusvirhe. Yritä uudelleen.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // IP-osoite — käytetään brute force -tarkistuksessa ja lokituksessa
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+    // ===========================================================
+    // BRUTE FORCE -SUOJA — IP-pohjainen
+    // Lasketaan montako palautuspyyntöä samasta IP:stä viimeisen 15 min aikana
+    // ===========================================================
+    $stmt = $conn->prepare(
+        "SELECT COUNT(*) AS cnt FROM logs
+         WHERE event = 'password_reset_requested'
+         AND ip_address = ?
+         AND timestamp > (NOW() - INTERVAL 15 MINUTE)"
+    );
+    $stmt->bind_param('s', $ip);
+    $stmt->execute();
+    $attempts = $stmt->get_result()->fetch_assoc()['cnt'];
+    $stmt->close();
+
+    // 5 pyyntöä / 15 min — sama raja kuin kirjautumisessa
+    if ($attempts >= 5) {
+        $_SESSION['error'] = 'Liian monta palautuspyyntöä. Yritä myöhemmin uudelleen.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    $username = trim($_POST['username'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
+
+    // Sama viesti aina — ei paljasteta löytyikö käyttäjää (tietoturva)
+    $genericMsg = 'Jos tiedot täsmäävät, palautuslinkki on lähetetty sähköpostiin.';
+
+    // Haetaan käyttäjä jolla täsmää SEKÄ käyttäjänimi ETTÄ sähköposti
+    $stmt = $conn->prepare('SELECT id, username, email FROM users WHERE username = ? AND email = ?');
+    $stmt->bind_param('ss', $username, $email);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Kirjataan JOKAINEN pyyntö lokiin (myös epäonnistuneet) — brute force -laskuria varten
+    // Jos käyttäjä löytyi, kirjataan hänen tietonsa; jos ei, user_id NULL ja username "Tuntematon käyttäjä"
+    $logUserId   = $user['id'] ?? null;
+    $logUsername = $user['username'] ?? 'Tuntematon käyttäjä';
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'password_reset_requested', ?)");
+    $stmt->bind_param('iss', $logUserId, $logUsername, $ip);
+    $stmt->execute();
+    $stmt->close();
+
+    // Jos käyttäjää ei löydy — näytetään silti sama viesti, ei paljasteta mitään
+    if (!$user) {
+        $_SESSION['success'] = $genericMsg;
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Luodaan satunnainen token ja vanhenemisaika (1 tunti)
+    $token     = bin2hex(random_bytes(32)); // 64 merkkiä
+    $expiresAt = date('Y-m-d H:i:s', time() + 3600);
+
+    // Poistetaan käyttäjän vanhat palautuspyynnöt ensin
+    $stmt = $conn->prepare('DELETE FROM password_resets WHERE user_id = ?');
+    $stmt->bind_param('i', $user['id']);
+    $stmt->execute();
+    $stmt->close();
+
+    // Tallennetaan uusi token kantaan
+    $stmt = $conn->prepare('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)');
+    $stmt->bind_param('iss', $user['id'], $token, $expiresAt);
+    $stmt->execute();
+    $stmt->close();
+
+    // Rakennetaan palautuslinkki dynaamisesti — toimii sekä paikallisesti että palvelimella
+    $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host    = $_SERVER['HTTP_HOST']; // esim. localhost tai jaricode.fi
+    $baseDir = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\'); // hakee web rootin polun
+    $resetLink = $scheme . '://' . $host . $baseDir . '/reset-password.php?token=' . $token;
+
+    // Lähetetään sähköposti
+    sendResetEmail($user['email'], $user['username'], $resetLink);
+
+    $_SESSION['success'] = $genericMsg;
+    header('Location: ../index.php');
+    exit;
+}
+
+//===========================================================
+//SALASANAN VAIHTO PALAUTUSLINKISTÄ (vaihe 2)
+//Käyttäjä on tullut sähköpostin linkistä, asettaa uuden salasanan
+//===========================================================
+function handleCompletePasswordReset() {
+    global $conn;
+
+    // Pyyntö vain POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['reset_error'] = 'Virheellinen pyyntö.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    $token            = $_POST['token'] ?? '';
+    $password         = $_POST['password'] ?? '';
+    $password_confirm = $_POST['password_confirm'] ?? '';
+
+    // Apufunktio: ohjaa takaisin reset-sivulle virheviestin kanssa (token säilyy URL:ssa)
+    $backToReset = function($msg) use ($token) {
+        $_SESSION['reset_error'] = $msg;
+        header('Location: ../reset-password.php?token=' . urlencode($token));
+        exit;
+    };
+
+    // CSRF-tarkistus
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $backToReset('Turvallisuusvirhe. Yritä uudelleen.');
+    }
+
+    // Tarkistetaan token UUDELLEEN kannasta — ei luoteta siihen että se oli kelvollinen sivua ladattaessa
+    $stmt = $conn->prepare('SELECT user_id, expires_at FROM password_resets WHERE token = ?');
+    $stmt->bind_param('s', $token);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Token puuttuu, väärä tai vanhentunut
+    if (!$row || strtotime($row['expires_at']) <= time()) {
+        $_SESSION['reset_error'] = 'Palautuslinkki on vanhentunut tai virheellinen. Pyydä uusi linkki.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    $userId = $row['user_id'];
+
+    // Salasanan vahvuustarkistukset — samat kuin rekisteröinnissä ja salasanan vaihdossa
+    if (strlen($password) < 10) {
+        $backToReset('Salasanan pitää olla vähintään 10 merkkiä.');
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi iso kirjain.');
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi pieni kirjain.');
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi numero.');
+    }
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi erikoismerkki.');
+    }
+    if ($password !== $password_confirm) {
+        $backToReset('Salasanat eivät täsmää.');
+    }
+
+    // Hashataan ja päivitetään salasana
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmt->bind_param('si', $hash, $userId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Poistetaan käytetty token — kertakäyttöinen
+    $stmt = $conn->prepare('DELETE FROM password_resets WHERE user_id = ?');
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Haetaan käyttäjänimi lokitusta varten
+    $stmt = $conn->prepare('SELECT username FROM users WHERE id = ?');
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $u = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Lokitus
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'password_reset_completed', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('iss', $userId, $u['username'], $ip);
+    $stmt->execute();
+    $stmt->close();
+
+    // Ohjataan kirjautumissivulle onnistumisviestillä
+    $_SESSION['success'] = 'Salasana vaihdettu. Voit nyt kirjautua sisään. 🔑';
+    header('Location: ../index.php');
     exit;
 }
 
@@ -1119,6 +1326,7 @@ function handleAdminChangeRole() {
 //UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
 //Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan
 //===========================================================
+
 
 //===========================================================
 //KÄYTTÄJÄN POISTAMINEN

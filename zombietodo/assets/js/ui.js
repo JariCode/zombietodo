@@ -62,6 +62,17 @@ document.querySelectorAll('.link-btn').forEach(function(btn) {
     });
 });
 
+// Salasanan palautus -modalin avaus
+const openResetBtn = document.getElementById('openResetModal');
+if (openResetBtn) {
+    openResetBtn.addEventListener('click', function() {
+        const overlay = document.getElementById('resetModal');
+        if (!overlay) return;
+        overlay.classList.add('open');
+        document.body.classList.add('modal-open');
+    });
+}
+
 // Avaa käyttöehdot- tai tietosuojaseloste-modalin
 function openLegalModal(type) {
     const id = type === 'terms' ? 'legalTerms' : 'legalPrivacy'; // Valitaan oikea modal

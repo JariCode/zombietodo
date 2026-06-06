@@ -181,18 +181,53 @@ h1 {
     font-size: 1.2rem;
 }
 
-/* Unohtunut salasana -linkki */
-.forgot-link {
+/* Unohtunut painikkeelle linkin tyylit ja uloasu*/
+.auth-box button.forgot-link {
     display: block;
     text-align: left;
     margin-top: 10px;
     color: #ff6666;
     font-size: 1rem;
     text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    width: auto;
 }
 
-.forgot-link:hover {
+.auth-box button.forgot-link:hover {
     color: #ff9999;
+    background: none;
+}
+
+/* Salasanan palautus -modalin lomake — samat tyylit kuin etusivun auth-box */
+#resetModal .legal-body form {
+    display: flex;
+    flex-direction: column;
+}
+
+#resetModal .legal-body label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+#resetModal .legal-body input[type="text"],
+#resetModal .legal-body input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
 }
 
 /* Input labelit */
@@ -202,6 +237,58 @@ h1 {
     color: #ffbbbb;
     font-size: 1rem;
     text-shadow: 1px 1px black;
+}
+
+/* Salasanan palautus — "linkki ei kelpaa" -näkymä, varoitustyyli */
+.reset-invalid {
+    text-align: center;
+    border: 2px solid #ff6600;
+    box-shadow: 0 0 14px rgba(255, 102, 0, 0.5);
+    animation: resetWarnPulse 1.8s infinite ease-in-out;
+}
+
+.reset-invalid-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 8px rgba(255, 102, 0, 0.7));
+}
+
+.reset-invalid .auth-title {
+    color: #ff6600;
+    text-shadow: 0 0 8px rgba(255, 102, 0, 0.6);
+}
+
+.reset-invalid p {
+    color: #ffccaa;
+    text-shadow: 1px 1px black;
+    line-height: 1.5;
+    margin: 8px 0;
+}
+
+.reset-back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #880000;
+    color: #fff;
+    font-family: Impact, sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.reset-back-btn:hover {
+    background: #bb0000;
+    box-shadow: 0 0 12px rgba(200, 0, 0, 0.6);
+}
+
+/* Sykkivä oranssi varoitushehku */
+@keyframes resetWarnPulse {
+    0%   { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
+    50%  { box-shadow: 0 0 18px rgba(255, 102, 0, 0.8); }
+    100% { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
 }
 
 /* Input-kentät */
