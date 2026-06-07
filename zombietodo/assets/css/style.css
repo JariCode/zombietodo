@@ -1666,7 +1666,7 @@ h1.admin-title {
     }
 
     /* Unohtunut salasana -linkki pienemmäksi mobiilissa */
-    .forgot-link {
+    .auth-box button.forgot-link {
         font-size: 0.9rem;
     }
 

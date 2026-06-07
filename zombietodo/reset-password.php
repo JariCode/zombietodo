@@ -98,7 +98,7 @@ unset($_SESSION['reset_error'], $_SESSION['reset_success']);
             </div>
         <?php endif; ?>
     </div>
-<!-- JavaScript -->s
+<!-- JavaScript -->
     <script src="assets/js/ui.js"></script>
 </body>
-</html>s
+</html>
