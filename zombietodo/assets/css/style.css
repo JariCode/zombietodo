@@ -181,7 +181,39 @@ h1 {
     font-size: 1.2rem;
 }
 
-/* Unohtunut painikkeelle linkin tyylit ja uloasu*/
+/* Input-kentät */
+.auth-box input:not(.numInput) {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Rekisteröidy ja kirjaudu -napit */
+.auth-box button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    background: #990000;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 3px;
+    transition: 0.2s;
+}
+
+.auth-box button:hover {
+    background: #cc0000;
+}
+
+
+/* Unohtunut salasana -painikkeelle linkin tyylit ja uloasu*/
 .auth-box button.forgot-link {
     display: block;
     text-align: left;
@@ -291,36 +323,6 @@ h1 {
     100% { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
 }
 
-/* Input-kentät */
-.auth-box input:not(.numInput) {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    background: #111;
-    border: 2px solid #660000;
-    color: #ffdddd;
-    font-size: 1rem;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-/* Rekisteröidy ja kirjaudu -napit */
-.auth-box button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    font-weight: bold;
-    background: #990000;
-    color: #fff;
-    cursor: pointer;
-    font-size: 1.1rem;
-    border-radius: 3px;
-    transition: 0.2s;
-}
-
-.auth-box button:hover {
-    background: #cc0000;
-}
 
 /* Salasanakentän silmä-ikonin sijoittelu */
 .password-field {

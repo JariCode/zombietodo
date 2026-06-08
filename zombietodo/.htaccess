@@ -36,6 +36,12 @@ Options -Indexes
     RewriteCond %{HTTP_ACCEPT} text/html
     RewriteCond %{THE_REQUEST} \.php
     RewriteRule ^app/.*\.php$ - [F,L]
+    #########################################################
+    # 3b) ESTÄ PHPMailer-kirjaston tiedostot selaimelta
+    #########################################################
+    RewriteCond %{HTTP_ACCEPT} text/html
+    RewriteCond %{THE_REQUEST} \.php
+    RewriteRule ^PHPMailer/.*\.php$ - [F,L]
 
 </IfModule>
 

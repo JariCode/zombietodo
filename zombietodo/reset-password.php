@@ -42,7 +42,8 @@ unset($_SESSION['reset_error'], $_SESSION['reset_success']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salasanan palautus - Zombie To-Do</title>
+    <title>Zombie Reset</title>
+    <meta name="description" content="Zombie To-Do — salasanan palautus."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>

@@ -187,7 +187,7 @@ $dataStmt->close();
     <meta charset="UTF-8"> <!-- Merkistö — tukee suomen kielen merkkejä -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Skaalautuu eri laitteille -->
     <meta name="csrf-token" content="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-token meta-tietona admin.js käyttöön -->
-    <title>Zombie Admin</title>
+    <title>Zombie Master</title>
     <meta name="description" content="Zombie To-Do — admin-paneeli käyttäjien hallintaan."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
     <link rel="stylesheet" href="assets/css/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->

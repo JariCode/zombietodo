@@ -53,7 +53,7 @@ document.querySelectorAll('.auth-error, .auth-success').forEach(function(msg) {
 });
 
 // ===========================================================
-// KÄYTTÖEHDOT JA TIETOSUOJASELOSTE — MODALIN AVAUS
+// KÄYTTÖEHDOT JA TIETOSUOJASELOSTE SEKÄ UNOHTUNEEN SALASANAN PALAUTUS — MODALIEN AVAUS
 // ===========================================================
 document.querySelectorAll('.link-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
