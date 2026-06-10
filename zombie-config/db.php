@@ -98,6 +98,8 @@ $eventLabels = [
     'account_deleted_user'    => 'Tilin poistaminen käyttäjän toimesta',
     'password_reset_requested'=> 'Salasanan palautuspyyntö',
     'password_reset_completed'=> 'Salasanan palautus suoritettu',
+    'account_locked_admin'    => 'Tilin lukitus adminin toimesta',
+    'account_unlocked_admin'  => 'Tilin lukituksen avaus adminin toimesta',
     'account_deleted_admin'   => 'Tilin poistaminen adminin toimesta',
     'role_changed'            => 'Roolin vaihto',
 ];

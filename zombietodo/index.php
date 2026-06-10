@@ -167,10 +167,10 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>">
 
                 <label for="resetUsername">Käyttäjänimi</label>
-                <input type="text" id="resetUsername" name="username" required autocomplete="off">
+                <input type="text" id="resetUsername" name="username" required autocomplete="off" placeholder="ZombieMaster91">
 
                 <label for="resetEmailInput">Sähköposti</label>
-                <input type="email" id="resetEmailInput" name="email" required autocomplete="off">
+                <input type="email" id="resetEmailInput" name="email" required autocomplete="off" placeholder="example@domain.com">
 
                 <button type="submit" class="legal-close-btn">LÄHETÄ LINKKI 📧</button>
             </form>

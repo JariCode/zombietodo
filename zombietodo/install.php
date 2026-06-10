@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('user','admin') NOT NULL DEFAULT 'user', -- Käyttäjätaso, oletuksena 'user'
     login_attempts INT NOT NULL DEFAULT 0,      -- Väärät kirjautumisyritykset — nollataan onnistuneen kirjautumisen jälkeen
     login_locked_until DATETIME NULL,           -- Kirjautumislukituksen päättymisaika — NULL tarkoittaa ei lukittu
+    admin_locked TINYINT(1) NOT NULL DEFAULT 0,  -- Adminin asettama lukitus: 0 = ei lukittu, 1 = lukittu. Estää kirjautumisen kunnes admin avaa.
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Käyttäjätiedot luotiin, asetetaan automaattisesti nykyhetkeen
     updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP -- Käyttäjätiedot päivitettiin, asetetaan automaattisesti nykyhetkeen
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
@@ -75,6 +76,8 @@ CREATE TABLE IF NOT EXISTS logs (
         'account_deleted_user',                 -- Käyttäjä poisti oman tilinsä
         'password_reset_requested',             -- Käyttäjä pyysi salasanan palautusta
         'password_reset_completed',             -- Käyttäjä vaihtoi salasanan palautuslinkin kautta
+        'account_locked_admin',                 -- Admin lukitsi käyttäjän tilin
+        'account_unlocked_admin',               -- Admin avasi lukituksen käyttäjän tililtä
         'account_deleted_admin',                -- Admin poisti käyttäjän tilin
         'role_changed'                          -- Admin vaihtoi käyttäjän roolia
     ) NOT NULL,

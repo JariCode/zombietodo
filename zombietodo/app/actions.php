@@ -479,11 +479,9 @@ function handleRequestPasswordReset() {
     $stmt->execute();
     $stmt->close();
 
-    // Rakennetaan palautuslinkki dynaamisesti — toimii sekä paikallisesti että palvelimella
-    $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host    = $_SERVER['HTTP_HOST']; // esim. localhost tai jaricode.fi
-    $baseDir = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\'); // hakee web rootin polun
-    $resetLink = $scheme . '://' . $host . $baseDir . '/reset-password.php?token=' . $token;
+ // Rakennetaan palautuslinkki .env:ssä määritellystä osoitteesta — ei luoteta selaimen Host-headeriin
+    $baseUrl = rtrim($_ENV['APP_URL'] ?? '', '/'); // poistetaan mahdollinen kauttaviiva lopusta
+    $resetLink = $baseUrl . '/reset-password.php?token=' . $token;
 
     // Lähetetään sähköposti
     sendResetEmail($user['email'], $user['username'], $resetLink);

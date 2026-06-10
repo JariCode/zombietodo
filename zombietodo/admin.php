@@ -451,7 +451,7 @@ $dataStmt->close();
 
                 <!-- TILIN POISTO — admin poistaa käyttäjän tilin pysyvästi -->
                 <div class="admin-modal-section no-caret">
-                    <h3 class="admin-section-title">Tilin poistaminen 🔒</h3>
+                    <h3 class="admin-section-title">Tilin poistaminen 🪦</h3>
                     <form id="adminDeleteForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_delete_user"> <!-- Toiminto POST-datana -->
                         <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
@@ -471,8 +471,8 @@ $dataStmt->close();
                         <!-- Poista ja peruuta napit -->
                         <div class="modal-footer">
                             <button type="button" class="btn-cancel" id="adminDeleteCancel">Peruuta</button>
-                            <button type="submit" class="btn-save admin-btn-danger" id="deleteSubmit">POISTA 🩸</button> <!-- Alkuperäinen nappi -->
-                            <button type="submit" class="btn-save admin-btn-danger hidden" id="deleteConfirm">VAHVISTA 🩸</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla -->
+                            <button type="submit" class="btn-save admin-btn-danger" id="deleteSubmit">POISTA 🪦</button> <!-- Alkuperäinen nappi -->
+                            <button type="submit" class="btn-save admin-btn-danger hidden" id="deleteConfirm">VAHVISTA 🪦</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla -->
                         </div>
                     </form>
                 </div>
