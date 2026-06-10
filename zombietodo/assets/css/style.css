@@ -1365,7 +1365,7 @@ h1.admin-title {
 
 /* Vahvistusnapit — tumma pohja, hehkuva punainen reunus ja teksti, nopea syke. Sama kaikissa kolmessa. */
 #adminModal .btn-save#roleConfirm,
-#adminModal .btn-save#resetConfirm,
+#adminModal .btn-save#lockConfirm,
 #adminModal .btn-save.admin-btn-danger#deleteConfirm {
     background: #1a0000;
     color: #ff2a2a;
@@ -1376,12 +1376,19 @@ h1.admin-title {
 }
 
 #adminModal .btn-save#roleConfirm:hover,
-#adminModal .btn-save#resetConfirm:hover,
+#adminModal .btn-save#lockConfirm:hover,
 #adminModal .btn-save.admin-btn-danger#deleteConfirm:hover {
     background: #ff0000;
     color: #1a0000;
     text-shadow: none;
     box-shadow: 0 0 24px rgba(255, 30, 30, 1);
+}
+
+#adminModal .admin-lock-status {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    color: #ff8888;
+    text-shadow: 1px 1px black;
 }
 
 /* Sykkivä punainen hehku vahvistusnapeille */

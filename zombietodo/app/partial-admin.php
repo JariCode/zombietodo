@@ -67,7 +67,7 @@ if ($type === 'users') {
 
     // Haetaan käyttäjät
     $userStmt = $conn->prepare("
-        SELECT id, username, email, role, created_at
+        SELECT id, username, email, role, admin_locked, created_at
         FROM users
         $userWhere
         ORDER BY created_at DESC

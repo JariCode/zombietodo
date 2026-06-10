@@ -40,7 +40,7 @@ function sendResetEmail($toEmail, $toName, $resetLink) {
                 '<p style="font-size:15px; line-height:1.6; color:#e8e8e8; text-shadow:1px 1px black;">Hei ' . $safeName . ',</p>' .
                 '<p style="font-size:15px; line-height:1.6; color:#e8e8e8; text-shadow:1px 1px black;">Pyysit salasanan palautusta. Painike vie salasanan vaihtosivulle, jossa voit asettaa uuden salasanan:</p>' .
                 '<p style="text-align:center; margin:35px 0;">' .
-                    '<a href="' . $resetLink . '" style="font-family: Impact, Haettenschweiler, sans-serif; background:#990000; color:#ffffff; padding:16px 36px; text-decoration:none; border-radius:3px; font-weight:bold; font-size:20px; letter-spacing:2px; text-transform:uppercase; display:inline-block;">VAIHDA SALASANA &#128273;</a>' .
+                    '<a href="' . $resetLink . '" style="font-family: Impact, Haettenschweiler, sans-serif; background:#990000; color:#ffffff; padding:16px 32px; text-decoration:none; border-radius:3px; font-weight:bold; font-size:16px; letter-spacing:2px; text-transform:uppercase; display:inline-block;">VAIHDA SALASANA &#128273;</a>' .
                 '</p>' .
                 '<p style="font-size:13px; color:#999999; border-top:1px solid #660000; padding-top:18px; margin-top:25px;">Linkki on voimassa tunnin. Jos et pyytänyt tätä, jätä viesti huomiotta.</p>' .
                 '<p style="font-family: Impact, Haettenschweiler, sans-serif; color:#ff2222; letter-spacing:3px; text-transform:uppercase; font-size:20px; margin:15px 0 0 0; text-shadow:2px 2px black;">Zombie To-Do</p>' .

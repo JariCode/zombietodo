@@ -221,17 +221,21 @@ document.addEventListener('click', function(e) {
     const username = row.querySelector('td:nth-child(1)').textContent; // Käyttäjänimi ensimmäisestä sarakkeesta
     const email = row.querySelector('td:nth-child(2)').textContent; // Sähköposti toisesta sarakkeesta
     const role = row.querySelector('td:nth-child(3)').textContent.trim().toLowerCase(); // Rooli kolmannesta sarakkeesta
+    // Tilin lukitus — luetaan tila napista ja asetetaan teksti + napin teksti sen mukaan
+    const isLocked = btn.dataset.locked === '1';
+    document.getElementById('lockStatus').textContent = isLocked
+        ? 'Käyttäjän ' + username + ' tili on tällä hetkellä lukittu. Käyttäjä ei voi kirjautua sisään.'
+        : 'Käyttäjän ' + username + ' tili on tällä hetkellä auki. Käyttäjä voi kirjautua normaalisti.';
+    document.getElementById('lockSubmit').textContent = isLocked ? 'AVAA 🔓' : 'LUKITSE 🔒';
 
     // Täytetään kohde-id:t kaikkiin lomakkeisiin
     document.getElementById('roleTargetId').value = id;   // Roolin vaihdon kohde
-    document.getElementById('resetTargetId').value = id;  // Salasanan palautuksen kohde
+    document.getElementById('lockTargetId').value = id;   // Tilin lukituksen kohd
     document.getElementById('deleteTargetId').value = id; // Tilin poiston kohde
 
     // Täytetään modalin näkyvät kentät
     document.getElementById('adminModalUser').textContent = username + ' — ' + email; // Kenen tiliä hallitaan
     document.getElementById('editRole').value = role === 'admin' ? 'admin' : 'user';  // Nykyinen rooli valitsimeen
-    document.getElementById('resetEmail').value = '';            // Tyhjä — admin kirjoittaa itse vahvistukseksi
-    document.getElementById('resetEmail').placeholder = email;   // Vihje mitä pitää kirjoittaa
 
     // Tilin poiston kentät — tyhjät, placeholder näyttää odotetun arvon
     document.getElementById('deleteUsername').value = '';             // Tyhjä — admin kirjoittaa itse vahvistukseksi
@@ -245,7 +249,7 @@ document.addEventListener('click', function(e) {
     // Tyhjennetään kaikki viestikentät edelliseltä avaukselta
     document.getElementById('adminModalError').textContent = '';
     document.getElementById('roleMessage').textContent = '';
-    document.getElementById('resetMessage').textContent = '';
+    document.getElementById('lockMessage').textContent = '';
     document.getElementById('deleteMessage').textContent = '';
 
     // Palautetaan napit alkutilaan — piilotetaan vahvistusnapit, näytetään alkuperäiset
@@ -269,9 +273,9 @@ function resetConfirmButtons() {
     document.getElementById('roleSubmit').classList.remove('hidden');
     document.getElementById('roleConfirm').classList.add('hidden');
 
-    // Salasanan palautus — näytetään alkuperäinen, piilotetaan vahvistus
-    document.getElementById('resetSubmit').classList.remove('hidden');
-    document.getElementById('resetConfirm').classList.add('hidden');
+    // Tilin lukitus — näytetään alkuperäinen, piilotetaan vahvistus
+    document.getElementById('lockSubmit').classList.remove('hidden');
+    document.getElementById('lockConfirm').classList.add('hidden');
 
     // Tilin poisto — näytetään alkuperäinen, piilotetaan vahvistus
     document.getElementById('deleteSubmit').classList.remove('hidden');
@@ -318,7 +322,7 @@ let modalMessageTimer = null;
 function scheduleModalMessageClear() {
     clearTimeout(modalMessageTimer);
     modalMessageTimer = setTimeout(function() {
-        ['roleMessage', 'deleteMessage', 'resetMessage'].forEach(function(id) {
+        ['roleMessage', 'deleteMessage', 'lockMessage'].forEach(function(id) {
             const el = document.getElementById(id);
             if (el) { el.textContent = ''; el.classList.remove('is-success'); }
         });
@@ -380,20 +384,57 @@ document.getElementById('adminRoleForm').addEventListener('submit', async functi
     }
 });
 
-// SALASANAN PALAUTUS — vahvistus ennen lähetystä
-document.getElementById('adminResetForm').addEventListener('submit', function(e) {
-    const confirmBtn = document.getElementById('resetConfirm');
+// TILIN LUKITUS / AVAUS — vahvistus ennen lähetystä, sitten AJAX-lähetys
+document.getElementById('adminLockForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const confirmBtn = document.getElementById('lockConfirm');
+    const lockMessage = document.getElementById('lockMessage');
 
-    // Jos vahvistusnappi on piilotettu — estetään lähetys ja näytetään viesti
+    // Ensimmäinen klikkaus — näytetään vahvistusviesti ja vaihdetaan nappi
     if (confirmBtn.classList.contains('hidden')) {
-        e.preventDefault(); // Estetään lomakkeen lähetys
-        const email = document.getElementById('resetEmail').value; // Luetaan syötetty sähköposti
-        document.getElementById('resetMessage').textContent = 'Lähetetäänkö salasanan palautuslinkki osoitteeseen ' + email + '?'; // Näytetään vahvistusviesti
-        document.getElementById('resetSubmit').classList.add('hidden'); // Piilotetaan alkuperäinen nappi
-        confirmBtn.classList.remove('hidden'); // Näytetään vahvistusnappi
+        const username = document.getElementById('adminModalUser').textContent.split(' — ')[0];
+        lockMessage.textContent = 'Vahvista tilin lukitustilan muutos käyttäjälle ' + username + '.';
+        document.getElementById('lockSubmit').classList.add('hidden');
+        confirmBtn.classList.remove('hidden');
         return;
     }
-    // Vahvistusnappi painettu — lomake lähtee normaalisti backendiin
+
+    // Toinen klikkaus — lähetetään AJAXilla
+    const formData = new FormData(this);
+    try {
+        const res = await fetch('app/actions.php', {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': getCSRF() },
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            lockMessage.textContent = data.message || 'Lukitustila muutettu.';
+            lockMessage.classList.add('is-success');
+        } else {
+            lockMessage.textContent = data.error || 'Toiminto epäonnistui.';
+            lockMessage.classList.remove('is-success');
+        }
+
+        scheduleModalMessageClear();
+        resetConfirmButtons();
+
+        if (data.success) {
+            const userFilterInput = document.querySelector('input[name="user_filter"]');
+            const userForm = userFilterInput ? userFilterInput.closest('form') : null;
+            if (userForm) refreshUsers(userForm);
+
+            const logFilterInput = document.querySelector('input[name="log_filter"]');
+            const logForm = logFilterInput ? logFilterInput.closest('form') : null;
+            if (logForm) refreshLogs(logForm);
+        }
+    } catch (err) {
+        lockMessage.textContent = 'Verkkovirhe. Yritä uudelleen.';
+        lockMessage.classList.remove('is-success');
+        scheduleModalMessageClear();
+        resetConfirmButtons();
+    }
 });
 
 // TILIN POISTO — vahvistus ennen lähetystä, sitten AJAX-lähetys
@@ -428,14 +469,12 @@ document.getElementById('adminDeleteForm').addEventListener('submit', async func
             // Käyttäjä poistettu — tyhjennetään modalin tiedot ettei ne viittaa poistettuun
             document.getElementById('adminModalUser').textContent = '';
             document.getElementById('roleTargetId').value = '';
-            document.getElementById('resetTargetId').value = '';
+            document.getElementById('lockTargetId').value = '';
             document.getElementById('deleteTargetId').value = '';
             document.getElementById('deleteUsername').value = '';
             document.getElementById('deleteUsername').placeholder = '';
             document.getElementById('deleteEmail').value = '';
             document.getElementById('deleteEmail').placeholder = '';
-            document.getElementById('resetEmail').value = '';
-            document.getElementById('resetEmail').placeholder = '';
 
             const userFilterInput = document.querySelector('input[name="user_filter"]');
             const userForm = userFilterInput ? userFilterInput.closest('form') : null;

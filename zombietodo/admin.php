@@ -86,7 +86,7 @@ if ($filterRole !== '') {
 
 // Haetaan käyttäjät — korkeintaan 200, järjestetty uusimmasta vanhimpaan
 $userStmt = $conn->prepare("
-    SELECT id, username, email, role, created_at
+    SELECT id, username, email, role, admin_locked, created_at
     FROM users
     $userWhere
     ORDER BY created_at DESC
@@ -429,22 +429,21 @@ $dataStmt->close();
                     </form>
                 </div>
 
-                <!-- SALASANAN PALAUTUS — admin lähettää palautuslinkin käyttäjän sähköpostiin -->
-                <div class="admin-modal-section no-caret">
-                    <h3 class="admin-section-title">Unohtunut salasana 📧</h3>
-                    <form id="adminResetForm" method="POST" action="app/actions.php" autocomplete="off">
-                        <input type="hidden" name="action" value="admin_reset_password"> <!-- Toiminto POST-datana -->
-                        <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                        <input type="hidden" name="target_user_id" id="resetTargetId" value=""> <!-- Kohdekäyttäjän id -->
+           <!-- TILIN LUKITUS / AVAUS — admin voi lukita tai avata käyttäjätilin -->
+               <div class="admin-modal-section no-caret">
+                    <h3 class="admin-section-title">Tilin lukitus 🔒</h3>
+                    <form id="adminLockForm" method="POST" action="app/actions.php" autocomplete="off">
+                        <input type="hidden" name="action" value="admin_toggle_lock">
+                        <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>">
+                        <input type="hidden" name="target_user_id" id="lockTargetId" value="">
 
-                        <div class="modal-error" id="resetMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
+                        <div class="modal-error" id="lockMessage"></div>
 
-                        <label>Sähköposti</label>
-                        <input type="email" name="email" id="resetEmail" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
+                        <p class="admin-lock-status" id="lockStatus"></p>
 
                         <div class="modal-footer">
-                            <button type="submit" class="btn-save" id="resetSubmit">LÄHETÄ 📧</button> <!-- Alkuperäinen nappi -->
-                            <button type="submit" class="btn-save hidden" id="resetConfirm">VAHVISTA 📧</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla -->
+                            <button type="submit" class="btn-save" id="lockSubmit">LUKITSE 🔒</button>
+                            <button type="submit" class="btn-save hidden" id="lockConfirm">VAHVISTA 🔒</button>
                         </div>
                     </form>
                 </div>
