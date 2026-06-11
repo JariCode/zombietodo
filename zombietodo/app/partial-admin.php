@@ -103,7 +103,7 @@ if ($type === 'users') {
                         <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?>
                     </td>
                     <td>
-                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">HALLINTA 🧟</button>
+                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>" data-locked="<?= intval($user['admin_locked']) ?>">HALLINTA 🧟</button>
                     </td>
                 </tr>
             <?php endwhile; ?>
