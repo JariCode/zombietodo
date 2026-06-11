@@ -409,10 +409,18 @@ document.getElementById('adminLockForm').addEventListener('submit', async functi
         });
         const data = await res.json();
 
-        if (data.success) {
+          if (data.success) {
             lockMessage.textContent = data.message || 'Lukitustila muutettu.';
             lockMessage.classList.add('is-success');
-        } else {
+
+            // Päivitetään modalin tilateksti ja napin teksti backendin palauttaman uuden tilan mukaan
+            const username = document.getElementById('adminModalUser').textContent.split(' — ')[0];
+            const isLocked = data.locked === 1;
+            document.getElementById('lockStatus').textContent = isLocked
+                ? 'Käyttäjän ' + username + ' tili on tällä hetkellä lukittu. Käyttäjä ei voi kirjautua sisään.'
+                : 'Käyttäjän ' + username + ' tili on tällä hetkellä auki. Käyttäjä voi kirjautua normaalisti.';
+            document.getElementById('lockSubmit').textContent = isLocked ? 'AVAA 🔓' : 'LUKITSE 🔒';
+        } else { 
             lockMessage.textContent = data.error || 'Toiminto epäonnistui.';
             lockMessage.classList.remove('is-success');
         }

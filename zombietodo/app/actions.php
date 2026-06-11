@@ -54,6 +54,7 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'delete_account':  handleDeleteAccount();  break; // Jos action on 'delete_account', kutsutaan tilin poiston funktiota
     case 'admin_change_role': handleAdminChangeRole(); break; // Admin vaihtaa käyttäjän roolin
     case 'admin_delete_user': handleAdminDeleteUser(); break; // Admin poistaa käyttäjän tilin
+    case 'admin_toggle_lock': handleAdminToggleLock(); break; // Admin lukitsee tai avaa käyttäjän tilin
     case 'request_password_reset': handleRequestPasswordReset(); break; // Käyttäjä pyytää palautuslinkkiä etusivulta
     case 'complete_password_reset': handleCompletePasswordReset(); break; // Käyttäjä asettaa uuden salasanan linkistä
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
@@ -293,7 +294,7 @@ function handleLogin() {
 
     // Haetaan käyttäjä tietokannasta sähköpostin perusteella
     // Haetaan myös brute force -sarakkeet lukituksen tarkistusta varten
-    $stmt = $conn->prepare('SELECT id, username, password, role, login_attempts, login_locked_until FROM users WHERE email = ?'); // Haetaan myös lukitustiedot
+    $stmt = $conn->prepare('SELECT id, username, password, role, login_attempts, login_locked_until, admin_locked FROM users WHERE email = ?'); // Valitaan kaikki tarvittavat sarakkeet yhdellä kyselyllä
     $stmt->bind_param('s', $email); // 's' = string eli merkkijono
     $stmt->execute();
     $result = $stmt->get_result(); // Haetaan kyselyn tulos
@@ -351,6 +352,14 @@ function handleLogin() {
         // Kaikki saavat saman viestin — ei paljasteta onko sähköposti olemassa tai montako yritystä on jäljellä
         $_SESSION['error'] = 'Väärä sähköposti tai salasana.';
         $_SESSION['form_login_email'] = $email; // Palautetaan sähköposti kenttään jotta käyttäjän ei tarvitse kirjoittaa sitä uudelleen
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Salasana on oikein, mutta admin on voinut lukita tilin
+    if (!empty($user['admin_locked'])) { // admin_locked = 1 tarkoittaa että admin on lukinnut tilin
+        $_SESSION['error'] = 'Ylläpito on estänyt tilisi. ⛔'; // Geneerinen viesti — ei paljasteta tarkkaa syytä
+        $_SESSION['form_login_email'] = $email; // Palautetaan sähköposti kenttään
         header('Location: ../index.php');
         exit;
     }
@@ -1321,10 +1330,126 @@ function handleAdminChangeRole() {
     exit;
 }
 //===========================================================
-//UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
-//Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan
+//KÄYTTÄJÄTILIN LUKITUS / AVAUS
+//Admin voi lukita tai avata toisen käyttäjän tilin — mutta ei omaa tiliään
+//Sama toiminto hoitaa molemmat: lukittu (1) ↔ auki (0)
 //===========================================================
+function handleAdminToggleLock() {
+    header('Content-Type: application/json; charset=utf-8'); // Vastaus on JSON — admin.js lukee sen
+    global $conn;
 
+    // Pyyntö tultava lomakkeelta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
+    // Kirjautumistarkistus
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut.']);
+        exit;
+    }
+
+    $adminId = intval($_SESSION['user_id']); // Toiminnon tekijän id
+
+    // ADMIN-ROOLITARKISTUS — luetaan tekijän rooli SUORAAN KANNASTA, ei sessiosta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $adminId);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$admin || $admin['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon. ⛔']);
+        exit;
+    }
+
+    // CSRF-tarkistus — fetch lähettää headerissa, lomake POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Turvallisuusvirhe. Yritä uudelleen.']);
+        exit;
+    }
+
+    $targetId = intval($_POST['target_user_id'] ?? 0);
+
+    // ITSESUOJA — admin ei voi lukita omaa tiliään
+    if ($targetId === $adminId) {
+        echo json_encode(['success' => false, 'error' => 'Et voi lukita omaa tiliäsi. ⛔']);
+        exit;
+    }
+
+    if ($targetId <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen kohdekäyttäjä.']);
+        exit;
+    }
+
+    // Haetaan kohteen nykyinen lukitustila kannasta
+    $stmt = $conn->prepare('SELECT username, admin_locked FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $target = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$target) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjää ei löytynyt.']);
+        exit;
+    }
+
+    // Käännetään tila: jos lukittu (1) → avataan (0), jos auki (0) → lukitaan (1)
+    $newLocked = intval($target['admin_locked']) === 1 ? 0 : 1;
+
+    // VIIMEISEN ADMININ SUOJA — ainoaa adminia ei voi lukita (muuten kukaan ei pääse avaamaan)
+    // Tarkistetaan vain kun ollaan lukitsemassa (newLocked = 1), ei kun avataan
+    if ($newLocked === 1) {
+        $stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+        $stmt->bind_param('i', $targetId);
+        $stmt->execute();
+        $targetRole = $stmt->get_result()->fetch_assoc()['role'] ?? '';
+        $stmt->close();
+
+        if ($targetRole === 'admin') {
+            $stmt = $conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE role = 'admin'");
+            $stmt->execute();
+            $adminCount = intval($stmt->get_result()->fetch_assoc()['admin_count']);
+            $stmt->close();
+
+            if ($adminCount <= 1) {
+                echo json_encode(['success' => false, 'error' => 'Et voi lukita järjestelmän ainoaa ylläpitäjää. ⛔']);
+                exit;
+            }
+        }
+    }
+
+    // Päivitetään lukitustila kantaan
+    $stmt = $conn->prepare('UPDATE users SET admin_locked = ? WHERE id = ?');
+    $stmt->bind_param('ii', $newLocked, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Valitaan lokitapahtuma sen mukaan lukittiinko vai avattiinko
+    $event = $newLocked === 1 ? 'account_locked_admin' : 'account_unlocked_admin';
+
+    // LOKITUS — tekijä user_id/username, kohde target_user_id
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address, target_user_id) VALUES (?, ?, ?, ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('isssi', $adminId, $admin['username'], $event, $ip, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistuminen — viesti näytetään modalissa, lista päivitetään JS:llä
+    $tilaText = $newLocked === 1 ? 'lukittu' : 'avattu';
+    echo json_encode([
+        'success' => true,
+        'locked'  => $newLocked, // Uusi tila — admin.js päivittää napin ja tilatekstin tällä
+        'message' => 'Käyttäjän ' . $target['username'] . ' tili on nyt ' . $tilaText . '. 🔒'
+    ]);
+    exit;
+}
 
 //===========================================================
 //KÄYTTÄJÄN POISTAMINEN
