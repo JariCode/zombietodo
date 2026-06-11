@@ -84,7 +84,7 @@ form, form * {
     display: block;
 }
 
-/* WIP-banneri on vilkkuva teksti joka kertoo että sovellus on vielä keskeneräinen */
+/* WIP-banneri on vilkkuva teksti kirjautumissivulla */
 .wip-banner {
     text-align: center;
     font-family: Impact, sans-serif;
@@ -132,8 +132,6 @@ h1 {
     font-weight: bold;
     animation: successPulse 1.8s infinite ease-in-out;
 }
-
-
 
 /* Sykkivä hohde virheilmoitukselle — sama tyyli kuin bloodPulse */
 @keyframes errorPulse {
@@ -183,31 +181,8 @@ h1 {
     font-size: 1.2rem;
 }
 
-/* Unohtunut salasana -linkki */
-.forgot-link {
-    display: block;
-    text-align: left;
-    margin-top: 10px;
-    color: #ff6666;
-    font-size: 1rem;
-    text-decoration: none;
-}
-
-.forgot-link:hover {
-    color: #ff9999;
-}
-
-/* Input labelit */
-.auth-box label {
-    display: block;
-    margin-bottom: 6px;
-    color: #ffbbbb;
-    font-size: 1rem;
-    text-shadow: 1px 1px black;
-}
-
 /* Input-kentät */
-.auth-box input {
+.auth-box input:not(.numInput) {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
@@ -236,6 +211,118 @@ h1 {
 .auth-box button:hover {
     background: #cc0000;
 }
+
+
+/* Unohtunut salasana -painikkeelle linkin tyylit ja uloasu*/
+.auth-box button.forgot-link {
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+    color: #ff6666;
+    font-size: 1rem;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    width: auto;
+}
+
+.auth-box button.forgot-link:hover {
+    color: #ff9999;
+    background: none;
+}
+
+/* Salasanan palautus -modalin lomake — samat tyylit kuin etusivun auth-box */
+#resetModal .legal-body form {
+    display: flex;
+    flex-direction: column;
+}
+
+#resetModal .legal-body label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+#resetModal .legal-body input[type="text"],
+#resetModal .legal-body input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+}
+
+/* Input labelit */
+.auth-box label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+/* Salasanan palautus — "linkki ei kelpaa" -näkymä, varoitustyyli */
+.reset-invalid {
+    text-align: center;
+    border: 2px solid #ff6600;
+    box-shadow: 0 0 14px rgba(255, 102, 0, 0.5);
+    animation: resetWarnPulse 1.8s infinite ease-in-out;
+}
+
+.reset-invalid-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 8px rgba(255, 102, 0, 0.7));
+}
+
+.reset-invalid .auth-title {
+    color: #ff6600;
+    text-shadow: 0 0 8px rgba(255, 102, 0, 0.6);
+}
+
+.reset-invalid p {
+    color: #ffccaa;
+    text-shadow: 1px 1px black;
+    line-height: 1.5;
+    margin: 8px 0;
+}
+
+.reset-back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #880000;
+    color: #fff;
+    font-family: Impact, sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.reset-back-btn:hover {
+    background: #bb0000;
+    box-shadow: 0 0 12px rgba(200, 0, 0, 0.6);
+}
+
+/* Sykkivä oranssi varoitushehku */
+@keyframes resetWarnPulse {
+    0%   { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
+    50%  { box-shadow: 0 0 18px rgba(255, 102, 0, 0.8); }
+    100% { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
+}
+
 
 /* Salasanakentän silmä-ikonin sijoittelu */
 .password-field {
@@ -434,6 +521,7 @@ button.link-btn:hover {
     color: #ff9999;
     background: none;
 }
+
 /* Tehtävälistan wrapper */
 .todo-box {
     margin-top: 10px;
@@ -1071,6 +1159,7 @@ body.modal-open {
     background: #880000 !important;
     color: #fff !important;
 }
+
 /* ================================
    5. ADMIN-PANEELI
    admin.php — vain tyylit joita ei
@@ -1084,6 +1173,26 @@ body.modal-open {
    - .auth-title     → osio-otsikot
    - .modal-*        → muokkausmodal
    ================================ */
+h1.admin-title {
+    color: #d8b36a;
+    text-shadow:
+        0 0 10px rgba(216,179,106,0.8),
+        0 0 20px rgba(216,179,106,0.6),
+        0 0 40px rgba(122,90,30,0.8);
+}
+
+.admin-page .auth-box input:not([type="hidden"]):not(.numInput) {
+    flex: 1;
+    padding: 10px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none; /* Poistetaan selaimen oletusreunus */
+    animation: bloodPulse 1.8s infinite ease-in-out; /* Sykkivä punainen hehku joka on aina päällä */
+}
+
 .admin-select {
     width: 100%;
     padding: 10px 12px;
@@ -1131,19 +1240,6 @@ body.modal-open {
     background: rgba(80, 10, 10, 0.4);
 }
 
-/* Käyttäjätaulukon rooli- ja toiminnot-sarakkeet: kiinteä leveys, ei rivinvaihtoa */
-#userTable thead th:nth-child(3),
-#userTable tbody td:nth-child(3) {
-    width: 50px;
-    white-space: nowrap;
-}
-
-#userTable thead th:nth-child(4),
-#userTable tbody td:nth-child(4) {
-    width: 100px;
-    white-space: nowrap;
-}
-
 /* Roolin värikoodaus taulukossa */
 .admin-table tbody td.role-admin {
     color: #ff4444;
@@ -1186,14 +1282,14 @@ body.modal-open {
     padding: 20px;
 }
 
-/* MUOKKAA-nappi — pieni inline-nappi taulukon solussa, ei täysleveä kuten auth-box button */
+/* HALLINTA-nappi — pieni inline-nappi taulukon solussa*/
 .auth-box .admin-btn-edit {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     white-space: nowrap;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border: none;
     font-family: Impact, sans-serif;
     font-size: 0.95rem;
@@ -1205,7 +1301,6 @@ body.modal-open {
     transition: 0.2s;
     background: #990000;
     color: #fff;
-    width: auto; /* Ohittaa auth-box buttonin width: 100% */
 }
 
 /* Kaksi päivämääräkenttää vierekkäin — grid-asettelu */
@@ -1214,6 +1309,11 @@ body.modal-open {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 12px;
+}
+
+/* Flatpickr päivämääräkentät täyttävät kummankin sarakkeen kokonaan */
+.admin-date-row .flatpickr-wrapper {
+    width: 100%;
 }
 
 /* Päivämääräkenttien otsikko — punainen ja lihavoitu, eroaa auth-box labelin väristä */
@@ -1228,8 +1328,8 @@ body.modal-open {
 
 /* Osion erotin modalin sisällä — viiva salasanan palautuksen ja tilin poiston välissä */
 .admin-modal-section {
-    margin-top: 20px;
-    padding-top: 18px;
+    margin-top: 8px;
+    padding-top: 4px;
     border-top: 1px solid #550000;
 }
 
@@ -1240,13 +1340,8 @@ body.modal-open {
     letter-spacing: 2px;
     color: #ff4444;
     text-shadow: 1px 1px black;
-    margin: 0 0 12px 0;
+    margin: 0 0 5px 0;
     text-transform: uppercase;
-}
-
-/* Punainen korostus tilin poiston otsikolle */
-.admin-section-danger {
-    color: #ff2222;
 }
 
 /* Varoitusteksti ennen tilin poistoa — oranssi erottuu muusta tekstistä */
@@ -1254,30 +1349,139 @@ body.modal-open {
     color: #ff8844;
     font-size: 0.9rem;
     line-height: 1.5;
-    margin: 10px 0 0 0;
+    margin: 5px 0 0 0;
     text-shadow: 1px 1px black;
 }
 
-/* POISTA-nappi — erottuu TALLENNA-napista punaisemmalla sävyllä */
+/* Vahvistusnappi tilin poiston yhteydessä — kirkas punainen, erottuu muista napeista */
 .admin-btn-danger {
-    background: #aa0000 !important;
+    background: #aa0000;
 }
 
 .admin-btn-danger:hover {
-    background: #dd0000 !important;
+    background: #dd0000;
     box-shadow: 0 0 15px rgba(220, 0, 0, 0.6);
+}
+
+/* Vahvistusnapit — tumma pohja, hehkuva punainen reunus ja teksti, nopea syke. Sama kaikissa kolmessa. */
+#adminModal .btn-save#roleConfirm,
+#adminModal .btn-save#lockConfirm,
+#adminModal .btn-save.admin-btn-danger#deleteConfirm {
+    background: #1a0000;
+    color: #ff2a2a;
+    border: 2px solid #ff0000;
+    text-shadow: 0 0 8px rgba(255, 40, 40, 1);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.6), inset 0 0 8px rgba(255, 0, 0, 0.25);
+    animation: confirmPulse 0.9s infinite ease-in-out;
+}
+
+#adminModal .btn-save#roleConfirm:hover,
+#adminModal .btn-save#lockConfirm:hover,
+#adminModal .btn-save.admin-btn-danger#deleteConfirm:hover {
+    background: #ff0000;
+    color: #1a0000;
+    text-shadow: none;
+    box-shadow: 0 0 24px rgba(255, 30, 30, 1);
+}
+
+#adminModal .admin-lock-status {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    color: #ff8888;
+    text-shadow: 1px 1px black;
+}
+
+/* Lukittu tila — punainen hehkuva teksti erottumaan auki-tilasta */
+#adminModal .admin-lock-status.is-locked {
+    color: #ff4444;
+    text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+    font-weight: bold;
+}
+
+/* Sykkivä punainen hehku vahvistusnapeille */
+@keyframes confirmPulse {
+    0%   { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }
+    50%  { box-shadow: 0 0 24px 8px rgba(255, 30, 30, 0.95), inset 0 0 14px rgba(255, 0, 0, 0.45); }
+    100% { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }
 }
 
 /* Admin-modalin sisäiset footerit — ei yläviivaa, tiivistetty ilman sivupaddingia */
 #adminModal .modal-footer {
-    padding: 14px 0 0 0;
+    padding: 5px 0 0 0;
     border-top: none;
+}
+
+/* Piilotettu elementti — käytetään inline-tyylien sijaan CSP-yhteensopivuuden vuoksi */
+#adminModal .hidden {
+    display: none;
 }
 
 /* Readonly-kentät modalissa — hieman himmennetty erottamaan muokattavista */
 #adminModal .modal-body input[readonly] {
     opacity: 0.8;
     cursor: default;
+}
+
+#adminModal .modal-body {
+    padding-top: 0; /* siirretään sisältöä ylöspäin, jotta käyttäjänimi ei työntyisi alas */
+    gap: 3px;
+}
+
+/* Admin-modalin email-kentät — sama tyyli kuin text-kentillä */
+#adminModal .modal-body input[type="email"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: #0d0000;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+
+#adminModal .modal-body input[type="email"]:focus {
+    outline: none;
+    border-color: #cc0000;
+    box-shadow: 0 0 8px rgba(180,0,0,0.4);
+}
+
+/*Admin modalin input-kentille marginaalia alapuolelle, jotta kentät eivät ole liian lähellä toisiaan */
+#adminModal .modal-body input[type="text"],
+#adminModal .modal-body input[type="email"] {
+    margin-bottom: 8px;
+}
+
+/* Admin-modalin käyttäjätiedot — sama vihreä tyyli kuin tervetuloviestissä */
+#adminModal .admin-modal-user {
+    color: #aaffaa;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 0;
+    margin: 0 0 8px 0; /* ylämarginaali nollattu — käyttäjänimi nousee lähemmäs otsikkoa */
+    text-shadow: 1px 1px black;
+}
+
+/* Admin-modalin label-tekstit — sama punainen tyyli kuin taulukon otsikoissa */
+#adminModal .modal-body label {
+    display: block;
+    margin-bottom: 3px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+#adminModal .modal-error {
+    font-size: 1.2rem;
+    text-align: left;
+    margin-bottom: 10px;
+    color: #ff6600;
+}
+
+/* Onnistumisviesti modalissa — vihreä, peruu punaisen modal-error-värin */
+#adminModal .modal-error.is-success {
+    color: #aaffaa;
+    animation: successPulse 1.8s infinite ease-in-out;
 }
 
 /* Käyttäjätaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
@@ -1295,6 +1499,12 @@ body.modal-open {
     z-index: 1;
 }
 
+/* Käyttäjätaulukko täyttää koko alueen kuten lokitaulukko */
+.admin-user-scroll table {
+    table-layout: fixed;
+    width: 100%;
+}
+
 /* Lokitaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
 .admin-log-scroll {
     max-height: 500px;
@@ -1310,12 +1520,10 @@ body.modal-open {
     z-index: 1;
 }
 
-/* Käyttäjän tiedot modalin yläosassa — kertoo kenen tiliä hallitaan */
-.admin-modal-user {
-    color: #ffdddd;
-    font-size: 1rem;
-    margin: 0 0 10px 0;
-    text-shadow: 1px 1px black;
+/* Taulukko täyttää koko scrollattavan alueen leveydeltään */
+.admin-log-scroll table {
+    table-layout: fixed;
+    width: 100%;
 }
 
 /* =========================================
@@ -1474,7 +1682,7 @@ body.modal-open {
     }
 
     /* Unohtunut salasana -linkki pienemmäksi mobiilissa */
-    .forgot-link {
+    .auth-box button.forgot-link {
         font-size: 0.9rem;
     }
 
@@ -1532,7 +1740,7 @@ body.modal-open {
 
     /* Admin-taulukon otsikot pienemmiksi mobiilissa */
     .admin-table thead th {
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         padding: 4px 2px;
         letter-spacing: 0;
     }
@@ -1543,25 +1751,12 @@ body.modal-open {
         font-size: 0.7rem;
     }
 
-    /* Käyttäjätaulukon sarakkeet kapeammiksi mobiilissa */
-    #userTable thead th:nth-child(1),
-    #userTable tbody td:nth-child(1) { width: 40px; }
-
-    #userTable thead th:nth-child(2),
-    #userTable tbody td:nth-child(2) { width: 50px; }
-
-    #userTable thead th:nth-child(3),
-    #userTable tbody td:nth-child(3) { width: 35px; }
-
-    #userTable thead th:nth-child(4),
-    #userTable tbody td:nth-child(4) { width: 50px; }
-
-    /* MUOKKAA-nappi pienemmäksi mobiilissa */
+    /* HALLINTA-nappi pienemmäksi mobiilissa */
     .auth-box .admin-btn-edit {
-        font-size: 0.6rem;
-        padding: 10px 1px;
-        gap: 0.5px;
-        letter-spacing: 0.5px;
+        font-size: 0.5rem;
+        padding: 12px 1px;
+        gap: 0.1px;
+        letter-spacing: 1px;
     }
 
     /* Päivämääräkentät allekkain mobiilissa */
@@ -1592,6 +1787,21 @@ body.modal-open {
         letter-spacing: 1px;
     }
 
+    /*Admin-paneelin syöttökentät pienemmiksi mobiilissa */
+    .admin-page .auth-box input:not([type="hidden"]) {
+        font-size: 0.8rem;
+    }
+
+    /*Addmin-paneelin syöttökenttien placeholderin fontti pienemmäksi mobiilissa */
+    .admin-page .auth-box input:not([type="hidden"])::placeholder {
+        font-size: 0.8rem;
+    }
+
+    /* Admin-modalin otsikko pienemmäksi mobiilissa */
+    #adminModalTitle {
+        font-size: 1.2rem;
+    }
+   
     /*Toimintolinkit allekkain mobiilissa */
     .actions {
         flex-direction: column;

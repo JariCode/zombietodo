@@ -86,7 +86,7 @@ if ($filterRole !== '') {
 
 // Haetaan käyttäjät — korkeintaan 200, järjestetty uusimmasta vanhimpaan
 $userStmt = $conn->prepare("
-    SELECT id, username, email, role, created_at
+    SELECT id, username, email, role, admin_locked, created_at
     FROM users
     $userWhere
     ORDER BY created_at DESC
@@ -155,11 +155,20 @@ if ($filterTo !== '') {
     }
 }
 
+// Lisätään käyttäjäsuodatin jos käyttäjälista on suodatettu
+// $filterSearch on sama arvo joka on jo käytössä käyttäjälistan haussa
+if ($filterSearch !== '') {
+    $logWhere   .= " AND l.username LIKE ?";
+    $logParams[] = '%' . $filterSearch . '%';
+    $logTypes   .= 's';
+}
+
 // Haetaan lokitapahtumat — korkeintaan 200 uusinta, taulukko skrollataan selaimessa
 // Username haetaan suoraan logs-taulusta — säilyy vaikka käyttäjä poistetaan
 $dataStmt = $conn->prepare("
-    SELECT l.timestamp, l.username, l.event
+    SELECT l.timestamp, l.username, l.event, tu.username AS target_username
     FROM logs l
+    LEFT JOIN users tu ON tu.id = l.target_user_id
     $logWhere
     ORDER BY l.timestamp DESC
     LIMIT 200
@@ -178,23 +187,30 @@ $dataStmt->close();
     <meta charset="UTF-8"> <!-- Merkistö — tukee suomen kielen merkkejä -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Skaalautuu eri laitteille -->
     <meta name="csrf-token" content="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-token meta-tietona admin.js käyttöön -->
-    <title>Zombie Admin</title>
+    <title>Zombie Master</title>
     <meta name="description" content="Zombie To-Do — admin-paneeli käyttäjien hallintaan."> <!-- Selaimen ja hakukoneiden kuvausteksti -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png"> <!-- Selaimen välilehden ikoni -->
+    <link rel="stylesheet" href="assets/css/flatpickr.min.css"> <!-- Flatpickr päivämäärävalitsimen oletustyylit -->
     <link rel="stylesheet" href="assets/css/style.css"> <!-- Sovelluksen omat tyylit -->
 </head>
 <body>
 
         <!-- Admin paneelin sisääntulo animaatio -->
-        <div class="admin-intro" id="adminIntro">
-            <div class="admin-intro-overlay"></div>
+        <!-- Näytetään vain kerran per istunto — PHP ei renderöi introa uudelleen sivun päivityksessä -->
+        <?php if (empty($_SESSION['admin_intro_shown'])): ?>
+            <?php $_SESSION['admin_intro_shown'] = true; // Merkitään intro näytetyksi tässä istunnossa ?>
 
-            <div class="admin-intro-content">
-                <p class="admin-warning">AUTHORIZED PERSONNEL ONLY</p>
-                <h1 class="admin-loading">ZOMBIE MASTER</h1>
-                <p class="admin-status">Loading containment systems...</p>
+            <div class="admin-intro" id="adminIntro">
+                <div class="admin-intro-overlay"></div>
+
+                <div class="admin-intro-content">
+                    <p class="admin-warning">AUTHORIZED PERSONNEL ONLY</p>
+                    <h1 class="admin-loading">ZOMBIE MASTER</h1>
+                    <p class="admin-status">Loading containment systems...</p>
+                </div>
             </div>
-        </div>
+
+        <?php endif; // Intro-animaation ehdollinen renderöinti loppuu ?>
 
     <!-- Veriantimaatio — valuu sivun yläreunasta ja häviää -->
     <div class="blood"></div>
@@ -220,7 +236,7 @@ $dataStmt->close();
         </div>
 
         <!-- Pääotsikko -->
-        <h1>ZOMBIE MASTER</h1>
+        <h1 class="admin-title">ZOMBIE MASTER</h1>
 
         <!-- Virheilmoitus — näytetään vain jos virheitä on -->
         <?php if (!empty($_SESSION['error'])): ?>
@@ -283,10 +299,10 @@ $dataStmt->close();
                         <?php else: ?>
                             <?php while ($user = $users->fetch_assoc()): ?> <!-- Käydään läpi jokainen käyttäjä ja näytetään taulukossa -->
                                 <tr data-id="<?= intval($user['id']) ?>">
-                                    <td><?= clean($user['username']) ?></td> <!--Käyttäjänimi näytetään taulukossa -->
+                                    <td><?= clean($user['username']) ?><?= intval($user['admin_locked']) === 1 ? ' 🔒' : '' ?></td> <!--Käyttäjänimi näytetään taulukossa lukittuna symboli perässä-->
                                     <td><?= clean($user['email']) ?></td><!-- Sähköposti näytetään taulukossa -->
                                     <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>"><!-- Rooli näytetään taulukossa, adminit oranssinpunaisina ja tavalliset harmaana -->
-                                        <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
+                                        <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?><!-- Näytä rooli tekstinä -->
                                     </td>
                                     <td>
                                         <!-- Muokkausnappi avaa modalin — data-id kertoo minkä käyttäjän tiedot ladataan -->
@@ -325,11 +341,11 @@ $dataStmt->close();
                 <div class="admin-date-row">
                     <div>
                         <label class="admin-date-label">Alkamispäivämäärä</label>
-                        <input type="text" name="log_from" placeholder="pp.kk.vvvv" value="<?= clean($filterFrom) ?>" autocomplete="off">
+                        <input type="text" name="log_from" id="logFrom" placeholder="pp.kk.vvvv" value="<?= clean($filterFrom) ?>" autocomplete="off">
                     </div>
                     <div>
                         <label class="admin-date-label">Loppumispäivämäärä</label>
-                        <input type="text" name="log_to" placeholder="pp.kk.vvvv" value="<?= clean($filterTo) ?>" autocomplete="off">
+                        <input type="text" name="log_to" id="logTo" placeholder="pp.kk.vvvv" value="<?= clean($filterTo) ?>" autocomplete="off">
                     </div>
                 </div>
 
@@ -356,7 +372,7 @@ $dataStmt->close();
                             <?php while ($log = $logs->fetch_assoc()): ?>
                                 <tr>
                                     <td><?= date('d.m.Y H:i', strtotime($log['timestamp'])) ?></td>
-                                    <td><?= clean($log['username'] ?? 'Poistettu käyttäjä') ?></td>
+                                    <td><?= clean($log['target_username'] ?? $log['username'] ?? 'Poistettu käyttäjä') ?></td>
                                     <td><?= clean($eventLabels[$log['event']] ?? $log['event']) ?></td>
                                 </tr>
                             <?php endwhile; ?>
@@ -370,7 +386,7 @@ $dataStmt->close();
     </div><!-- .container loppuu -->
 
     <!-- ============================================================ -->
-    <!-- MUOKKAUSMODAL — avautuu kun admin klikkaa MUOKKAA-nappia      -->
+    <!-- MUOKKAUSMODAL — avautuu kun admin klikkaa HALLINTA-nappia      -->
     <!-- Kolme osiota: roolin vaihto, salasanan palautus, tilin poisto -->
     <!-- ============================================================ -->
     <div class="modal-overlay" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
@@ -384,17 +400,21 @@ $dataStmt->close();
 
             <div class="modal-body">
 
-                <!-- Virheilmoitus modalin sisällä -->
+                <!-- Virheilmoitus modalin yläosassa -->
                 <div class="modal-error" id="adminModalError"></div>
 
                 <!-- Käyttäjän tiedot — näytetään kenen tiliä hallitaan -->
                 <p class="admin-modal-user" id="adminModalUser"></p>
 
-                <!-- ROOLIN VAIHTO — admin voi vaihtaa käyttäjän roolin -->
-                <form id="adminRoleForm" method="POST" action="app/actions.php" autocomplete="off">
+                <div class="admin-modal-section no-caret">
+                    <h3 class="admin-section-title">Roolin vaihto</h3>
+                    <!-- ROOLIN VAIHTO — admin voi vaihtaa käyttäjän roolin -->
+                    <form id="adminRoleForm" method="POST" action="app/actions.php" autocomplete="off">
                     <input type="hidden" name="action" value="admin_change_role"> <!-- Toiminto POST-datana -->
                     <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                    <input type="hidden" name="target_user_id" id="roleTargetId" value=""> <!-- Kohdekayttajan id — täytetään JavaScriptillä -->
+                    <input type="hidden" name="target_user_id" id="roleTargetId" value=""> <!-- Kohdekäyttäjän id — täytetään JavaScriptillä -->
+
+                    <div class="modal-error" id="roleMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
 
                     <label>Rooli</label>
                     <select name="role" id="editRole" class="admin-select">
@@ -403,41 +423,55 @@ $dataStmt->close();
                     </select>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn-save">VAIHDA ROOLI 👑</button>
+                        <button type="submit" class="btn-save" id="roleSubmit">VAIHDA ROOLI 👑</button> <!-- Alkuperäinen nappi -->
+                        <button type="submit" class="btn-save hidden" id="roleConfirm">VAHVISTA 👑</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla, näytetään JS:llä kun admin klikkaa ensimmäisen kerran -->
                     </div>
-                </form>
+                    </form>
+                </div>
 
-                <!-- SALASANAN PALAUTUS — admin lähettää palautuslinkin käyttäjän sähköpostiin -->
-                <div class="admin-modal-section no-caret">
-                    <h3 class="admin-section-title">Unohtunut salasana 📧</h3>
-                    <form id="adminResetForm" method="POST" action="app/actions.php" autocomplete="off">
-                        <input type="hidden" name="action" value="admin_reset_password"> <!-- Toiminto POST-datana -->
-                        <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                        <input type="hidden" name="target_user_id" id="resetTargetId" value=""> <!-- Kohdekayttajan id -->
+           <!-- TILIN LUKITUS / AVAUS — admin voi lukita tai avata käyttäjätilin -->
+               <div class="admin-modal-section no-caret">
+                    <h3 class="admin-section-title">Tilin lukitus 🔒</h3>
+                    <form id="adminLockForm" method="POST" action="app/actions.php" autocomplete="off">
+                        <input type="hidden" name="action" value="admin_toggle_lock">
+                        <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>">
+                        <input type="hidden" name="target_user_id" id="lockTargetId" value="">
 
-                        <input type="email" name="email" id="resetEmail" placeholder="Sähköposti" required autocomplete="off" readonly> <!-- Readonly — näkee sähköpostin mutta ei muokkaa -->
+                        <div class="modal-error" id="lockMessage"></div>
+
+                        <p class="admin-lock-status" id="lockStatus"></p>
 
                         <div class="modal-footer">
-                            <button type="submit" class="btn-save">LÄHETÄ 📧</button>
+                            <button type="submit" class="btn-save" id="lockSubmit">LUKITSE 🔒</button>
+                            <button type="submit" class="btn-save hidden" id="lockConfirm">VAHVISTA 🔒</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- TILIN POISTO — admin poistaa käyttäjän tilin pysyvästi -->
                 <div class="admin-modal-section no-caret">
-                    <h3 class="admin-section-title admin-section-danger">Tilin poistaminen 🔒</h3>
+                    <h3 class="admin-section-title">Tilin poistaminen 🪦</h3>
                     <form id="adminDeleteForm" method="POST" action="app/actions.php" autocomplete="off">
                         <input type="hidden" name="action" value="admin_delete_user"> <!-- Toiminto POST-datana -->
                         <input type="hidden" name="csrf_token" value="<?= clean(generateCSRFToken()) ?>"> <!-- CSRF-suojaus -->
-                        <input type="hidden" name="target_user_id" id="deleteTargetId" value=""> <!-- Kohdekayttajan id -->
+                        <input type="hidden" name="target_user_id" id="deleteTargetId" value=""> <!-- Kohdekäyttäjän id -->
 
-                        <!-- Varoitusteksti ennen pysyvää poistoa -->
+                        <div class="modal-error" id="deleteMessage"></div> <!-- Vahvistus- tai virheilmoitus -->
+
+                        <label>Käyttäjänimi</label>
+                        <input type="text" name="confirm_username" id="deleteUsername" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
+
+                        <label>Sähköposti</label>
+                        <input type="email" name="confirm_email" id="deleteEmail" placeholder="" required autocomplete="off"> <!-- Tyhjä — admin kirjoittaa itse vahvistukseksi -->
+
+                        <!-- Varoitusteksti — JS täyttää käyttäjänimellä modalin avautuessa -->
                         <p class="admin-delete-warning" id="deleteWarning"></p>
 
                         <!-- Poista ja peruuta napit -->
                         <div class="modal-footer">
                             <button type="button" class="btn-cancel" id="adminDeleteCancel">Peruuta</button>
-                            <button type="submit" class="btn-save admin-btn-danger">POISTA 🩸</button>
+                            <button type="submit" class="btn-save admin-btn-danger" id="deleteSubmit">POISTA 🪦</button> <!-- Alkuperäinen nappi -->
+                            <button type="submit" class="btn-save admin-btn-danger hidden" id="deleteConfirm">VAHVISTA 🪦</button> <!-- Vahvistusnappi — piilotettu CSS-luokalla -->
                         </div>
                     </form>
                 </div>
@@ -445,9 +479,10 @@ $dataStmt->close();
             </div><!-- .modal-body loppuu -->
         </div><!-- .modal loppuu -->
     </div><!-- .modal-overlay loppuu -->
-    
+        
     <!-- JavaScriptit — UI-toiminnallisuudet -->
     <script src="assets/js/ui.js"></script> <!-- Yleiset UI-toiminnot — viestien häivytys -->
+    <script src="assets/js/flatpickr.min.js"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten — ladataan paikallisesti -->
     <script src="assets/js/admin.js"></script> <!-- Admin-sivun omat toiminnot — haku, suodatus, modal -->
 
 </body>

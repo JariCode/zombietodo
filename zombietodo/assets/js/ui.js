@@ -53,7 +53,7 @@ document.querySelectorAll('.auth-error, .auth-success').forEach(function(msg) {
 });
 
 // ===========================================================
-// KÄYTTÖEHDOT JA TIETOSUOJASELOSTE — MODALIN AVAUS
+// KÄYTTÖEHDOT JA TIETOSUOJASELOSTE SEKÄ UNOHTUNEEN SALASANAN PALAUTUS — MODALIEN AVAUS
 // ===========================================================
 document.querySelectorAll('.link-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -61,6 +61,17 @@ document.querySelectorAll('.link-btn').forEach(function(btn) {
         openLegalModal(type);
     });
 });
+
+// Salasanan palautus -modalin avaus
+const openResetBtn = document.getElementById('openResetModal');
+if (openResetBtn) {
+    openResetBtn.addEventListener('click', function() {
+        const overlay = document.getElementById('resetModal');
+        if (!overlay) return;
+        overlay.classList.add('open');
+        document.body.classList.add('modal-open');
+    });
+}
 
 // Avaa käyttöehdot- tai tietosuojaseloste-modalin
 function openLegalModal(type) {

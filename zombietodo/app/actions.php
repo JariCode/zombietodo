@@ -52,6 +52,11 @@ switch ($action) { // switch on kuin monta if-else:ä peräkkäin — siistimpi 
     case 'update_profile': handleUpdateProfile(); break; // Jos action on 'update_profile', kutsutaan profiilin päivitysfunktiota
     case 'change_password': handleChangePassword(); break; // Jos action on 'change_password', kutsutaan salasanan vaihtofunktiota
     case 'delete_account':  handleDeleteAccount();  break; // Jos action on 'delete_account', kutsutaan tilin poiston funktiota
+    case 'admin_change_role': handleAdminChangeRole(); break; // Admin vaihtaa käyttäjän roolin
+    case 'admin_delete_user': handleAdminDeleteUser(); break; // Admin poistaa käyttäjän tilin
+    case 'admin_toggle_lock': handleAdminToggleLock(); break; // Admin lukitsee tai avaa käyttäjän tilin
+    case 'request_password_reset': handleRequestPasswordReset(); break; // Käyttäjä pyytää palautuslinkkiä etusivulta
+    case 'complete_password_reset': handleCompletePasswordReset(); break; // Käyttäjä asettaa uuden salasanan linkistä
     default:                                  // Jos action on jotain muuta, käsitellään tehtävätoiminnot
         handleTaskAction($action);            // Kutsutaan tehtävätoimintofunktiota — add, start, done, undo, delete
         break;
@@ -289,7 +294,7 @@ function handleLogin() {
 
     // Haetaan käyttäjä tietokannasta sähköpostin perusteella
     // Haetaan myös brute force -sarakkeet lukituksen tarkistusta varten
-    $stmt = $conn->prepare('SELECT id, username, password, role, login_attempts, login_locked_until FROM users WHERE email = ?'); // Haetaan myös lukitustiedot
+    $stmt = $conn->prepare('SELECT id, username, password, role, login_attempts, login_locked_until, admin_locked FROM users WHERE email = ?'); // Valitaan kaikki tarvittavat sarakkeet yhdellä kyselyllä
     $stmt->bind_param('s', $email); // 's' = string eli merkkijono
     $stmt->execute();
     $result = $stmt->get_result(); // Haetaan kyselyn tulos
@@ -351,6 +356,14 @@ function handleLogin() {
         exit;
     }
 
+    // Salasana on oikein, mutta admin on voinut lukita tilin
+    if (!empty($user['admin_locked'])) { // admin_locked = 1 tarkoittaa että admin on lukinnut tilin
+        $_SESSION['error'] = 'Ylläpito on estänyt tilisi. ⛔'; // Geneerinen viesti — ei paljasteta tarkkaa syytä
+        $_SESSION['form_login_email'] = $email; // Palautetaan sähköposti kenttään
+        header('Location: ../index.php');
+        exit;
+    }
+
     // Kirjautuminen onnistui — nollataan yritystenlaskuri ja lukitus
     $stmt = $conn->prepare('UPDATE users SET login_attempts = 0, login_locked_until = NULL WHERE id = ?');
     $stmt->bind_param('i', $user['id']); // 'i' = integer
@@ -380,6 +393,209 @@ function handleLogin() {
 
     // Ohjataan tehtäväsivulle jossa tehtävälista näkyy kirjautuneelle käyttäjälle
     header('Location: ../tasks.php');
+    exit;
+}
+
+//===========================================================
+//SALASANAN PALAUTUSPYYNTÖ (etusivu)
+//Käyttäjä syöttää käyttäjänimen + sähköpostin, saa palautuslinkin sähköpostiin
+//===========================================================
+function handleRequestPasswordReset() {
+    global $conn;
+    require_once __DIR__ . '/mail.php'; // Sähköpostin lähetysfunktio
+
+    // Pyyntö vain POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error'] = 'Virheellinen pyyntö.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // CSRF-tarkistus
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $_SESSION['error'] = 'Turvallisuusvirhe. Yritä uudelleen.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // IP-osoite — käytetään brute force -tarkistuksessa ja lokituksessa
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+    // ===========================================================
+    // BRUTE FORCE -SUOJA — IP-pohjainen
+    // Lasketaan montako palautuspyyntöä samasta IP:stä viimeisen 15 min aikana
+    // ===========================================================
+    $stmt = $conn->prepare(
+        "SELECT COUNT(*) AS cnt FROM logs
+         WHERE event = 'password_reset_requested'
+         AND ip_address = ?
+         AND timestamp > (NOW() - INTERVAL 15 MINUTE)"
+    );
+    $stmt->bind_param('s', $ip);
+    $stmt->execute();
+    $attempts = $stmt->get_result()->fetch_assoc()['cnt'];
+    $stmt->close();
+
+    // 5 pyyntöä / 15 min — sama raja kuin kirjautumisessa
+    if ($attempts >= 5) {
+        $_SESSION['error'] = 'Liian monta palautuspyyntöä. Yritä myöhemmin uudelleen.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    $username = trim($_POST['username'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
+
+    // Sama viesti aina — ei paljasteta löytyikö käyttäjää (tietoturva)
+    $genericMsg = 'Jos tiedot täsmäävät, palautuslinkki on lähetetty sähköpostiin.';
+
+    // Haetaan käyttäjä jolla täsmää SEKÄ käyttäjänimi ETTÄ sähköposti
+    $stmt = $conn->prepare('SELECT id, username, email FROM users WHERE username = ? AND email = ?');
+    $stmt->bind_param('ss', $username, $email);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Kirjataan JOKAINEN pyyntö lokiin (myös epäonnistuneet) — brute force -laskuria varten
+    // Jos käyttäjä löytyi, kirjataan hänen tietonsa; jos ei, user_id NULL ja username "Tuntematon käyttäjä"
+    $logUserId   = $user['id'] ?? null;
+    $logUsername = $user['username'] ?? 'Tuntematon käyttäjä';
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'password_reset_requested', ?)");
+    $stmt->bind_param('iss', $logUserId, $logUsername, $ip);
+    $stmt->execute();
+    $stmt->close();
+
+    // Jos käyttäjää ei löydy — näytetään silti sama viesti, ei paljasteta mitään
+    if (!$user) {
+        $_SESSION['success'] = $genericMsg;
+        header('Location: ../index.php');
+        exit;
+    }
+
+    // Luodaan satunnainen token ja vanhenemisaika (1 tunti)
+    $token     = bin2hex(random_bytes(32)); // 64 merkkiä
+    $expiresAt = date('Y-m-d H:i:s', time() + 3600);
+
+    // Poistetaan käyttäjän vanhat palautuspyynnöt ensin
+    $stmt = $conn->prepare('DELETE FROM password_resets WHERE user_id = ?');
+    $stmt->bind_param('i', $user['id']);
+    $stmt->execute();
+    $stmt->close();
+
+    // Tallennetaan uusi token kantaan
+    $stmt = $conn->prepare('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)');
+    $stmt->bind_param('iss', $user['id'], $token, $expiresAt);
+    $stmt->execute();
+    $stmt->close();
+
+ // Rakennetaan palautuslinkki .env:ssä määritellystä osoitteesta — ei luoteta selaimen Host-headeriin
+    $baseUrl = rtrim($_ENV['APP_URL'] ?? '', '/'); // poistetaan mahdollinen kauttaviiva lopusta
+    $resetLink = $baseUrl . '/reset-password.php?token=' . $token;
+
+    // Lähetetään sähköposti
+    sendResetEmail($user['email'], $user['username'], $resetLink);
+
+    $_SESSION['success'] = $genericMsg;
+    header('Location: ../index.php');
+    exit;
+}
+
+//===========================================================
+//SALASANAN VAIHTO PALAUTUSLINKISTÄ (vaihe 2)
+//Käyttäjä on tullut sähköpostin linkistä, asettaa uuden salasanan
+//===========================================================
+function handleCompletePasswordReset() {
+    global $conn;
+
+    // Pyyntö vain POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['reset_error'] = 'Virheellinen pyyntö.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    $token            = $_POST['token'] ?? '';
+    $password         = $_POST['password'] ?? '';
+    $password_confirm = $_POST['password_confirm'] ?? '';
+
+    // Apufunktio: ohjaa takaisin reset-sivulle virheviestin kanssa (token säilyy URL:ssa)
+    $backToReset = function($msg) use ($token) {
+        $_SESSION['reset_error'] = $msg;
+        header('Location: ../reset-password.php?token=' . urlencode($token));
+        exit;
+    };
+
+    // CSRF-tarkistus
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $backToReset('Turvallisuusvirhe. Yritä uudelleen.');
+    }
+
+    // Tarkistetaan token UUDELLEEN kannasta — ei luoteta siihen että se oli kelvollinen sivua ladattaessa
+    $stmt = $conn->prepare('SELECT user_id, expires_at FROM password_resets WHERE token = ?');
+    $stmt->bind_param('s', $token);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Token puuttuu, väärä tai vanhentunut
+    if (!$row || strtotime($row['expires_at']) <= time()) {
+        $_SESSION['reset_error'] = 'Palautuslinkki on vanhentunut tai virheellinen. Pyydä uusi linkki.';
+        header('Location: ../index.php');
+        exit;
+    }
+
+    $userId = $row['user_id'];
+
+    // Salasanan vahvuustarkistukset — samat kuin rekisteröinnissä ja salasanan vaihdossa
+    if (strlen($password) < 10) {
+        $backToReset('Salasanan pitää olla vähintään 10 merkkiä.');
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi iso kirjain.');
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi pieni kirjain.');
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi numero.');
+    }
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        $backToReset('Salasanassa pitää olla vähintään yksi erikoismerkki.');
+    }
+    if ($password !== $password_confirm) {
+        $backToReset('Salasanat eivät täsmää.');
+    }
+
+    // Hashataan ja päivitetään salasana
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmt->bind_param('si', $hash, $userId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Poistetaan käytetty token — kertakäyttöinen
+    $stmt = $conn->prepare('DELETE FROM password_resets WHERE user_id = ?');
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Haetaan käyttäjänimi lokitusta varten
+    $stmt = $conn->prepare('SELECT username FROM users WHERE id = ?');
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $u = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Lokitus
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address) VALUES (?, ?, 'password_reset_completed', ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('iss', $userId, $u['username'], $ip);
+    $stmt->execute();
+    $stmt->close();
+
+    // Ohjataan kirjautumissivulle onnistumisviestillä
+    $_SESSION['success'] = 'Salasana vaihdettu. Voit nyt kirjautua sisään. 🔑';
+    header('Location: ../index.php');
     exit;
 }
 
@@ -715,7 +931,7 @@ function handleDeleteAccount() {
     }
 
     // Haetaan käyttäjän tiedot tietokannasta
-    $stmt = $conn->prepare('SELECT username, email, password FROM users WHERE id = ?');
+    $stmt = $conn->prepare('SELECT username, email, password, role FROM users WHERE id = ?');
     $stmt->bind_param('i', $uid); // 'i' = integer eli kokonaisluku
     $stmt->execute();
     $result = $stmt->get_result();
@@ -727,6 +943,13 @@ function handleDeleteAccount() {
         session_unset();
         session_destroy();
         header('Location: ../index.php');
+        exit;
+    }
+
+    // ADMIN-SUOJA — admin ei voi poistaa omaa tiliään profiilisivulta
+    if ($user['role'] === 'admin') {
+        $_SESSION['error'] = 'Admin ei voi poistaa omaa tiliään. ⛔';
+        header('Location: ../profile.php');
         exit;
     }
 
@@ -991,16 +1214,357 @@ function handleTaskAction($action) {
 // ===========================================================
 
 //===========================================================
-//ROOLIN VAIHTAMINEN
-//Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
+//ROOLIN VAIHTAMINEN/Admin voi vaihtaa käyttäjälle roolin user tai admin — mutta ei itseään
 //===========================================================
+function handleAdminChangeRole() {
+    header('Content-Type: application/json; charset=utf-8'); // Vastaus on JSON — admin.js lukee sen
+    global $conn;
 
+    // Pyyntö tultava lomakkeelta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
+    // Kirjautumistarkistus
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut.']);
+        exit;
+    }
+
+    $adminId = intval($_SESSION['user_id']); // Toiminnon tekijän id
+
+    // ADMIN-ROOLITARKISTUS — luetaan tekijän rooli SUORAAN KANNASTA, ei sessiosta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $adminId);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$admin || $admin['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon. ⛔']);
+        exit;
+    }
+
+    // CSRF-tarkistus — fetch lähettää headerissa, lomake POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Turvallisuusvirhe. Yritä uudelleen.']);
+        exit;
+    }
+
+    $targetId = intval($_POST['target_user_id'] ?? 0);
+    $newRole  = $_POST['role'] ?? '';
+
+    // ITSESUOJA — admin ei voi muuttaa omaa rooliaan
+    if ($targetId === $adminId) {
+        echo json_encode(['success' => false, 'error' => 'Et voi muuttaa omaa rooliasi. ⛔']);
+        exit;
+    }
+
+    // Rooli vain 'user' tai 'admin' (whitelist)
+    if (!in_array($newRole, ['user', 'admin'], true)) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen rooli.']);
+        exit;
+    }
+
+    if ($targetId <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen kohdekäyttäjä.']);
+        exit;
+    }
+
+    // Haetaan kohteen nykyinen rooli kannasta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $target = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$target) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjää ei löytynyt.']);
+        exit;
+    }
+
+    // Ei turhaa päivitystä jos rooli on jo haluttu
+    if ($target['role'] === $newRole) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjällä on jo tämä rooli.']);
+        exit;
+    }
+
+    // VIIMEISEN ADMININ SUOJA — ainoaa adminia ei voi alentaa
+    if ($target['role'] === 'admin' && $newRole === 'user') {
+        $stmt = $conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE role = 'admin'");
+        $stmt->execute();
+        $adminCount = intval($stmt->get_result()->fetch_assoc()['admin_count']);
+        $stmt->close();
+
+        if ($adminCount <= 1) {
+            echo json_encode(['success' => false, 'error' => 'Et voi alentaa järjestelmän ainoaa ylläpitäjää. Anna ensin admin-oikeudet toiselle käyttäjälle. ⛔']);
+            exit;
+        }
+    }
+
+    // Päivitetään rooli
+    $stmt = $conn->prepare('UPDATE users SET role = ? WHERE id = ?');
+    $stmt->bind_param('si', $newRole, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // LOKITUS — tekijä user_id/username, kohde target_user_id
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address, target_user_id) VALUES (?, ?, 'role_changed', ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('issi', $adminId, $admin['username'], $ip, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistuminen — viesti näytetään modalissa, lista päivitetään JS:llä
+    $roleText = $newRole === 'admin' ? 'Admin' : 'Käyttäjä';
+    echo json_encode([
+        'success' => true,
+        'message' => 'Käyttäjän ' . $target['username'] . ' rooliksi vaihdettiin: ' . $roleText . '. 🧟'
+    ]);
+    exit;
+}
 //===========================================================
-//UNOHTUNEEN SALASANAN PALAUTUS LINKIN LÄHETTÄMINEN
-//Admin voi lähettää käyttäjälle sähköpostitse linkin jolla hän voi asettaa uuden salasanan
+//KÄYTTÄJÄTILIN LUKITUS / AVAUS
+//Admin voi lukita tai avata toisen käyttäjän tilin — mutta ei omaa tiliään
+//Sama toiminto hoitaa molemmat: lukittu (1) ↔ auki (0)
 //===========================================================
+function handleAdminToggleLock() {
+    header('Content-Type: application/json; charset=utf-8'); // Vastaus on JSON — admin.js lukee sen
+    global $conn;
+
+    // Pyyntö tultava lomakkeelta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
+    // Kirjautumistarkistus
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut.']);
+        exit;
+    }
+
+    $adminId = intval($_SESSION['user_id']); // Toiminnon tekijän id
+
+    // ADMIN-ROOLITARKISTUS — luetaan tekijän rooli SUORAAN KANNASTA, ei sessiosta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $adminId);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$admin || $admin['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon. ⛔']);
+        exit;
+    }
+
+    // CSRF-tarkistus — fetch lähettää headerissa, lomake POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Turvallisuusvirhe. Yritä uudelleen.']);
+        exit;
+    }
+
+    $targetId = intval($_POST['target_user_id'] ?? 0);
+
+    // ITSESUOJA — admin ei voi lukita omaa tiliään
+    if ($targetId === $adminId) {
+        echo json_encode(['success' => false, 'error' => 'Et voi lukita omaa tiliäsi. ⛔']);
+        exit;
+    }
+
+    if ($targetId <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen kohdekäyttäjä.']);
+        exit;
+    }
+
+    // Haetaan kohteen nykyinen lukitustila kannasta
+    $stmt = $conn->prepare('SELECT username, admin_locked FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $target = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$target) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjää ei löytynyt.']);
+        exit;
+    }
+
+    // Käännetään tila: jos lukittu (1) → avataan (0), jos auki (0) → lukitaan (1)
+    $newLocked = intval($target['admin_locked']) === 1 ? 0 : 1;
+
+    // VIIMEISEN ADMININ SUOJA — ainoaa adminia ei voi lukita (muuten kukaan ei pääse avaamaan)
+    // Tarkistetaan vain kun ollaan lukitsemassa (newLocked = 1), ei kun avataan
+    if ($newLocked === 1) {
+        $stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+        $stmt->bind_param('i', $targetId);
+        $stmt->execute();
+        $targetRole = $stmt->get_result()->fetch_assoc()['role'] ?? '';
+        $stmt->close();
+
+        if ($targetRole === 'admin') {
+            $stmt = $conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE role = 'admin'");
+            $stmt->execute();
+            $adminCount = intval($stmt->get_result()->fetch_assoc()['admin_count']);
+            $stmt->close();
+
+            if ($adminCount <= 1) {
+                echo json_encode(['success' => false, 'error' => 'Et voi lukita järjestelmän ainoaa ylläpitäjää. ⛔']);
+                exit;
+            }
+        }
+    }
+
+    // Päivitetään lukitustila kantaan
+    $stmt = $conn->prepare('UPDATE users SET admin_locked = ? WHERE id = ?');
+    $stmt->bind_param('ii', $newLocked, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Valitaan lokitapahtuma sen mukaan lukittiinko vai avattiinko
+    $event = $newLocked === 1 ? 'account_locked_admin' : 'account_unlocked_admin';
+
+    // LOKITUS — tekijä user_id/username, kohde target_user_id
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address, target_user_id) VALUES (?, ?, ?, ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('isssi', $adminId, $admin['username'], $event, $ip, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistuminen — viesti näytetään modalissa, lista päivitetään JS:llä
+    $tilaText = $newLocked === 1 ? 'lukittu' : 'avattu';
+    echo json_encode([
+        'success' => true,
+        'locked'  => $newLocked, // Uusi tila — admin.js päivittää napin ja tilatekstin tällä
+        'message' => 'Käyttäjän ' . $target['username'] . ' tili on nyt ' . $tilaText . '. 🔒'
+    ]);
+    exit;
+}
 
 //===========================================================
 //KÄYTTÄJÄN POISTAMINEN
-//Admin voi poistaa käyttäjän ja kaikki hänen tietonsa — mutta ei itseään
+//Admin voi poistaa käyttäjän tilin — mutta ei itseään eikä viimeistä adminia
 //===========================================================
+function handleAdminDeleteUser() {
+    header('Content-Type: application/json; charset=utf-8'); // Vastaus on JSON — admin.js lukee sen
+    global $conn;
+
+    // Pyyntö tultava lomakkeelta
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+        exit;
+    }
+
+    // Kirjautumistarkistus
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei kirjautunut.']);
+        exit;
+    }
+
+    $adminId = intval($_SESSION['user_id']); // Toiminnon tekijän id
+
+    // ADMIN-ROOLITARKISTUS — luetaan tekijän rooli SUORAAN KANNASTA, ei sessiosta
+    $stmt = $conn->prepare('SELECT username, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $adminId);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$admin || $admin['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Ei oikeuksia tähän toimintoon. ⛔']);
+        exit;
+    }
+
+    // CSRF-tarkistus — fetch lähettää headerissa, lomake POST-bodyssa
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!verifyCSRFToken($csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Turvallisuusvirhe. Yritä uudelleen.']);
+        exit;
+    }
+
+    // Luetaan kohde ja vahvistuskentät
+    $targetId         = intval($_POST['target_user_id'] ?? 0);
+    $confirmUsername  = trim($_POST['confirm_username'] ?? '');
+    $confirmEmail     = trim($_POST['confirm_email'] ?? '');
+
+    // ITSESUOJA — admin ei voi poistaa omaa tiliään tämän kautta
+    if ($targetId === $adminId) {
+        echo json_encode(['success' => false, 'error' => 'Admin ei voi poistaa omaa tiliään. ⛔']);
+        exit;
+    }
+
+    // Kohde-id:n validointi
+    if ($targetId <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Virheellinen kohdekäyttäjä.']);
+        exit;
+    }
+
+    // Haetaan kohteen tiedot kannasta
+    $stmt = $conn->prepare('SELECT username, email, role FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $target = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$target) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjää ei löytynyt.']);
+        exit;
+    }
+
+    // VAHVISTUS — admin kirjoittaa kohteen käyttäjänimen ja sähköpostin oikein
+    // Lisävarmistus vahinkopoistoa vastaan
+    if ($confirmUsername !== $target['username'] || $confirmEmail !== $target['email']) {
+        echo json_encode(['success' => false, 'error' => 'Käyttäjänimi tai sähköposti ei täsmää.']);
+        exit;
+    }
+
+    // VIIMEISEN ADMININ SUOJA — ainoaa adminia ei voi poistaa
+    // Järjestelmässä on aina oltava vähintään yksi admin
+    if ($target['role'] === 'admin') {
+        $stmt = $conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE role = 'admin'");
+        $stmt->execute();
+        $adminCount = intval($stmt->get_result()->fetch_assoc()['admin_count']);
+        $stmt->close();
+
+        if ($adminCount <= 1) {
+            echo json_encode(['success' => false, 'error' => 'Et voi poistaa järjestelmän ainoaa ylläpitäjää. ⛔']);
+            exit;
+        }
+    }
+
+    // LOKITUS ENNEN POISTOA — kohteen nimi tallennetaan username-kenttään tekstinä
+    // koska target_user_id nollaantuu poistossa (ON DELETE SET NULL), jolloin
+    // JOIN ei enää löytäisi kohteen nimeä. Nimi "jäädytetään" lokiriville.
+    $stmt = $conn->prepare("INSERT INTO logs (user_id, username, event, ip_address, target_user_id) VALUES (?, ?, 'account_deleted_admin', ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+    $stmt->bind_param('issi', $adminId, $target['username'], $ip, $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Poistetaan käyttäjä — ON DELETE CASCADE poistaa myös tehtävät ja palautuspyynnöt
+    $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
+    $stmt->bind_param('i', $targetId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Onnistuminen — viesti näytetään modalissa, lista päivitetään JS:llä
+    echo json_encode([
+        'success' => true,
+        'message' => 'Käyttäjä ' . $target['username'] . ' poistettu pysyvästi. 🪦'
+    ]);
+    exit;
+}

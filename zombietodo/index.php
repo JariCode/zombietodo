@@ -68,7 +68,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
         <!--Herokuva — suuri kuva joka esittelee sovelluksen teeman ja tunnelman.-->
         <img src="assets/img/Herokuva.webp" class="hero" alt="Zombie To-Do" width="1200" height="630"fetchpriority="high">
 
-        <!-- WIP-banneri — näkyy sivun yläosassa kun sovellus on kehitysvaiheessa -->
+        <!-- WIP-banneri — näkyy sivun yläosassa mihin voi vaihtaa sopivan tekstin -->
         <div class="wip-banner">🩸 THE UNDEAD ARE ORGANIZING TASKS... 🩸</div>
 
         <!-- Sitaattilaatikko — hakee ja näyttää satunnaisen sitaatin ulkoisesta API:sta -->
@@ -112,7 +112,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button>
                 </div>
                 <button type="submit">Kirjaudu sisään 🔑</button>
-                <a href="#" class="forgot-link">Vai unohtuiko salasanasi? 🧟</a>
+                <button type="button" class="forgot-link" id="openResetModal">Vai unohtuiko salasanasi? 🧟</button>
             </form>
         </div>
 
@@ -151,6 +151,32 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
             </form>
         </div>
     </div>
+
+<<!--SALASANAN PALAUTUS — Modal-->
+<div class="legal-overlay no-caret" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
+    <div class="legal-modal">
+        <div class="legal-header">
+            <h2 id="resetModalTitle">SALASANAN PALAUTUS 🧟</h2>
+            <button class="legal-close" aria-label="Sulje">✕</button>
+        </div>
+        <div class="legal-body">
+            <p>Syötä käyttäjänimesi ja sähköpostiosoitteesi. Jos tiedot täsmäävät, lähetämme palautuslinkin sähköpostiisi.</p>
+
+            <form action="app/actions.php" method="POST">
+                <input type="hidden" name="action" value="request_password_reset">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>">
+
+                <label for="resetUsername">Käyttäjänimi</label>
+                <input type="text" id="resetUsername" name="username" required autocomplete="off" placeholder="ZombieMaster91">
+
+                <label for="resetEmailInput">Sähköposti</label>
+                <input type="email" id="resetEmailInput" name="email" required autocomplete="off" placeholder="example@domain.com">
+
+                <button type="submit" class="legal-close-btn">LÄHETÄ LINKKI 📧</button>
+            </form>
+        </div>
+    </div>
+</div>
 
     <!-- KÄYTTÖEHDOT — Modal -->
 <div class="legal-overlay no-caret" id="legalTerms" role="dialog" aria-modal="true" aria-labelledby="legalTermsTitle">

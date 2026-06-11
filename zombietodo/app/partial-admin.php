@@ -67,7 +67,7 @@ if ($type === 'users') {
 
     // Haetaan käyttäjät
     $userStmt = $conn->prepare("
-        SELECT id, username, email, role, created_at
+        SELECT id, username, email, role, admin_locked, created_at
         FROM users
         $userWhere
         ORDER BY created_at DESC
@@ -97,10 +97,10 @@ if ($type === 'users') {
         <?php else: ?>
             <?php while ($user = $users->fetch_assoc()): ?>
                 <tr data-id="<?= intval($user['id']) ?>">
-                    <td><?= e($user['username']) ?></td>
+                    <td><?= e($user['username']) ?><?= intval($user['admin_locked']) === 1 ? ' 🔒' : '' ?></td> <!--Käyttäjänimi näytetään taulukossa lukittuna symboli perässä-->
                     <td><?= e($user['email']) ?></td>
                     <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>">
-                        <?= $user['role'] === 'admin' ? 'Admin' : 'User' ?>
+                        <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?>
                     </td>
                     <td>
                         <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">HALLINTA 🧟</button>
@@ -121,6 +121,7 @@ if ($type === 'logs') {
     $filterEvent = $_POST['log_event'] ?? '';
     $filterFrom  = $_POST['log_from']  ?? '';
     $filterTo    = $_POST['log_to']    ?? '';
+    $filterSearch = $_POST['user_search'] ?? ''; // Käyttäjähaku — admin.js lähettää mukana
 
     // Rakennetaan WHERE-ehto dynaamisesti
     $logWhere  = "WHERE 1=1";
@@ -151,10 +152,19 @@ if ($type === 'logs') {
         }
     }
 
+    // Lisätään käyttäjäsuodatin jos käyttäjälista on suodatettu
+    // $filterSearch on sama arvo joka on jo käytössä käyttäjälistan haussa
+    if ($filterSearch !== '') {
+        $logWhere   .= " AND l.username LIKE ?";
+        $logParams[] = '%' . $filterSearch . '%';
+        $logTypes   .= 's';
+    }
+
     // Haetaan lokitapahtumat
     $dataStmt = $conn->prepare("
-        SELECT l.timestamp, l.username, l.event
+        SELECT l.timestamp, l.username, l.event, tu.username AS target_username
         FROM logs l
+        LEFT JOIN users tu ON tu.id = l.target_user_id
         $logWhere
         ORDER BY l.timestamp DESC
         LIMIT 200
@@ -183,7 +193,7 @@ if ($type === 'logs') {
             <?php while ($log = $logs->fetch_assoc()): ?>
                 <tr>
                     <td><?= date('d.m.Y H:i', strtotime($log['timestamp'])) ?></td>
-                    <td><?= e($log['username'] ?? 'Poistettu käyttäjä') ?></td>
+                    <td><?= e($log['target_username'] ?? $log['username'] ?? 'Poistettu käyttäjä') ?></td>
                     <td><?= e($eventLabels[$log['event']] ?? $log['event']) ?></td>
                 </tr>
             <?php endwhile; ?>
