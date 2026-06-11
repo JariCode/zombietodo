@@ -97,7 +97,7 @@ if ($type === 'users') {
         <?php else: ?>
             <?php while ($user = $users->fetch_assoc()): ?>
                 <tr data-id="<?= intval($user['id']) ?>">
-                    <td><?= e($user['username']) ?></td>
+                    <td><?= e($user['username']) ?><?= intval($user['admin_locked']) === 1 ? ' 🔒' : '' ?></td> <!--Käyttäjänimi näytetään taulukossa lukittuna symboli perässä-->
                     <td><?= e($user['email']) ?></td>
                     <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>">
                         <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?>

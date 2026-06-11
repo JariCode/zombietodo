@@ -218,19 +218,22 @@ document.addEventListener('click', function(e) {
 
     const row = btn.closest('tr'); // Haetaan taulukon rivi jossa nappi on
     const id = btn.dataset.id; // Luetaan käyttäjän id data-attribuutista
-    const username = row.querySelector('td:nth-child(1)').textContent; // Käyttäjänimi ensimmäisestä sarakkeesta
+    const username = row.querySelector('td:nth-child(1)').textContent.replace('🔒', '').trim(); // Käyttäjänimi ensimmäisestä sarakkeesta — poistetaan mahdollinen lukkomerkki
     const email = row.querySelector('td:nth-child(2)').textContent; // Sähköposti toisesta sarakkeesta
     const role = row.querySelector('td:nth-child(3)').textContent.trim().toLowerCase(); // Rooli kolmannesta sarakkeesta
+
     // Tilin lukitus — luetaan tila napista ja asetetaan teksti + napin teksti sen mukaan
     const isLocked = btn.dataset.locked === '1';
-    document.getElementById('lockStatus').textContent = isLocked
+    const lockStatusEl = document.getElementById('lockStatus');
+    lockStatusEl.textContent = isLocked
         ? 'Käyttäjän ' + username + ' tili on tällä hetkellä lukittu. Käyttäjä ei voi kirjautua sisään.'
         : 'Käyttäjän ' + username + ' tili on tällä hetkellä auki. Käyttäjä voi kirjautua normaalisti.';
+    lockStatusEl.classList.toggle('is-locked', isLocked); // Punainen tyyli vain kun lukittu
     document.getElementById('lockSubmit').textContent = isLocked ? 'AVAA 🔓' : 'LUKITSE 🔒';
 
     // Täytetään kohde-id:t kaikkiin lomakkeisiin
     document.getElementById('roleTargetId').value = id;   // Roolin vaihdon kohde
-    document.getElementById('lockTargetId').value = id;   // Tilin lukituksen kohd
+    document.getElementById('lockTargetId').value = id;   // Tilin lukituksen kohde
     document.getElementById('deleteTargetId').value = id; // Tilin poiston kohde
 
     // Täytetään modalin näkyvät kentät
@@ -386,7 +389,7 @@ document.getElementById('adminRoleForm').addEventListener('submit', async functi
 
 // TILIN LUKITUS / AVAUS — vahvistus ennen lähetystä, sitten AJAX-lähetys
 document.getElementById('adminLockForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+    e.preventDefault(); // Estetään aina normaali lähetys — hoidetaan fetchillä
     const confirmBtn = document.getElementById('lockConfirm');
     const lockMessage = document.getElementById('lockMessage');
 
@@ -399,7 +402,7 @@ document.getElementById('adminLockForm').addEventListener('submit', async functi
         return;
     }
 
-    // Toinen klikkaus — lähetetään AJAXilla
+    // Toinen klikkaus — lähetetään lomake AJAXilla
     const formData = new FormData(this);
     try {
         const res = await fetch('app/actions.php', {
@@ -409,33 +412,35 @@ document.getElementById('adminLockForm').addEventListener('submit', async functi
         });
         const data = await res.json();
 
-          if (data.success) {
+        if (data.success) {
             lockMessage.textContent = data.message || 'Lukitustila muutettu.';
-            lockMessage.classList.add('is-success');
+            lockMessage.classList.add('is-success'); // Vihreä onnistumiselle
 
             // Päivitetään modalin tilateksti ja napin teksti backendin palauttaman uuden tilan mukaan
             const username = document.getElementById('adminModalUser').textContent.split(' — ')[0];
             const isLocked = data.locked === 1;
-            document.getElementById('lockStatus').textContent = isLocked
+            const lockStatusEl = document.getElementById('lockStatus');
+            lockStatusEl.textContent = isLocked
                 ? 'Käyttäjän ' + username + ' tili on tällä hetkellä lukittu. Käyttäjä ei voi kirjautua sisään.'
                 : 'Käyttäjän ' + username + ' tili on tällä hetkellä auki. Käyttäjä voi kirjautua normaalisti.';
+            lockStatusEl.classList.toggle('is-locked', isLocked); // Punainen tyyli vain kun lukittu
             document.getElementById('lockSubmit').textContent = isLocked ? 'AVAA 🔓' : 'LUKITSE 🔒';
-        } else { 
+        } else {
             lockMessage.textContent = data.error || 'Toiminto epäonnistui.';
-            lockMessage.classList.remove('is-success');
+            lockMessage.classList.remove('is-success'); // Punainen virheelle
         }
 
-        scheduleModalMessageClear();
+        scheduleModalMessageClear(); // Häivytetään viesti 8 s kuluttua
         resetConfirmButtons();
 
         if (data.success) {
             const userFilterInput = document.querySelector('input[name="user_filter"]');
             const userForm = userFilterInput ? userFilterInput.closest('form') : null;
-            if (userForm) refreshUsers(userForm);
+            if (userForm) refreshUsers(userForm); // Päivitetään käyttäjälista taustalla
 
             const logFilterInput = document.querySelector('input[name="log_filter"]');
             const logForm = logFilterInput ? logFilterInput.closest('form') : null;
-            if (logForm) refreshLogs(logForm);
+            if (logForm) refreshLogs(logForm); // Päivitetään lokitaulukko taustalla
         }
     } catch (err) {
         lockMessage.textContent = 'Verkkovirhe. Yritä uudelleen.';

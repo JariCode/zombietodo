@@ -1391,6 +1391,13 @@ h1.admin-title {
     text-shadow: 1px 1px black;
 }
 
+/* Lukittu tila — punainen hehkuva teksti erottumaan auki-tilasta */
+#adminModal .admin-lock-status.is-locked {
+    color: #ff4444;
+    text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+    font-weight: bold;
+}
+
 /* Sykkivä punainen hehku vahvistusnapeille */
 @keyframes confirmPulse {
     0%   { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }

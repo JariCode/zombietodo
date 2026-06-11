@@ -299,7 +299,7 @@ $dataStmt->close();
                         <?php else: ?>
                             <?php while ($user = $users->fetch_assoc()): ?> <!-- Käydään läpi jokainen käyttäjä ja näytetään taulukossa -->
                                 <tr data-id="<?= intval($user['id']) ?>">
-                                    <td><?= clean($user['username']) ?></td> <!--Käyttäjänimi näytetään taulukossa -->
+                                    <td><?= clean($user['username']) ?><?= intval($user['admin_locked']) === 1 ? ' 🔒' : '' ?></td> <!--Käyttäjänimi näytetään taulukossa lukittuna symboli perässä-->
                                     <td><?= clean($user['email']) ?></td><!-- Sähköposti näytetään taulukossa -->
                                     <td class="<?= $user['role'] === 'admin' ? 'role-admin' : 'role-user' ?>"><!-- Rooli näytetään taulukossa, adminit oranssinpunaisina ja tavalliset harmaana -->
                                         <?= $user['role'] === 'admin' ? 'Admin' : 'Käyttäjä' ?><!-- Näytä rooli tekstinä -->
