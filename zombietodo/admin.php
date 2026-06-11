@@ -306,7 +306,7 @@ $dataStmt->close();
                                     </td>
                                     <td>
                                         <!-- Muokkausnappi avaa modalin — data-id kertoo minkä käyttäjän tiedot ladataan -->
-                                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>">HALLINTA 🧟</button>
+                                        <button type="button" class="admin-btn-edit" data-id="<?= intval($user['id']) ?>" data-locked="<?= intval($user['admin_locked']) ?>">HALLINTA 🧟</button>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
