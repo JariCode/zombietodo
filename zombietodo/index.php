@@ -178,7 +178,7 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
     </div>
 </div>
 
-    <!-- KÄYTTÖEHDOT — Modal -->
+<!-- KÄYTTÖEHDOT — Modal -->
 <div class="legal-overlay no-caret" id="legalTerms" role="dialog" aria-modal="true" aria-labelledby="legalTermsTitle">
     <div class="legal-modal">
         <div class="legal-header">
@@ -187,29 +187,33 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
         </div>
         <div class="legal-body">
 
-        <p><small>Päivitetty viimeksi: 20.5.2026</small></p>
+            <p><small>Päivitetty viimeksi: 15.6.2026</small></p>
+
             <h3>1. YLEISTÄ</h3>
             <p>Zombie To-Do -palvelun käyttö edellyttää näiden käyttöehtojen hyväksymistä. Palvelun käyttäminen tarkoittaa, että käyttäjä sitoutuu noudattamaan näitä ehtoja.</p>
 
             <h3>2. KÄYTTÄJÄTILI</h3>
-            <p>Käyttäjän tulee rekisteröityä luodakseen henkilökohtaisen käyttäjätilin. Käyttäjätunnus ja salasana ovat henkilökohtaisia, eikä niitä tule luovuttaa muille. Käyttäjä vastaa kaikesta tilinsä kautta tapahtuvasta toiminnasta.</p>
+            <p>Käyttäjän tulee olla vähintään 13-vuotias (tietosuojalaki 1050/2018 § 5). Käyttäjän tulee rekisteröityä luodakseen henkilökohtaisen käyttäjätilin. Käyttäjätunnus ja salasana ovat henkilökohtaisia, eikä niitä tule luovuttaa muille. Käyttäjä vastaa kaikesta tilinsä kautta tapahtuvasta toiminnasta ja pitää tietonsa ajantasaisina profiilisivun kautta.</p>
 
             <h3>3. SISÄLLÖN KÄYTTÖ</h3>
             <p>Käyttäjä omistaa itse luomansa sisällön (tehtävät ja merkinnät) ja saa vapaasti kopioida, viedä tai käyttää sitä haluamallaan tavalla. Palvelun ulkoasu, koodi ja muu sovelluksen oma sisältö on suojattu tekijänoikeuksin, eikä niitä saa kopioida tai hyödyntää kaupallisesti ilman lupaa.</p>
 
             <h3>4. HENKILÖTIETOJEN KÄSITTELY</h3>
-            <p>Rekisteröitymisen yhteydessä käyttäjä hyväksyy Zombie To-Do -palvelun tietosuojaselosteen. Tietosuojaseloste määrittelee, mitä tietoja kerätään ja miten niitä käsitellään.</p>
+            <p>Rekisteröitymisen yhteydessä käyttäjä hyväksyy Zombie To-Do -palvelun tietosuojaselosteen. Tietosuojaseloste määrittelee, mitä tietoja kerätään ja miten niitä käsitellään EU:n yleisen tietosuoja-asetuksen (2016/679) mukaisesti.</p>
 
             <h3>5. PALVELUN KÄYTTÖ</h3>
-            <p><p>Palvelua tulee käyttää lain ja hyvän tavan mukaisesti. Häiritsevä, haitallinen, laiton tai muulla tavoin sopimaton toiminta voi johtaa käyttäjätilin sulkemiseen ilman erillistä varoitusta.</p></p>
+            <p>Palvelua tulee käyttää lain ja hyvän tavan mukaisesti. Häiritsevä, haitallinen, laiton tai muulla tavoin sopimaton toiminta voi johtaa käyttäjätilin lukitsemiseen tai poistamiseen ilman erillistä varoitusta.</p>
 
             <h3>6. VASTUUNRAJOITUS</h3>
-            <p>Palvelu tarjotaan "sellaisena kuin se on" ilman takuita saatavuudesta, virheettömyydestä tai keskeytymättömyydestä. Ylläpitäjä ei vastaa tietojen katoamisesta, palvelun käyttökatkoista tai muista vahingoista, jotka aiheutuvat palvelun käytöstä.</p>
+            <p>Palvelu tarjotaan "sellaisena kuin se on" ilman takuita saatavuudesta, virheettömyydestä tai keskeytymättömyydestä. Ylläpitäjä ei vastaa tietojen katoamisesta, palvelun käyttökatkoista tai muista vahingoista, jotka aiheutuvat palvelun käytöstä. Kuluttajan pakottavaan lainsäädäntöön perustuvat oikeudet pysyvät voimassa.</p>
 
-            <h3>7. MUUTOKSET EHTOIHIN</h3>
-            <p>Palvelun ylläpitäjä voi päivittää käyttöehtoja tarvittaessa. Muutokset astuvat voimaan kun ne julkaistaan palvelussa. Käyttäjän suositellaan tarkistavan ehdot säännöllisesti.</p>
+            <h3>7. SOVELLETTAVA LAKI JA ERIMIELISYYDET</h3>
+            <p>Näihin käyttöehtoihin sovelletaan Suomen lakia. Erimielisyydet pyritään ratkaisemaan ensisijaisesti neuvottelemalla. Riidat ratkaistaan Itä-Uudenmaan käräjäoikeudessa tai kuluttaja-asemassa olevan käyttäjän kotipaikan käräjäoikeudessa. Kuluttaja voi saattaa asian myös kuluttajariitalautakunnan ratkaistavaksi (kuluttajariita.fi).</p>
 
-            <h3>8. YHTEYSTIEDOT</h3>
+            <h3>8. MUUTOKSET EHTOIHIN</h3>
+            <p>Palvelun ylläpitäjä voi päivittää käyttöehtoja tarvittaessa. Muutokset astuvat voimaan kun ne julkaistaan palvelussa. Voimassa oleva versio on aina nähtävillä palvelun etusivulla.</p>
+
+            <h3>9. YHTEYSTIEDOT</h3>
             <p>Kysymyksissä tai epäselvyyksissä voi ottaa yhteyttä palvelun ylläpitäjään:</p>
             <p>JariCode<br>Sähköposti: jaricode@elisanet.fi</p>
 
@@ -231,43 +235,53 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
             <button class="legal-close" aria-label="Sulje">✕</button>
         </div>
         <div class="legal-body">
-            <p><small>Päivitetty viimeksi: 20.5.2026</small></p>
-            <h3>REKISTERINPITÄJÄ</h3>
-            <p>JariCode<br>Sähköposti: jaricode@elisanet.fi<br>Kotisivu: <a href="https://www.jaricode.fi" target="_blank" rel="noopener">www.jaricode.fi</a></p>
+            <p><small>Päivitetty viimeksi: 15.6.2026</small></p>
 
-            <h3>REKISTERIN NIMI</h3>
+            <h3>1. REKISTERINPITÄJÄ</h3>
+            <p>JariCode (verkkotunnuksen jaricode.fi haltija)<br>Sähköposti: jaricode@elisanet.fi<br>Kotisivu: <a href="https://www.jaricode.fi" target="_blank" rel="noopener">www.jaricode.fi</a></p>
+
+            <h3>2. REKISTERIN NIMI</h3>
             <p>Zombie To-Do – käyttäjärekisteri</p>
 
-            <h3>HENKILÖTIETOJEN KÄSITTELYN TARKOITUS</h3>
+            <h3>3. KÄSITTELYN TARKOITUS JA OIKEUSPERUSTE</h3>
             <p>Henkilötietoja käsitellään Zombie To-Do -palvelun tarjoamiseksi, käyttäjien tunnistamiseksi, kirjautumisen mahdollistamiseksi sekä palvelun turvallisuuden varmistamiseksi.</p>
+            <p>Käsittely perustuu EU:n yleisen tietosuoja-asetuksen artiklan 6(1)(b) mukaiseen sopimuksen täytäntöönpanoon, joka syntyy käyttäjän rekisteröityessä palveluun. Lokitietojen käsittely perustuu artiklan 6(1)(f) mukaiseen oikeutettuun etuun palvelun turvallisuuden varmistamiseksi.</p>
+            <p>Palvelu on tarkoitettu vähintään 13-vuotiaille käyttäjille (tietosuojalaki 1050/2018 § 5).</p>
 
-            <h3>KÄSITTELYN OIKEUSPERUSTE</h3>
-            <p>Henkilötietojen käsittely perustuu EU:n yleisen tietosuoja-asetuksen (GDPR) artiklan 6(1)(b) mukaiseen sopimuksen täytäntöönpanoon: käsittely on tarpeen palvelun tarjoamiseksi käyttäjälle rekisteröitymisen yhteydessä syntyvän käyttösopimuksen perusteella. Lokitietojen käsittely perustuu artiklan 6(1)(f) mukaiseen oikeutettuun etuun palvelun turvallisuuden varmistamiseksi.</p>
-
-            <h3>KÄSITELTÄVÄT HENKILÖTIEDOT</h3>
+            <h3>4. KÄSITELTÄVÄT HENKILÖTIEDOT</h3>
             <p>
                 – Käyttäjänimi<br>
                 – Sähköpostiosoite<br>
-                – Salasana (tallennetaan ainoastaan salattuna)<br>
-                – IP-osoite (tallennetaan lokitapahtumien yhteydessä)<br>
-                – Rekisteröitymispäivämäärä<br>
-                – Kirjautumis- ja käyttölogit<br>
-                – Käyttäjän luomat tehtävät
+                – Salasana (tallennetaan ainoastaan suojatussa muodossa eikä sitä voi palauttaa selkokielisenä)<br>
+                – Käyttäjän rooli (peruskäyttäjä tai ylläpitäjä)<br>
+                – Tilin lukitustila<br>
+                – Kirjautumisyritysten määrä ja mahdollinen lukitusaika<br>
+                – Tilin luonti- ja päivityspäivä<br>
+                – IP-osoite (lokitapahtumien yhteydessä)<br>
+                – Lokitiedot kirjautumisesta ja sovelluksen toiminnoista<br>
+                – Käyttäjän luomat tehtävät teksteineen ja aikaleimoineen<br>
+                – Salasanan palautuspyynnöt palautuksen keston ajan
             </p>
 
-            <h3>EVÄSTEET JA TUNNISTAUTUMINEN</h3>
-            <p>Palvelu käyttää evästeitä kirjautumisen ja suojatun käytön mahdollistamiseksi. Evästeitä käytetään istunnon ylläpitämiseen, käyttäjän tunnistamiseen ja palvelun turvallisuuden varmistamiseen. Evästeet ovat välttämättömiä palvelun toiminnalle eikä niitä käytetä seurantaan tai mainontaan.</p>
+            <h3>5. EVÄSTEET</h3>
+            <p>Palvelu käyttää yhtä välttämätöntä istuntoevästettä, jonka avulla käyttäjä pysyy kirjautuneena ja palvelun turvallinen käyttö mahdollistuu. Eväste ei sisällä henkilötietoja vaan ainoastaan satunnaisen istuntotunnisteen.</p>
+            <p>Eväste on välttämätön palvelun toiminnalle, joten sähköisen viestinnän palveluista annetun lain (917/2014) § 205 mukaan sen käyttö ei vaadi erillistä suostumusta. Palvelu ei käytä evästeitä seurantaan, analytiikkaan eikä mainontaan, eikä sivustolla ole kolmansien osapuolten evästeitä.</p>
 
-            <h3>TIETOJEN LUOVUTUS JA SIIRTO</h3>
-            <p>Tietoja ei luovuteta kolmansille osapuolille eikä siirretä EU-/ETA-alueen ulkopuolelle.</p>
+            <h3>6. TIETOJEN LUOVUTUS JA SIIRTO</h3>
+            <p>Tietoja ei luovuteta kolmansille osapuolille markkinointia, analytiikkaa tai muita rekisterinpitäjän omasta käytöstä riippumattomia tarkoituksia varten.</p>
+            <p>Sovelluksen tekninen toteutus edellyttää, että tietoja käsittelee tietojenkäsittelijän roolissa Planeetta Internet Oy (Domainhotelli), joka tarjoaa palvelun käyttämän palvelimen, tietokannan ja sähköpostien lähetyksen salasanan palautuksen yhteydessä. Palvelin sijaitsee Suomessa Helsingissä. Tietoja ei siirretä EU:n tai ETA-alueen ulkopuolelle.</p>
 
-            <h3>TIETOJEN SÄILYTYSAIKA</h3>
-            <p>Käyttäjätilin tiedot, tehtävät ja salasana poistetaan välittömästi tilin poistamisen yhteydessä. Lokimerkinnät (käyttäjänimi, IP-osoite ja tapahtumatyyppi) säilytetään enintään 12 kuukautta tilin poistamisen jälkeen palvelun turvallisuuden ja väärinkäytösten selvittämisen vuoksi, minkä jälkeen ne poistetaan automaattisesti.</p>
+            <h3>7. TIETOJEN SÄILYTYSAIKA</h3>
+            <p>Käyttäjätilin tiedot, tehtävät ja salasana poistetaan välittömästi tilin poistamisen yhteydessä.</p>
+            <p>Lokimerkinnät (käyttäjänimi, IP-osoite ja tapahtumatyyppi) säilytetään enintään 12 kuukautta tapahtuman jälkeen palvelun turvallisuuden ja väärinkäytösten selvittämisen vuoksi, minkä jälkeen ne poistetaan automaattisesti.</p>
+            <p>Salasanan palautuspyynnöt vanhenevat tunnissa ja ovat kertakäyttöisiä. Käytetty palautuslinkki poistuu välittömästi.</p>
 
-            <h3>REKISTERIN SUOJAUS</h3>
-            <p>Kaikki tiedot tallennetaan suojattuun tietokantaan ja käyttö edellyttää kirjautumista. Salasanat tallennetaan salattuna eikä niitä voi palauttaa selkokielisiksi. Kaikki yhteydet palveluun on suojattu HTTPS-salauksella.</p>
+            <h3>8. REKISTERIN SUOJAUS</h3>
+            <p>Kaikki yhteydet palveluun on suojattu HTTPS-salauksella. Salasanat tallennetaan suojatussa muodossa eikä niitä voi palauttaa selkokielisinä. Palvelu käyttää useita teknisiä suojatoimia, joihin kuuluvat muun muassa kirjautumisen rajoittaminen toistuvilta yrityksiltä, käyttöoikeuksien rajaaminen tietokantatasolla sekä HTTP-turvaotsakkeet.</p>
+            <p>Suojaustoimien tekninen toteutus on kuvattu yksityiskohtaisesti sovelluksen tietosuojakäytännössä, joka on osa toteutusdokumentaatiota.</p>
 
-            <h3>REKISTERÖIDYN OIKEUDET</h3>
+            <h3>9. REKISTERÖIDYN OIKEUDET</h3>
+            <p>Käyttäjällä on EU:n yleisen tietosuoja-asetuksen mukaiset oikeudet:</p>
             <p>
                 – Oikeus tarkastaa omat tiedot<br>
                 – Oikeus pyytää tietojen oikaisua<br>
@@ -276,12 +290,21 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
                 – Oikeus siirtää tiedot toiseen palveluun (tietojen siirrettävyys)<br>
                 – Oikeus tehdä valitus valvontaviranomaiselle
             </p>
+            <p>Käyttäjä voi tarkastella, muokata ja poistaa omat tietonsa itse palvelun profiilisivulla. Muut pyynnöt käsitellään sähköpostitse, ja niihin vastataan kuukauden kuluessa.</p>
 
-            <h3>VALVONTAVIRANOMAINEN</h3>
+            <h3>10. AUTOMAATTINEN PÄÄTÖKSENTEKO</h3>
+            <p>Palvelu ei käytä henkilötietojen automaattista käsittelyä tai profilointia päätöksentekoon, jolla olisi vaikutuksia käyttäjään.</p>
+
+            <h3>11. TIETOPYYNNÖT JA HENKILÖLLISYYDEN VARMISTUS</h3>
+            <p>Tietopyynnöt lähetetään sähköpostitse osoitteeseen jaricode@elisanet.fi. Pyynnössä tulee mainita käyttäjänimi ja rekisteröity sähköpostiosoite. Henkilöllisyys varmistetaan tarkistamalla, että annetut tiedot täsmäävät tietokannan tietoihin.</p>
+            <p>Pyytäjälle toimitettavat tiedot lähetetään aina rekisteröityyn sähköpostiosoitteeseen, jolloin oikea tilin haltija vastaanottaa tiedot myös tilanteessa, jossa pyyntö olisi tullut väärin perustein. Siirrettävyyspyynnössä tiedot toimitetaan koneluettavassa muodossa.</p>
+            <p>Rekisterinpitäjä vastaa tietopyyntöihin sovelluksen tietokantaan tallennetuista tiedoista. Pyynnöt, jotka koskevat palveluntarjoajan käyttämän palvelinympäristön (Planeetta Internet Oy / Domainhotelli) teknisiä lokeja, käyttäjä ohjataan tekemään suoraan Domainhotellille heidän tietosuojakäytäntönsä mukaisesti.</p>
+
+            <h3>12. VALVONTAVIRANOMAINEN</h3>
             <p>Tietosuojavaltuutetun toimisto<br>Käyntiosoite: Lintulahdenkuja 4, 00530 Helsinki<br>Postiosoite: PL 800, 00531 Helsinki<br>Sähköposti: tietosuoja@tietosuoja.fi<br>Puhelin: 029 566 6700<br>Verkkosivu: <a href="https://tietosuoja.fi" target="_blank" rel="noopener">tietosuoja.fi</a></p>
 
-            <h3>TIETOPYYNNÖT</h3>
-            <p>Tietopyynnöt tulee lähettää sähköpostitse osoitteeseen: jaricode@elisanet.fi. Pyyntöihin vastataan kuukauden kuluessa.</p>
+            <h3>13. TIETOSUOJASELOSTEEN MUUTOKSET</h3>
+            <p>Rekisterinpitäjä voi päivittää tätä tietosuojaselostetta tarvittaessa. Voimassa oleva versio on aina nähtävillä palvelun etusivulla, ja päivitetty seloste tulee voimaan, kun se on julkaistu palvelussa.</p>
 
         </div>
         <div class="legal-footer">
