@@ -238,8 +238,8 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
             <p><small>Päivitetty viimeksi: 15.6.2026</small></p>
 
             <h3>1. REKISTERINPITÄJÄ</h3>
-            <p>JariCode (verkkotunnuksen jaricode.fi haltija)<br>Sähköposti: jaricode@elisanet.fi<br>Kotisivu: <a href="https://www.jaricode.fi" target="_blank" rel="noopener">www.jaricode.fi</a></p>
-
+            <p>JariCode<br>Sähköposti: jaricode@elisanet.fi<br>Kotisivu: <a href="https://jaricode.fi" target="_blank" rel="noopener">jaricode.fi</a></p>
+            
             <h3>2. REKISTERIN NIMI</h3>
             <p>Zombie To-Do – käyttäjärekisteri</p>
 
@@ -274,11 +274,10 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
             <h3>7. TIETOJEN SÄILYTYSAIKA</h3>
             <p>Käyttäjätilin tiedot, tehtävät ja salasana poistetaan välittömästi tilin poistamisen yhteydessä.</p>
             <p>Lokimerkinnät (käyttäjänimi, IP-osoite ja tapahtumatyyppi) säilytetään enintään 12 kuukautta tapahtuman jälkeen palvelun turvallisuuden ja väärinkäytösten selvittämisen vuoksi, minkä jälkeen ne poistetaan automaattisesti.</p>
-            <p>Salasanan palautuspyynnöt vanhenevat tunnissa ja ovat kertakäyttöisiä. Käytetty palautuslinkki poistuu välittömästi.</p>
+            <p>Salasanan palautuslinkki vanhenee tunnissa ja sitä voi käyttää vain kerran.</p>
 
             <h3>8. REKISTERIN SUOJAUS</h3>
-            <p>Kaikki yhteydet palveluun on suojattu HTTPS-salauksella. Salasanat tallennetaan suojatussa muodossa eikä niitä voi palauttaa selkokielisinä. Palvelu käyttää useita teknisiä suojatoimia, joihin kuuluvat muun muassa kirjautumisen rajoittaminen toistuvilta yrityksiltä, käyttöoikeuksien rajaaminen tietokantatasolla sekä HTTP-turvaotsakkeet.</p>
-            <p>Suojaustoimien tekninen toteutus on kuvattu yksityiskohtaisesti sovelluksen tietosuojakäytännössä, joka on osa toteutusdokumentaatiota.</p>
+            <p>Kaikki yhteydet palveluun on suojattu HTTPS-salauksella. Salasanat tallennetaan suojatussa muodossa eikä niitä voi palauttaa selkokielisinä. Rekisterin käsittelyssä noudatetaan huolellisuutta, ja tiedot suojataan asianmukaisesti niin, ettei niihin pääse kukaan ulkopuolinen käsiksi. Henkilötietoja käsittelee ainoastaan rekisterinpitäjä, jota sitoo vaitiolovelvollisuus.</p>
 
             <h3>9. REKISTERÖIDYN OIKEUDET</h3>
             <p>Käyttäjällä on EU:n yleisen tietosuoja-asetuksen mukaiset oikeudet:</p>
