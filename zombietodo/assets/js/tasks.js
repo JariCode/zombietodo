@@ -268,7 +268,18 @@ function setupEditModal() {
     document.getElementById('modalClose').addEventListener('click', closeEditModal);   // Sulkee X-napista
     document.getElementById('modalCancel').addEventListener('click', closeEditModal);  // Sulkee Peruuta-napista
     document.getElementById('modalSave').addEventListener('click', saveEdit);          // Tallentaa muutokset
-   
+
+    // Klikkaus taustan päälle sulkee modalin — sama tapa kuin legal-modaaleissa
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeEditModal(); // Sulkee vain jos klikataan taustaa, ei modalin sisältöä
+    });
+
+    // ESC-näppäin sulkee modalin — sama tapa kuin legal-modaaleissa
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) {
+            closeEditModal(); // Suljetaan vain jos modal on auki
+        }
+    });
 }
 
 // Sulkee muokkausmodalin ja tyhjentää muokattavan tehtävän id:n

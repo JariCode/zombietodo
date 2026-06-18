@@ -1,0 +1,16 @@
+# ================================
+# zombie-config/.htaccess — estä suora pääsy
+# ================================
+# Tämä kansio sisältää arkaluontoiset tiedostot (.env, db.php, session-config.php).
+# Estetään pääsy kaikkiin kansion tiedostoihin selaimen kautta.
+
+# Uudempi Apache 2.4 (esim. tuotantopalvelin)
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+# Vanhempi Apache 2.2 (varalta)
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
