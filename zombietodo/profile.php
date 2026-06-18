@@ -107,10 +107,10 @@ $email = $userData['email'] ?? '';
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Käyttäjänimi</label>
-                <input type="text" name="username" placeholder="<?= clean($username) ?>" required autocomplete="off"> <!-- Nykyinen käyttäjänimi näytetään placeholder-tekstinä -->
+                <input type="text" name="username" placeholder="<?= clean($username) ?>" required autocomplete="off" minlength="3" maxlength="30"> <!-- Nykyinen käyttäjänimi näytetään placeholder-tekstinä. Pituusrajoitus selainpuolella, sama kuin palvelimella -->
 
                 <label>Sähköposti</label>
-                <input type="email" name="email" placeholder="<?= clean($email) ?>" required autocomplete="off"> <!-- Nykyinen sähköposti näytetään placeholder-tekstinä -->
+                <input type="email" name="email" placeholder="<?= clean($email) ?>" required autocomplete="off"> <!-- Nykyinen sähköposti näytetään placeholder-tekstinä. type=email validoi muodon selaimessa -->
 
                 <button type="submit">Tallenna muutokset 🧠</button>
             </form>
@@ -126,19 +126,19 @@ $email = $userData['email'] ?? '';
 
                 <label>Vanha salasana</label>
                 <div class="password-field">
-                    <input type="password" name="old_password" placeholder="********" required autocomplete="off"> <!-- Nykyinen salasana varmentamiseksi -->
+                    <input type="password" name="old_password" placeholder="********" required autocomplete="off"> <!-- Nykyinen salasana varmentamiseksi. Ei pituusrajaa, koska tämä on olemassa oleva salasana -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button> <!-- Silmäpainike salasanan näyttöä/piilotusta varten -->
                 </div>
 
                 <label>Uusi salasana</label>
                 <div class="password-field">
-                    <input type="password" name="new_password" placeholder="********" required autocomplete="off"> <!-- Uusi salasana -->
+                    <input type="password" name="new_password" placeholder="********" required autocomplete="off" minlength="10" maxlength="72"> <!-- Uusi salasana. Min 10 merkkiä, max 72 bcryptin takia — sama kuin rekisteröinnissä -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button> <!-- Silmäpainike salasanan näyttöä/piilotusta varten -->
                 </div>
 
                 <label>Uusi salasana uudelleen</label>
                 <div class="password-field">
-                    <input type="password" name="new_password2" placeholder="********" required autocomplete="off"> <!-- Uuden salasanan varmistus — salasanan oltava sama kuin yllä -->
+                    <input type="password" name="new_password2" placeholder="********" required autocomplete="off" minlength="10" maxlength="72"> <!-- Uuden salasanan varmistus — salasanan oltava sama kuin yllä. Samat rajat -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button> <!-- Silmäpainike salasanan näyttöä/piilotusta varten -->
                 </div>
 
@@ -155,14 +155,14 @@ $email = $userData['email'] ?? '';
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCSRFToken(), ENT_QUOTES, 'UTF-8') ?>"> <!-- CSRF-suojaus — estää lomakkeen väärennöksen ulkopuoliselta sivulta -->
 
                 <label>Käyttäjänimi</label>
-                <input type="text" name="confirm_username" placeholder="<?= clean($username) ?>" required autocomplete="off"> <!-- Käyttäjä vahvistaa omalla käyttäjänimellään -->
+                <input type="text" name="confirm_username" placeholder="<?= clean($username) ?>" required autocomplete="off" minlength="3" maxlength="30"> <!-- Käyttäjä vahvistaa omalla käyttäjänimellään. Sama pituusraja kuin muualla -->
 
                 <label>Sähköposti</label>
-                <input type="email" name="confirm_email" placeholder="<?= clean($email) ?>" required autocomplete="off"> <!-- Käyttäjä vahvistaa omalla sähköpostillaan -->
+                <input type="email" name="confirm_email" placeholder="<?= clean($email) ?>" required autocomplete="off"> <!-- Käyttäjä vahvistaa omalla sähköpostillaan. type=email validoi muodon -->
 
                 <label>Vahvista salasana</label>
                 <div class="password-field">
-                    <input type="password" name="confirm_password" placeholder="********" required autocomplete="off"> <!-- Salasana varmentaa että käyttäjä todella haluaa poistaa tilin -->
+                    <input type="password" name="confirm_password" placeholder="********" required autocomplete="off"> <!-- Salasana varmentaa että käyttäjä todella haluaa poistaa tilin. Ei pituusrajaa, koska tämä on olemassa oleva salasana -->
                     <button type="button" class="password-eye" aria-label="Näytä salasana">👁️</button> <!-- Silmäpainike salasanan näyttöä/piilotusta varten -->
                 </div>
 
