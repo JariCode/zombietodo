@@ -1096,6 +1096,12 @@ function handleTaskAction($action) {
             exit;
         }
 
+        // Tarkistetaan ettei tehtävä ylitä tietokannan 255 merkin rajaa — sama kuin lisäyksessä
+        if (mb_strlen($text) > 255) {
+            echo json_encode(['success' => false, 'error' => 'Tehtävä saa olla enintään 255 merkkiä.']);
+            exit;
+        }
+
         // Tarkistetaan päivämäärien muoto — sallitaan vain tyhjä tai YYYY-MM-DD HH:MM
         function isValidDatetime($val) {
             if ($val === '') return true; // Tyhjä on ok — tarkoittaa ei asetettu
