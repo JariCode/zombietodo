@@ -8,6 +8,12 @@ Options -Indexes
     RewriteEngine On
 
     #########################################################
+    # 0) Ohjaa index.php kansio-osoitteeseen (canonical)
+    #########################################################
+    RewriteCond %{THE_REQUEST} \s/+zombietodo/index\.php[\s?] [NC]
+    RewriteRule ^index\.php$ /zombietodo/ [R=301,L]
+
+    #########################################################
     # 1) SALLI actions.php:
     #    - POST-pyynnöt (lomakkeet ja AJAX)
     #    - Estä GET-pyynnöt kokonaan
