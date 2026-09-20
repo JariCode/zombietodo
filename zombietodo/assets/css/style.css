@@ -1,0 +1,3049 @@
+/* ================================
+   style.css — koko sovelluksen tyylitiedosto
+
+   Zombie-teema näkyy:
+   - Tummassa taustassa
+   - Punaisissa veritehosteissa
+   - Kauhuelokuvamaisessa fontissa
+
+   Osiot:
+   1. YLEISET TYYLIT     — body, container, hero, animaatiot
+   2. KIRJAUTUMISSIVU    — lomakkeet, inputit, napit, checkbox
+   3. TEHTÄVÄSIVU        — header-bar, tehtävät, toimintonapit
+   4. MUOKKAUSMODAL      — modal, footer, virheviesti
+   5. ADMIN-PANEELI     — admin.php taulukot, dropdown, modal, lokiscroll
+   6. RESPONSIIVISUUS    — mobiili media query
+   7. JUMPINGSCARY     — pieni erillinen animaatio-osio
+   8. LATAUSINDIKAATTORI — jaettu loading-overlay kaikille sivuille
+   ================================ */
+
+/* ================================
+   1. YLEISET TYYLIT
+   Kaikilla sivuilla näkyvät elementit
+   ================================ */
+
+/* Perusasetukset koko sivulle */
+body {
+    margin: 0;
+    padding: 0;
+    background: url('../img/Kansikuva.webp') center/cover no-repeat fixed;
+    font-family: 'Courier New', monospace;
+    color: #ff4444;
+    text-shadow: 2px 2px black;
+}
+
+/* Veriantimaatio valuu yläreunasta ja häviää */
+.blood {
+    width: 100%;
+    height: 150%;
+    background: url('../img/blood.webp') top center no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10;
+    animation: bloodDisappear 4s ease-out forwards;
+}
+
+@keyframes bloodDisappear {
+    0%   { opacity: 0; transform: translateY(-20px); }
+    20%  { opacity: 1; transform: translateY(0); }
+    60%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Sisältökontti on kelluva keskellä sivua */
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 40px auto;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 20px;
+    border: 3px solid #4a0000;
+    box-shadow: 0 0 25px #000;
+    position: relative;
+    z-index: 20;
+}
+
+.no-caret {
+  caret-color: transparent;
+  user-select: none;
+}
+
+form, form * {
+  caret-color: auto;
+  user-select: text;
+}
+
+
+/* Hero-kuva joka sivulla */
+.hero {
+    width: 80%;
+    height: auto;
+    margin: 0 auto 10px auto;
+    display: block;
+}
+
+/* WIP-banneri on vilkkuva teksti kirjautumissivulla */
+.wip-banner {
+    text-align: center;
+    font-family: Impact, sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: #ff3b3b;
+    margin: 5px 0 20px 0;
+    text-shadow: 2px 2px black;
+    animation: flicker 1.8s infinite;
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+
+/* Pääotsikko */
+h1 {
+    font-family: Impact, sans-serif;
+    font-size: 3rem;
+    text-align: center;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ff2222;
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+
+/* Virheilmoitus — näytetään oranssinena tekstinä */
+.auth-error {
+    color: #ff6600;
+    text-align: left;
+    margin-bottom: 15px;
+    font-size: 2rem;
+    font-weight: bold;
+    animation: errorPulse 1.8s infinite ease-in-out;
+}
+
+/* Onnistumisilmoitus — näytetään vihreänä tekstinä */
+.auth-success {
+    color: #aaffaa;
+    text-align: left;
+    margin-bottom: 15px;
+    font-size: 2rem;
+    font-weight: bold;
+    animation: successPulse 1.8s infinite ease-in-out;
+}
+
+/* Sykkivä hohde virheilmoitukselle — sama tyyli kuin bloodPulse */
+@keyframes errorPulse {
+    0%   { text-shadow: 1px 1px black, 0 0 4px #301a00; }
+    50%  { text-shadow: 1px 1px black, 0 0 15px #ff6600, 0 0 30px #ff6600, 0 0 50px #cc5500, 0 0 80px #993300; }
+    100% { text-shadow: 1px 1px black, 0 0 4px #301a00; }
+}
+
+/* Sykkivä vihreä hohde onnistumisilmoitukselle */
+@keyframes successPulse {
+    0%   { text-shadow: 1px 1px black, 0 0 2px #030; }
+    50%  { text-shadow: 1px 1px black, 0 0 10px #00ff00, 0 0 20px #00cc00; }
+    100% { text-shadow: 1px 1px black, 0 0 2px #030; }
+}
+
+/* ================================
+   2. KIRJAUTUMISSIVU
+   index.php — lomakkeet, inputit,
+   napit, checkbox, salasanasilmä
+   ================================ */
+
+/* Rekisteröityminen / Kirjautuminen otsikot */
+.auth-title {
+    color: #ff4444;
+    font-family: Impact, sans-serif;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+/* Auth-lomakelaatikko */
+.auth-box {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(20, 0, 0, 0.8);
+    border: 2px solid #660000;
+    box-shadow: 0 0 15px #000;
+}
+
+/* Lomakkeiden väliin erotin teksti */
+.auth-separator {
+    text-align: center;
+    margin: 20px 0;
+    color: #bb4444;
+    font-family: Impact, sans-serif;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+}
+
+/* Input-kentät */
+.auth-box input:not(.numInput) {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Rekisteröidy ja kirjaudu -napit */
+.auth-box button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    background: #990000;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 3px;
+    transition: 0.2s;
+}
+
+.auth-box button:hover {
+    background: #cc0000;
+}
+
+
+/* Unohtunut salasana -painikkeelle linkin tyylit ja uloasu*/
+.auth-box button.forgot-link {
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+    color: #ff6666;
+    font-size: 1rem;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    width: auto;
+}
+
+.auth-box button.forgot-link:hover {
+    color: #ff9999;
+    background: none;
+}
+
+/* Salasanan palautus -modalin lomake — samat tyylit kuin etusivun auth-box */
+#resetModal .legal-body form {
+    display: flex;
+    flex-direction: column;
+}
+
+#resetModal .legal-body label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+#resetModal .legal-body input[type="text"],
+#resetModal .legal-body input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+}
+
+/* Input labelit */
+.auth-box label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+/* Salasanan palautus — "linkki ei kelpaa" -näkymä, varoitustyyli */
+.reset-invalid {
+    text-align: center;
+    border: 2px solid #ff6600;
+    box-shadow: 0 0 14px rgba(255, 102, 0, 0.5);
+    animation: resetWarnPulse 1.8s infinite ease-in-out;
+}
+
+.reset-invalid-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 8px rgba(255, 102, 0, 0.7));
+}
+
+.reset-invalid .auth-title {
+    color: #ff6600;
+    text-shadow: 0 0 8px rgba(255, 102, 0, 0.6);
+}
+
+.reset-invalid p {
+    color: #ffccaa;
+    text-shadow: 1px 1px black;
+    line-height: 1.5;
+    margin: 8px 0;
+}
+
+.reset-back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #880000;
+    color: #fff;
+    font-family: Impact, sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.reset-back-btn:hover {
+    background: #bb0000;
+    box-shadow: 0 0 12px rgba(200, 0, 0, 0.6);
+}
+
+/* Sykkivä oranssi varoitushehku */
+@keyframes resetWarnPulse {
+    0%   { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
+    50%  { box-shadow: 0 0 18px rgba(255, 102, 0, 0.8); }
+    100% { box-shadow: 0 0 8px rgba(255, 102, 0, 0.4); }
+}
+
+
+/* Salasanakentän silmä-ikonin sijoittelu */
+.password-field {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.password-field input {
+    width: 100%;
+    padding-right: 44px;
+    margin-bottom: 0;
+}
+
+/* Silmäpainike näyttämään salasana salasanakentän sisällä */
+.password-field .password-eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    box-shadow: none;
+    outline: none;
+    appearance: none;
+}
+
+.password-field .password-eye:hover {
+    color: #ffc0c0;
+}
+
+/* Hyväksy käyttöehdot */
+.checkbox-wrapper {
+    margin: 10px 0 15px 0;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+/* Yhdistetty label + checkbox riville */
+.checkbox-wrapper label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+    line-height: 1.4;
+}
+
+/* Checkbox-tyyli */
+.checkbox-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Linkit ehtodokumentteihin */
+.checkbox-wrapper a {
+    color: #ff3b3b;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.checkbox-wrapper a:hover {
+    color: #ff6b6b;
+}
+
+/* Linkki-tyylinen nappi käyttöehdot/tietosuoja-teksteille */
+button.link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #ff8080;
+    font-weight: normal;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: inherit;
+    width: auto;
+    display: inline;
+    line-height: inherit;
+}
+
+button.link-btn:hover {
+    color: #ffaaaa;
+    background: none;
+}
+
+/*================================
+   Survivor message API:n viestien tyylit
+   ================================ */
+   /* Survivor message -laatikko */
+   .quote-box {
+    margin: 15px 0 25px 0;
+    padding: 15px;
+    background: rgba(20, 0, 0, 0.75);
+    border: 2px solid #660000;
+    text-align: center;
+    box-shadow: 0 0 15px #000;
+}
+
+/* Sitaattiotsikko */
+.quote-title {
+    font-family: Impact, sans-serif;
+    color: #ff4444;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+/* Sitaattiteksti */
+#quoteText {
+    color: #aaffaa;
+    font-size: 1.1rem;
+    font-style: italic;
+    text-shadow: 0 0 8px #00aa00;
+    animation: flicker 3s infinite;
+}
+
+/* ================================
+   3. TEHTÄVÄSIVU
+   tasks.php — header-bar, tehtävät,
+   toimintonapit, aikaleima
+   ================================ */
+
+/* Yläpalkki — tervetuloviesti ja navigointilinkit */
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 20px;
+}
+
+/* Tervetuloviesti yläpalkissa */
+.welcome-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #aaffaa;
+    animation: successPulse 1.8s infinite ease-in-out;
+}
+
+/* Navigointilinkkien ryhmä yläpalkissa */
+.header-links {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+}
+
+/* Yläpalkin linkit — profiili ja uloskirjautuminen */
+.header-link {
+    color: #ff6666;
+    text-decoration: none;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.header-link:hover {
+    color: #ff9999;
+}
+
+/* Uloskirjautumisnappi näyttää samalta kuin header-linkit */
+.header-links form button.header-link{
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.header-links button.header-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #ff6666;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    text-shadow: 2px 2px black;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.header-links button.header-link:hover {
+    color: #ff9999;
+    background: none;
+}
+
+/* Tehtävälistan wrapper */
+.todo-box {
+    margin-top: 10px;
+}
+
+/* Uuden tehtävän lisäyslomake */
+.input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Tehtävän tekstikenttä lisäyslomakkeessa */
+.input-area input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none; /* Poistetaan selaimen oletusreunus */
+    animation: bloodPulse 1.8s infinite ease-in-out; /* Sykkivä punainen hehku joka on aina päällä */
+}
+
+/* Sykkivä punainen hehku animaatio — välähtää himmeästä kirkkaaseen jatkuvasti */
+@keyframes bloodPulse {
+    0%   { box-shadow: 0 0 2px 0px #300; }    /* Himmeä hehku */
+    50%  { box-shadow: 0 0 12px 6px #c00000; } /* Kirkas punainen hehku */
+    100% { box-shadow: 0 0 2px 0px #300; }    /* Takaisin himmeään */
+}
+
+/* Lisää-nappi
+   Kiinteä leveys (box-sizing: border-box sisältää paddingin) — sama arvo kuin
+   .operation-actions:lla (✏️🗑-napit), jotta .operation-select ja tämän rivin
+   input[type="text"] jäävät yhtä leveiksi (molemmilla flex:1, joten jäljelle
+   jäävä tila jakautuu samoin kun jälkiryhmien leveys täsmää). */
+.input-area button {
+    box-sizing: border-box;
+    width: 90px;
+    padding: 10px 15px;
+    font-weight: bold;
+    background: #990000;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.input-area button:hover {
+    background: #cc0000;
+}
+
+/* Tehtäväkategorioiden otsikot */
+.section-title {
+    font-family: Impact, sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin: 15px 0 8px 0;
+    text-transform: uppercase;
+}
+
+.not-started { color: #bb3333; } /* Tummempi verenpunainen — ei aloitettu */
+.in-progress { color: #cc8833; } /* Likainen oranssi — käynnissä */
+.done-title  { color: #55aa55; } /* Zombie-vihreä — valmiit */
+
+/* Tehtävälistan wrapper */
+.task-list {
+    margin-bottom: 10px;
+}
+
+/* Piilotettu tehtävä osion "Näytä lisää" -rajauksen takia — ks. tasks.js applySectionLimit().
+   Kaksi luokkaa (.task.task-hidden) nostaa spesifisyyden yli alempana tiedostossa
+   olevan .task { display:flex }-säännön, joka muuten voittaisi saman spesifisyyden
+   (0,1,0) tapauksessa lähdejärjestyksen perusteella eikä display:none koskaan näkyisi. */
+.task.task-hidden {
+    display: none;
+}
+
+/* Osiokohtainen "Näytä lisää / vähemmän" -nappi — sama tyylikieli kuin .kooste-btn,
+   mutta hillitympi koska nappeja voi olla kolme allekkain (yksi per osio) */
+.section-toggle-btn {
+    display: block;
+    width: 100%;
+    margin: 0 0 10px 0;
+    padding: 8px;
+    background: rgba(40, 0, 0, 0.75);
+    color: #ffaaaa;
+    border: 1px solid #770000;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-shadow: none;
+}
+.section-toggle-btn:hover {
+    background: rgba(90, 0, 0, 0.85);
+    box-shadow: 0 0 10px #660000;
+    color: #ffdddd;
+}
+
+/* Yksittäinen tehtävärivi */
+.task {
+    padding: 12px;
+    background: rgba(30, 0, 0, 0.7);
+    border: 1px solid #660000;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    word-break: break-word;
+    flex-wrap: wrap;
+}
+
+/* Tehtävän tekstiosio */
+.task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+/* Tehtävän teksti */
+.task-text {
+    color: #ffdddd;
+    font-size: 1.2rem;
+    font-weight:500;
+}
+
+/* Aikaleima — lisätty, aloitettu, valmis */
+.timestamp {
+    color: #aa8888;
+    font-size: 0.9rem;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+}
+
+/* Valmis tehtävä — yliviivattu teksti */
+.task.done .task-text {
+    text-decoration: line-through;
+    color: #775555;
+}
+
+/* Toimintonapit tehtävän oikealla puolella */
+.actions {
+    display: flex;
+    align-items: center;
+    gap:0.8rem;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.actions button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Nappivärit toiminnon mukaan */
+.actions button[data-action="edit"]       { color: #ffaa33; } /* Oranssi  — muokkaa     */
+.actions button[data-action="start"]      { color: #44ff44; } /* Vihreä   — aloita      */
+.actions button[data-action="done"]       { color: #44ff44; } /* Vihreä   — valmis      */
+.actions button[data-action="undo_start"] { color: #ff4444; } /* Punainen — peru aloitus */
+.actions button[data-action="undo_done"]  { color: #ff4444; } /* Punainen — peru valmis  */
+.actions button[data-action="delete"]     { color: #d8d8d8; } /* Neutraali — poista     */
+
+/* Uusi tehtävä ilmestyy — herää eloon 🧟‍♂️ */
+@keyframes zombieSpawn {
+    0%   { opacity: 0; transform: scale(0.8); box-shadow: 0 0 30px #00ff00; background: rgba(0, 80, 0, 0.6); }
+    30%  { opacity: 1; transform: scale(1.05); box-shadow: 0 0 20px #00cc00; background: rgba(0, 50, 0, 0.5); }
+    60%  { transform: scale(0.98); box-shadow: 0 0 10px #009900; background: rgba(0, 30, 0, 0.4); }
+    100% { transform: scale(1); box-shadow: none; background: rgba(30, 0, 0, 0.7); }
+}
+
+.task.anim-zombie-spawn {
+    animation: zombieSpawn 0.7s ease-out;
+}
+
+/* Veriroiske-animaatio — kun tehtävä aloitetaan ⚔️ */
+@keyframes bloodSplash {
+    0%   { transform: translateX(0);   background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+    10%  { transform: translateX(-6px); background: rgba(180, 0, 0, 0.8); }
+    20%  { transform: translateX(6px);  background: rgba(200, 0, 0, 0.9); box-shadow: 0 0 20px #ff0000; }
+    30%  { transform: translateX(-4px); background: rgba(160, 0, 0, 0.8); box-shadow: 0 0 40px #cc0000; }
+    40%  { transform: translateX(4px);  background: rgba(120, 0, 0, 0.7); box-shadow: 0 0 30px #990000; }
+    50%  { transform: translateX(-2px); background: rgba(80, 0, 0, 0.7);  box-shadow: 0 0 20px #660000; }
+    70%  { transform: translateX(0);    background: rgba(50, 0, 0, 0.7);  box-shadow: 0 0 10px #330000; }
+    100% { transform: translateX(0);    background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+}
+
+.task.anim-blood-splash {
+    animation: bloodSplash 0.8s ease-out;
+}
+
+/* Mullan heitto -animaatio — kun tehtävä merkataan valmiiksi 🪦 */
+@keyframes graveDrop {
+    0%   { transform: translateY(0);    opacity: 1; background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+    30%  { transform: translateY(4px);  opacity: 0.9; background: rgba(40, 20, 0, 0.8); box-shadow: 0 0 15px #3d2200; }
+    60%  { transform: translateY(10px); opacity: 0.6; background: rgba(50, 30, 0, 0.8); box-shadow: 0 0 30px #2a1800; }
+    80%  { transform: translateY(16px); opacity: 0.3; background: rgba(40, 20, 0, 0.7); box-shadow: 0 0 20px #1a0f00; }
+    100% { transform: translateY(20px); opacity: 0;   background: rgba(30, 10, 0, 0.5); box-shadow: none; }
+}
+
+.task.anim-grave-drop {
+    animation: graveDrop 1s ease-in forwards;
+}
+
+/* Koko sivun veriroiske — kun tehtävä poistetaan 🗑 */
+.blood-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+}
+
+@keyframes bloodFlash {
+    0%   { opacity: 0; transform: scale(0.8); }
+    10%  { opacity: 1; transform: scale(1.1); }
+    30%  { opacity: 1; transform: scale(1); }
+    60%  { opacity: 0.7; }
+    100% { opacity: 0; }
+}
+
+.blood-overlay.active {
+    animation: bloodFlash 1.2s ease-out forwards;
+    background:
+        radial-gradient(ellipse at 50% 45%, rgba(180, 0, 0, 0.95), transparent 35%),
+        radial-gradient(ellipse at 30% 30%, rgba(150, 0, 0, 0.8), transparent 25%),
+        radial-gradient(ellipse at 75% 25%, rgba(200, 0, 0, 0.85), transparent 30%),
+        radial-gradient(ellipse at 20% 70%, rgba(130, 0, 0, 0.7), transparent 20%),
+        radial-gradient(ellipse at 80% 65%, rgba(160, 0, 0, 0.75), transparent 22%),
+        radial-gradient(ellipse at 55% 15%, rgba(170, 0, 0, 0.8), transparent 28%),
+        radial-gradient(ellipse at 10% 50%, rgba(140, 0, 0, 0.6), transparent 18%),
+        radial-gradient(ellipse at 90% 40%, rgba(160, 0, 0, 0.65), transparent 20%),
+        radial-gradient(circle at 40% 20%, rgba(220, 0, 0, 0.9), transparent 10%),
+        radial-gradient(circle at 65% 75%, rgba(200, 0, 0, 0.8), transparent 8%),
+        radial-gradient(circle at 15% 85%, rgba(180, 0, 0, 0.7), transparent 7%),
+        radial-gradient(circle at 85% 15%, rgba(190, 0, 0, 0.75), transparent 9%),
+        rgba(80, 0, 0, 0.4);
+}
+
+/* Haudasta nouseminen -animaatio — kun perutaan aloitus tai valmistuminen ☠️ */
+@keyframes zombieRise {
+    0%   { transform: translateY(20px); opacity: 0; background: rgba(30, 10, 0, 0.5); }
+    20%  { transform: translateY(10px); opacity: 0.4; background: rgba(40, 20, 0, 0.7); box-shadow: 0 0 20px #2a1800; }
+    40%  { transform: translateY(-4px); opacity: 0.7; background: rgba(50, 15, 0, 0.7); box-shadow: 0 0 15px #3d2200; }
+    55%  { transform: translateY(3px);  opacity: 0.85; }
+    70%  { transform: translateY(-2px); opacity: 0.95; background: rgba(35, 5, 0, 0.7); box-shadow: 0 0 8px #1a0f00; }
+    85%  { transform: translateY(1px);  opacity: 1; }
+    100% { transform: translateY(0);    opacity: 1; background: rgba(30, 0, 0, 0.7); box-shadow: none; }
+}
+
+.task.anim-zombie-rise {
+    animation: zombieRise 0.9s ease-out;
+}
+
+/* ================================
+   4. MUOKKAUSMODAL
+   tasks.php — avautuu ✏️-napista
+   ================================ */
+/* Estetään taustasivun skrollaus modalin ollessa auki */
+.modal.no-scroll {
+    overflow: hidden;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/*Modal-yläosa joka peittää koko näytön ja sisältää modal-ikkunan keskellä */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.modal-overlay.open {
+    display: flex;
+    animation: modalFadeIn 0.2s ease-out;
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+}
+.modal {
+    background: rgba(10, 0, 0, 0.97);
+    border: 2px solid #880000;
+    box-shadow: 0 0 40px #660000, 0 0 80px rgba(100,0,0,0.3);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.25s ease-out;
+}
+@keyframes modalSlideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+}
+/* Modalin header*/
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 12px 20px;
+    border-bottom: 1px solid #550000;
+}
+.modal-header h2 {
+    font-family: Impact, sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    color: #ff2222;
+    text-shadow: 2px 2px black;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* Sulje-nappi modalin headerissä */
+.modal-close {
+    background: none;
+    border: none;
+    color: #aa3333;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    width: auto;
+}
+.modal-close:hover { color: #ff4444; background: none; }
+.modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Modal-kenttien labelit ja inputit */
+.modal-body label {
+    display: block;
+    color: #ffbbbb;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px black;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.modal-body input[type="text"],
+.modal-body textarea,
+.modal-body input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0d0000;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+.modal-body input[type="text"]:focus,
+.modal-body textarea:focus,
+.modal-body input[type="datetime-local"]:focus {
+    outline: none;
+    border-color: #cc0000;
+    box-shadow: 0 0 8px rgba(180,0,0,0.4);
+}
+
+/* Tekstialueen minimikorkeus ja pystysuunnan skaalautuvuus */
+.modal-body textarea { resize: vertical; min-height: 80px; }
+.modal-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Modal-footer jossa tallennus- ja peruutusnapit */
+.modal-footer {
+    padding: 14px 20px 20px 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    border-top: 1px solid #330000;
+}
+
+/* Tallennusnappi ja peruutusnappi modal-footerissa */
+.modal-footer .btn-save {
+    background: #880000;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: auto;
+}
+.modal-footer .btn-save:hover { background: #bb0000; box-shadow: 0 0 12px rgba(200,0,0,0.5); }
+.modal-footer .btn-cancel {
+    background: transparent;
+    color: #aa5555;
+    border: 1px solid #550000;
+    padding: 10px 18px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: auto;
+}
+
+/* Peruutusnappi hover-efekti ja virheilmoitus */
+.modal-footer .btn-cancel:hover {
+    color: #ff6666;
+    border-color: #880000;
+    background: transparent;
+}
+
+.modal-error {
+    color: #ff4444;
+    font-size: 1.4rem;
+    text-align: center;
+    min-height: 18px;
+    font-weight: bold;
+    animation: errorPulse 1.8s infinite ease-in-out;
+}
+
+
+/*Käyttöehdot ja Tietosuojaseloste index.php — avautuvat checkbox-linkeistä*/
+
+/* Legal-modal yläosa joka peittää koko näytön */
+.legal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.legal-overlay.open {
+    display: flex;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+/* Legal-modal-ikkuna */
+.legal-modal {
+    background: rgba(10, 0, 0, 0.97);
+    border: 2px solid #880000;
+    box-shadow: 0 0 40px #660000, 0 0 80px rgba(100,0,0,0.3);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideIn 0.25s ease-out;
+}
+
+/* Legal-modal header */
+.legal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 12px 20px;
+    border-bottom: 1px solid #550000;
+    flex-shrink: 0;
+}
+
+.legal-header h2 {
+    font-family: Impact, sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    color: #ff2222;
+    text-shadow: 2px 2px black;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* Sulje-nappi legal-headerin oikeassa reunassa */
+.legal-close {
+    background: none;
+    border: none;
+    color: #aa3333;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    width: auto;
+}
+
+.legal-close:hover {
+    color: #ff4444;
+    background: none;
+}
+
+/* Legal-modal sisältö — scrollattava */
+.legal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Osio-otsikot — punaiset */
+.legal-body h3 {
+    font-family: Impact, sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: #ff4444;
+    text-shadow: 1px 1px black;
+    margin: 20px 0 8px 0;
+    text-transform: uppercase;
+}
+
+/* Ensimmäinen h3 ei saa ylämarginaalia */
+.legal-body h3:first-child {
+    margin-top: 0;
+}
+
+/* Sisältöteksti */
+.legal-body p {
+    color: #ccaaaa;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 10px 0;
+    text-shadow: 1px 1px black;
+}
+
+/* Linkit tietosuojaselosteessa */
+.legal-body a {
+    color: #ff8080;
+    text-decoration: underline;
+}
+
+.legal-body a:hover {
+    color: #ffaaaa;
+}
+
+/* Legal-modal footer — SULJE 🔒 nappi */
+.legal-footer {
+    padding: 14px 20px 20px 20px;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #330000;
+    flex-shrink: 0;
+}
+
+.legal-close-btn {
+    background: #880000;
+    color: #fff;
+    border: none;
+    padding: 10px 32px;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: auto;
+}
+
+.legal-close-btn:hover {
+    background: #bb0000;
+    box-shadow: 0 0 12px rgba(200,0,0,0.5);
+}
+
+/* ================================
+    FLATPICKR — ZOMBIETEEMAN KORJAUKSET
+    ================================ */
+
+/* Päivämäärävalitsimen tyyli */
+.flatpickr-calendar {
+    background: #0d0000 !important;
+    border: 1px solid #880000 !important;
+    box-shadow: 0 0 20px rgba(136,0,0,0.7) !important;
+    color: #ffdddd !important;
+    font-family: 'Courier New', monospace !important;
+}
+
+/* Otsikko ja kuukauden valinta */
+.flatpickr-months {
+    background: #1a0000 !important;
+    border-bottom: 1px solid #550000 !important;
+}
+
+/* Kuukauden ja vuoden teksti */
+.flatpickr-current-month {
+    color: #ff4444 !important;
+    font-family: Impact, sans-serif !important;
+    letter-spacing: 2px !important;
+}
+
+/* Edellinen ja seuraava kuukausi */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    color: #ff4444 !important;
+    fill: #ff4444 !important;
+}
+
+/* Viikonpäivät */
+.flatpickr-weekday {
+    color: #aa4444 !important;
+    font-weight: bold !important;
+}
+
+/* Päivät */
+.flatpickr-day {
+    color: #ffbbbb !important;
+}
+
+/* Hover-efekti päiville */
+.flatpickr-day:hover {
+    background: #330000 !important;
+    color: #ff4444 !important;
+}
+
+/* Valittu päivä */
+.flatpickr-day.selected {
+    background: #880000 !important;
+    color: #fff !important;
+}
+
+/* Tämä päivä */
+.flatpickr-day.today {
+    background: #880000 !important;
+    color: #fff !important;
+}
+
+/* Aika */
+.flatpickr-time {
+    background: #110000 !important;
+    border-top: 1px solid #550000 !important;
+}
+
+/* Aikavalitsimen inputit */
+.flatpickr-time input {
+    color: #ff4444 !important;
+    background: transparent !important;
+}
+
+/* Syötekenttä */
+.flatpickr-input.flatpickr-alt-input {
+    background: #1a0000 !important;
+    color: #ffcccc !important;
+    border: 1px solid #660000 !important;
+}
+
+/* Kuukausivalitsin — dropdown */
+.flatpickr-monthDropdown-months {
+    background: #0d0000 !important;
+    color: #ff4444 !important;
+}
+
+/* Kuukausivalitsimen yksittäiset kuukaudet */
+.flatpickr-monthDropdown-months option {
+    background: #0d0000 !important;
+    color: #ff4444 !important;
+}
+
+/* Valittu kuukausi dropdownissa */
+.flatpickr-monthDropdown-months option:checked {
+    background: #880000 !important;
+    color: #fff !important;
+}
+
+/* ================================
+   5. ADMIN-PANEELI
+   admin.php — vain tyylit joita ei
+   löydy muualta sovelluksesta.
+
+   Nämä tyylit perii muualta:
+   - .auth-box       → laatikon pohja
+   - .auth-box input → syöttökentät
+   - .auth-box button → HAE-nappi
+   - .auth-box label → kenttien otsikot
+   - .auth-title     → osio-otsikot
+   - .modal-*        → muokkausmodal
+   ================================ */
+h1.admin-title {
+    color: #d8b36a;
+    text-shadow:
+        0 0 10px rgba(216,179,106,0.8),
+        0 0 20px rgba(216,179,106,0.6),
+        0 0 40px rgba(122,90,30,0.8);
+}
+
+.admin-page .auth-box input:not([type="hidden"]):not(.numInput) {
+    flex: 1;
+    padding: 10px;
+    background: #111;
+    border: 2px solid #660000;
+    color: #ffdddd;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none; /* Poistetaan selaimen oletusreunus */
+    animation: bloodPulse 1.8s infinite ease-in-out; /* Sykkivä punainen hehku joka on aina päällä */
+}
+
+.admin-select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background-color: #f5f5f5;
+    border: 2px solid #660000;
+    color: #222;
+    font-size: 1rem;
+    font-family: 'Courier New', monospace;
+    border-radius: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+    appearance: none;
+    /* Nuoli-ikoni */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23660000' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+/* Taulukon otsikkorivi — punainen teksti, tumma tausta */
+.admin-table thead th {
+    color: #ff4444;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-align: left;
+    padding: 10px 8px;
+    border: 1px solid #660000;
+    background: rgba(40, 0, 0, 0.6);
+    text-shadow: 1px 1px black;
+}
+
+/* Taulukon solut */
+.admin-table tbody td {
+    padding: 10px 8px;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    vertical-align: middle;
+    word-break: break-word;
+}
+
+/* Parilliset rivit hieman vaaleammat — helpompi lukea */
+.admin-table tbody tr:nth-child(even) {
+    background: rgba(80, 10, 10, 0.4);
+}
+
+/* Roolin värikoodaus taulukossa */
+.admin-table tbody td.role-admin {
+    color: #ff4444;
+    font-weight: 700;
+    animation: roleGlowAdmin 1.8s infinite ease-in-out;
+} /* Kirkas teemapunainen adminille */
+.admin-table tbody td.role-user {
+    color: #7fbf7f;
+    animation: roleGlowUser 1.8s infinite ease-in-out;
+} /* Himmennetty vihreä käyttäjälle */
+
+/* Kevyempi hehku käyttäjälistan rooleille taulukossa */
+@keyframes roleGlowAdmin {
+    0%, 100% {
+        text-shadow: 1px 1px black, 0 0 4px rgba(255, 68, 68, 0.45), 0 0 10px rgba(204, 85, 0, 0.25);
+        filter: drop-shadow(0 0 2px rgba(255, 68, 68, 0.25));
+    }
+    50% {
+        text-shadow: 1px 1px black, 0 0 10px rgba(255, 68, 68, 0.95), 0 0 20px rgba(204, 85, 0, 0.75), 0 0 32px rgba(255, 68, 68, 0.35);
+        filter: drop-shadow(0 0 8px rgba(255, 68, 68, 0.8));
+    }
+}
+
+@keyframes roleGlowUser {
+    0%, 100% {
+        text-shadow: 1px 1px black, 0 0 4px rgba(127, 191, 127, 0.35), 0 0 10px rgba(0, 204, 0, 0.18);
+        filter: drop-shadow(0 0 2px rgba(127, 191, 127, 0.2));
+    }
+    50% {
+        text-shadow: 1px 1px black, 0 0 10px rgba(127, 191, 127, 0.8), 0 0 20px rgba(0, 204, 0, 0.55), 0 0 32px rgba(127, 191, 127, 0.25);
+        filter: drop-shadow(0 0 8px rgba(127, 191, 127, 0.7));
+    }
+}
+
+/* Tyhjä taulukko — kursivoitu viesti keskellä */
+.admin-empty {
+    text-align: center;
+    color: #aa6666;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* HALLINTA-nappi — pieni inline-nappi taulukon solussa*/
+.auth-box .admin-btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    padding: 8px 10px;
+    border: none;
+    font-family: Impact, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #990000;
+    color: #fff;
+}
+
+/* Kaksi päivämääräkenttää vierekkäin — grid-asettelu */
+.admin-date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* Flatpickr päivämääräkentät täyttävät kummankin sarakkeen kokonaan */
+.admin-date-row .flatpickr-wrapper {
+    width: 100%;
+}
+
+/* Päivämääräkenttien otsikko — punainen ja lihavoitu, eroaa auth-box labelin väristä */
+.admin-date-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ff4444;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-shadow: 1px 1px black;
+}
+
+/* Osion erotin modalin sisällä — viiva salasanan palautuksen ja tilin poiston välissä */
+.admin-modal-section {
+    margin-top: 8px;
+    padding-top: 4px;
+    border-top: 1px solid #550000;
+}
+
+/* Osion otsikko modalin sisällä — esim. "Unohtunut salasana" ja "Tilin poistaminen" */
+.admin-section-title {
+    font-family: Impact, sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: #ff4444;
+    text-shadow: 1px 1px black;
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+}
+
+/* Varoitusteksti ennen tilin poistoa — oranssi erottuu muusta tekstistä */
+.admin-delete-warning {
+    color: #ff8844;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 5px 0 0 0;
+    text-shadow: 1px 1px black;
+}
+
+/* Vahvistusnappi tilin poiston yhteydessä — kirkas punainen, erottuu muista napeista */
+.admin-btn-danger {
+    background: #aa0000;
+}
+
+.admin-btn-danger:hover {
+    background: #dd0000;
+    box-shadow: 0 0 15px rgba(220, 0, 0, 0.6);
+}
+
+/* Vahvistusnapit — tumma pohja, hehkuva punainen reunus ja teksti, nopea syke. Sama kaikissa kolmessa. */
+#adminModal .btn-save#roleConfirm,
+#adminModal .btn-save#lockConfirm,
+#adminModal .btn-save.admin-btn-danger#deleteConfirm {
+    background: #1a0000;
+    color: #ff2a2a;
+    border: 2px solid #ff0000;
+    text-shadow: 0 0 8px rgba(255, 40, 40, 1);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.6), inset 0 0 8px rgba(255, 0, 0, 0.25);
+    animation: confirmPulse 0.9s infinite ease-in-out;
+}
+
+#adminModal .btn-save#roleConfirm:hover,
+#adminModal .btn-save#lockConfirm:hover,
+#adminModal .btn-save.admin-btn-danger#deleteConfirm:hover {
+    background: #ff0000;
+    color: #1a0000;
+    text-shadow: none;
+    box-shadow: 0 0 24px rgba(255, 30, 30, 1);
+}
+
+#adminModal .admin-lock-status {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    color: #ff8888;
+    text-shadow: 1px 1px black;
+}
+
+/* Lukittu tila — punainen hehkuva teksti erottumaan auki-tilasta */
+#adminModal .admin-lock-status.is-locked {
+    color: #ff4444;
+    text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+    font-weight: bold;
+}
+
+/* Sykkivä punainen hehku vahvistusnapeille */
+@keyframes confirmPulse {
+    0%   { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }
+    50%  { box-shadow: 0 0 24px 8px rgba(255, 30, 30, 0.95), inset 0 0 14px rgba(255, 0, 0, 0.45); }
+    100% { box-shadow: 0 0 8px 1px rgba(255, 0, 0, 0.5), inset 0 0 6px rgba(255, 0, 0, 0.2); }
+}
+
+/* Admin-modalin sisäiset footerit — ei yläviivaa, tiivistetty ilman sivupaddingia */
+#adminModal .modal-footer {
+    padding: 5px 0 0 0;
+    border-top: none;
+}
+
+/* Piilotettu elementti — käytetään inline-tyylien sijaan CSP-yhteensopivuuden vuoksi */
+#adminModal .hidden {
+    display: none;
+}
+
+/* Readonly-kentät modalissa — hieman himmennetty erottamaan muokattavista */
+#adminModal .modal-body input[readonly] {
+    opacity: 0.8;
+    cursor: default;
+}
+
+#adminModal .modal-body {
+    padding-top: 0; /* siirretään sisältöä ylöspäin, jotta käyttäjänimi ei työntyisi alas */
+    gap: 3px;
+}
+
+/* Admin-modalin email-kentät — sama tyyli kuin text-kentillä */
+#adminModal .modal-body input[type="email"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: #0d0000;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+
+#adminModal .modal-body input[type="email"]:focus {
+    outline: none;
+    border-color: #cc0000;
+    box-shadow: 0 0 8px rgba(180,0,0,0.4);
+}
+
+/*Admin modalin input-kentille marginaalia alapuolelle, jotta kentät eivät ole liian lähellä toisiaan */
+#adminModal .modal-body input[type="text"],
+#adminModal .modal-body input[type="email"] {
+    margin-bottom: 8px;
+}
+
+/* Admin-modalin käyttäjätiedot — sama vihreä tyyli kuin tervetuloviestissä */
+#adminModal .admin-modal-user {
+    color: #aaffaa;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 0;
+    margin: 0 0 8px 0; /* ylämarginaali nollattu — käyttäjänimi nousee lähemmäs otsikkoa */
+    text-shadow: 1px 1px black;
+}
+
+/* Admin-modalin label-tekstit — sama punainen tyyli kuin taulukon otsikoissa */
+#adminModal .modal-body label {
+    display: block;
+    margin-bottom: 3px;
+    color: #ffbbbb;
+    font-size: 1rem;
+    text-shadow: 1px 1px black;
+}
+
+#adminModal .modal-error {
+    font-size: 1.2rem;
+    text-align: left;
+    margin-bottom: 10px;
+    color: #ff6600;
+}
+
+/* Onnistumisviesti modalissa — vihreä, peruu punaisen modal-error-värin */
+#adminModal .modal-error.is-success {
+    color: #aaffaa;
+    animation: successPulse 1.8s infinite ease-in-out;
+}
+
+/* Käyttäjätaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
+.admin-user-scroll {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-top: 12px;
+    border: 1px solid #440000;
+}
+
+/* Otsikkorivi pysyy paikallaan kun taulukkoa skrollataan käyttäjälistassa */
+.admin-user-scroll .admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Käyttäjätaulukko täyttää koko alueen kuten lokitaulukko */
+.admin-user-scroll table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Lokitaulukon scrollaava alue — kiinteä korkeus, skrollataan pystysuunnassa */
+.admin-log-scroll {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-top: 12px;
+    border: 1px solid #440000;
+}
+
+/* Otsikkorivi pysyy paikallaan kun taulukkoa skrollataan */
+.admin-log-scroll .admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Taulukko täyttää koko scrollattavan alueen leveydeltään */
+.admin-log-scroll table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* =========================================
+   TEEMOITETTU SCROLLBAR — kaikki loput scrollaavat alueet (admin-taulukot,
+   muokkausmodal, legal-modal). Sama tumma verenpunainen tyyli kuin koostemodalin
+   .modal-wide .modal-body:llä ja aikajanan .timeline-scroll:lla — nekin ovat jo
+   valmiiksi teemoitettuja omilla säännöillään, ei toistettu tähän.
+========================================= */
+.modal,
+.legal-body,
+.admin-user-scroll,
+.admin-log-scroll {
+    /* Firefox: ohut teemaan sopiva scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #990000 rgba(0, 0, 0, 0.5);
+}
+/* Webkit (Chrome, Edge, Safari): tumma verenpunainen pystyscrollbar */
+.modal::-webkit-scrollbar,
+.legal-body::-webkit-scrollbar,
+.admin-user-scroll::-webkit-scrollbar,
+.admin-log-scroll::-webkit-scrollbar {
+    width: 12px;
+}
+.modal::-webkit-scrollbar-track,
+.legal-body::-webkit-scrollbar-track,
+.admin-user-scroll::-webkit-scrollbar-track,
+.admin-log-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #440000;
+}
+.modal::-webkit-scrollbar-thumb,
+.legal-body::-webkit-scrollbar-thumb,
+.admin-user-scroll::-webkit-scrollbar-thumb,
+.admin-log-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #990000, #660000);
+    border: 1px solid #440000;
+}
+.modal::-webkit-scrollbar-thumb:hover,
+.legal-body::-webkit-scrollbar-thumb:hover,
+.admin-user-scroll::-webkit-scrollbar-thumb:hover,
+.admin-log-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #cc0000, #880000);
+}
+
+/* =========================================
+   ADMIN INTRO — admin.php avattaessa, punainen varoitus ja "LOADING..." teksti
+========================================= */
+/* Koko näytön peittävä admin-intro ennen admin-paneelin näkyviin tulemista */
+.admin-intro {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 99999;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    animation: introFadeOut 1.2s ease forwards;
+    animation-delay: 3.2s;
+}
+
+/* CRT-/monitorityylinen rasteri- ja scanline-efekti */
+.admin-intro-overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(0,255,0,0.05) 0px,
+            rgba(0,255,0,0.05) 2px,
+            transparent 2px,
+            transparent 4px
+        );
+
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* Keskitetty sisältöalue jossa näkyvät otsikot ja status-tekstit */
+.admin-intro-content {
+    position: relative;
+    text-align: center;
+    z-index: 2;
+
+    animation: glitch 0.15s infinite;
+}
+
+/* Punainen varoitusteksti admin-introssa */
+.admin-warning {
+    color: #ff2a2a;
+    font-size: 2rem;
+    letter-spacing: 4px;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px red;
+}
+
+/* Pääotsikko jossa näkyy ZOMBIE MASTER glow-efektillä */
+.admin-loading {
+    color: #d8b36a;
+    font-size: 6rem;
+    margin: 0;
+    letter-spacing: 6px;
+
+    text-shadow:
+        0 0 10px rgba(216,179,106,0.8),
+        0 0 20px rgba(216,179,106,0.6),
+        0 0 40px rgba(122,90,30,0.8);
+}
+
+/* Alempi loading-/status-teksti admin-introssa */
+.admin-status {
+    margin-top: 1.5rem;
+    color: #ccc;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+/* Glitch-animaatio joka liikuttaa sisältöä nopeasti eri suuntiin */
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+    100% { transform: translate(0); }
+}
+
+/* Häivyttää admin-intron pois näkyvistä animaation lopuksi */
+@keyframes introFadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+
+/* ================================
+   6. RESPONSIIVISUUS
+   Mukautuu eri näyttökokoihin.
+   Tavoitteena toimia sekä
+   tietokoneella että mobiilissa.
+   ================================ */
+
+/* Puhelin */
+@media (max-width: 640px) {
+    /* Sisältökontti keskellä ja kapeampana mobiilissa */
+    .container {
+        margin: 10px auto;
+        width: 90%;
+        box-sizing: border-box;
+        border-left: none;
+        border-right: none;
+    }
+
+    /* Wip-banner teksti pienemmäksi mobiilissa */
+    .wip-banner {
+        font-size: 0.9rem;
+    }
+
+    /* Pääotsikko pienemmäksi mobiilissa */
+    h1 {
+        font-size: 2rem;
+    }
+
+    /* Tervetuloviesti pienemmäksi mobiilissa */
+    .welcome-text {
+        font-size: 1rem;
+    }
+
+    /* Auth-lomakkeiden tekstit ja inputit pienemmiksi mobiilissa */
+    .auth-box label {
+        font-size: 0.9rem;
+    }
+
+    .auth-box input {
+        font-size: 0.9rem;
+    }
+
+    .auth-box button {
+        font-size: 0.9rem;
+    }
+
+    .auth-title {
+        font-size: 1.2rem;
+    }
+
+    .auth-separator {
+        font-size: 1rem;
+    }
+
+    .auth-error,
+    .auth-success {
+        font-size: 1rem;
+    }
+
+    /* Unohtunut salasana -linkki pienemmäksi mobiilissa */
+    .auth-box button.forgot-link {
+        font-size: 0.9rem;
+    }
+
+    /* Checkbox-tekstin pienentäminen ja rivittäminen mobiilissa */
+    .checkbox-wrapper label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        flex-wrap: wrap;
+    }
+
+    /* Päivämääräkentät allekkain mobiilissa */
+    .modal-field-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tehtävän lisäyslomake allekkain mobiilissa */
+    .input-area {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-area input[type="text"],
+    .input-area button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input-area input[type="text"]::placeholder {
+        font-size: 0.6rem;
+    }
+
+    /* Yläpalkki allekkain mobiilissa */
+    .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* Operaatiovalitsin kapeammaksi mobiilissa — napit pysyvät vierekkäin valikon kanssa */
+    .operation-bar {
+        flex-wrap: wrap;
+    }
+    .operation-select {
+        flex-basis: 100%;
+    }
+    /* Työpöydän kiinteä 90px (linjaa valitsimen tehtäväkentän kanssa, ks. .input-area button)
+       on mobiilissa turhan leveä pelkälle ikoniparille — kutistetaan sisältöön, jotta
+       .operation-select saa enemmän flex-tilaa eikä nappien eteen jää tyhjää väliä. */
+    .operation-actions {
+        width: auto;
+    }
+
+    /* Navigointilinkit vasemmalle mobiilissa */
+    .header-links {
+        align-items: flex-start;
+    }
+
+    /*Aikaleiman pienentäminen mobiilissa */
+    .timestamp {
+        font-size: 0.8rem;
+    }
+    /*Moduulin virheilmoitukset pienemmiksi mobiilissa */
+    .modal-error {
+        font-size: 0.85rem;
+    }
+
+    /* Admin-taulukon otsikot pienemmiksi mobiilissa */
+    .admin-table thead th {
+        font-size: 0.6rem;
+        padding: 4px 2px;
+        letter-spacing: 0;
+    }
+
+    /* Admin-taulukon solut pienemmiksi mobiilissa */
+    .admin-table tbody td {
+        padding: 4px 2px;
+        font-size: 0.7rem;
+    }
+
+    /* HALLINTA-nappi pienemmäksi mobiilissa */
+    .auth-box .admin-btn-edit {
+        font-size: 0.5rem;
+        padding: 12px 1px;
+        gap: 0.1px;
+        letter-spacing: 1px;
+    }
+
+    /* Päivämääräkentät allekkain mobiilissa */
+    .admin-date-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Alasvetovalikko pienemmäksi mobiilissa */
+    .admin-select {
+        font-size: 0.9rem;
+    }
+
+    /* Varoitusteksti hieman pienemmäksi */
+    .admin-warning {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+    }
+
+    /* ZOMBIE MASTER -otsikko pienemmäksi jotta mahtuu mobiiliin */
+    .admin-loading {
+        font-size: 3rem;
+        letter-spacing: 3px;
+    }
+
+    /* Alempi status-teksti hieman pienemmäksi */
+    .admin-status {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    /*Admin-paneelin syöttökentät pienemmiksi mobiilissa */
+    .admin-page .auth-box input:not([type="hidden"]) {
+        font-size: 0.8rem;
+    }
+
+    /*Addmin-paneelin syöttökenttien placeholderin fontti pienemmäksi mobiilissa */
+    .admin-page .auth-box input:not([type="hidden"])::placeholder {
+        font-size: 0.8rem;
+    }
+
+    /* Admin-modalin otsikko pienemmäksi mobiilissa */
+    #adminModalTitle {
+        font-size: 1.2rem;
+    }
+   
+    /*Toimintolinkit allekkain mobiilissa */
+    .actions {
+        flex-direction: column;
+    }
+
+    /*WIP-bannerin teksti pienemmäksi mobiilissa */
+    .wip-banner {
+        font-size: 0.75rem;
+    }
+
+    /* Navigointilinkit pienemmiksi mobiilissa */
+    .header-link {
+        font-size: 1rem;
+    }
+
+    /*Uloskirjaumispainike pienemmäksi mobiilissa */
+    .header-links form button.header-link {
+        font-size: 1rem;
+    }
+
+    /* Jumpscare-kasvojen skaalautuminen pienemmäksi mobiilissa */
+     :root {
+        --zombie-scale: 0.65;
+    }
+}
+
+
+/* ==========================================================
+   7. JUMPSCARE ANIMAATIO TASKS.PHP:SSA
+   Vain jumpscare-efektin tyylit, jotka luovat kirkkaan välähdyksen, uhkaavat zombikasvot ja glitch-efektin.
+========================================================== */
+.zombie-wrapper {
+    transform: scale(var(--zombie-scale, 1));
+    transform-origin: center;
+}
+
+#jumpScare {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        radial-gradient(circle at center,
+        rgba(120,0,0,0.92) 0%,
+        rgba(20,0,0,0.98) 100%);
+
+    z-index: 999999;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+/* Jumpscare-efektin animaatiot — kirkas välähdys, kasvojen zoom ja glitch-efekti */
+#jumpScare.active {
+    animation: scareFlash 2.5s forwards;
+}
+
+#jumpScare.active .zombie-face {
+    animation:
+        faceZoom 2.5s ease-out forwards,
+        faceGlitch 0.06s infinite,
+        faceRotate 0.3s infinite;
+}
+
+/* Zombikasvojen tyyli — pyöreä ja epäsymmetrinen muoto, tummat värit ja syvät varjot */
+.zombie-face {
+    position: relative;
+
+    width: 650px;
+    height: 820px;
+
+    border-radius:
+        46% 54%
+        42% 58%
+        / 44% 42%
+        58% 56%;
+
+  background:
+    radial-gradient(circle at 50% 25%,
+    #d7c2b1 0%,
+    #a48b78 20%,
+    #6b584b 42%,
+    #1d1715 100%);
+
+    box-shadow:
+        inset -40px -60px 120px rgba(0,0,0,0.95),
+        inset 30px 20px 60px rgba(255,255,255,0.04),
+        inset 0 0 120px rgba(120,0,0,0.45),
+        0 0 80px rgba(255,0,0,0.75),
+        0 0 240px rgba(80,0,0,0.95);
+
+    filter:
+        contrast(1.6)
+        brightness(0.7)
+        saturate(1.2);
+
+    overflow: hidden;
+}
+
+/* Kasvojen veriset läiskät, repeämät ja kiillot — luo rosoista ja uhkaavaa ilmettä */
+.zombie-face::before {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+
+        /* VERILÄISKÄT */
+        radial-gradient(circle at 35% 30%,
+        rgba(130,0,0,0.55) 0%,
+        transparent 18%),
+
+        radial-gradient(circle at 70% 55%,
+        rgba(90,0,0,0.65) 0%,
+        transparent 22%),
+
+        radial-gradient(circle at 52% 78%,
+        rgba(120,0,0,0.4) 0%,
+        transparent 26%),
+
+        /* REPEÄMÄT */
+        linear-gradient(
+        120deg,
+        transparent 22%,
+        rgba(0,0,0,0.95) 24%,
+        rgba(120,0,0,0.8) 26%,
+        transparent 29%),
+
+        linear-gradient(
+        -35deg,
+        transparent 48%,
+        rgba(0,0,0,0.88) 50%,
+        rgba(90,0,0,0.7) 52%,
+        transparent 55%),
+
+        /* KIILLOT */
+        radial-gradient(circle at 30% 20%,
+        rgba(255,255,255,0.09),
+        transparent 18%),
+
+        radial-gradient(circle at 70% 40%,
+        rgba(255,0,0,0.18),
+        transparent 24%),
+
+        linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(0,0,0,0.55) 20%,
+        transparent 40%);
+
+    opacity: 0.92;
+
+    mix-blend-mode: screen;
+}
+
+/* Kasvojen varjot ja tummat läiskät — luo syvyyttä ja uhkaavaa tunnelmaa */
+.zombie-face::after {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+        110deg,
+        transparent 18%,
+        rgba(0,0,0,0.9) 20%,
+        transparent 22%),
+
+        linear-gradient(
+        -20deg,
+        transparent 40%,
+        rgba(120,0,0,0.6) 43%,
+        transparent 47%),
+
+        linear-gradient(
+        70deg,
+        transparent 65%,
+        rgba(0,0,0,0.8) 68%,
+        transparent 71%);
+
+    opacity: 0.85;
+}
+
+
+/*Silmät*/
+.eye {
+    position: absolute;
+
+    width: 120px;
+    height: 140px;
+
+    top: 180px;
+
+    border-radius:
+        50% 48%
+        44% 56%
+        / 48% 40%
+        60% 52%;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 50% 50%,
+        #ff0000 0%,
+        #9b0000 18%,
+        #300000 45%,
+        #000 100%);
+
+    box-shadow:
+        0 0 40px rgba(255,0,0,0.9),
+        0 0 120px rgba(255,0,0,0.8);
+
+    animation:
+        eyeFlicker 0.08s infinite,
+        eyePulse 0.4s infinite;
+}
+
+/*Vasen silmä — hieman eri kulmassa ja skaalattuna kuin oikea, luo epäsymmetriaa ja uhkaavaa ilmettä*/
+.eye.left {
+    left: 75px;
+
+    transform:
+        rotate(-16deg)
+        scaleY(1.1);
+}
+
+/*Oikea silmä — hieman eri kulmassa ja skaalattuna kuin vasen, luo epäsymmetriaa ja uhkaavaa ilmettä*/
+.eye.right {
+    right: 60px;
+
+    transform:
+        rotate(12deg)
+        scaleY(0.9);
+}
+
+/* Verinen hohto silmissä — luo uhkaavaa ja elävää vaikutelmaa, ikään kuin silmät hehkuisivat sisältäpäin */
+.eye::before {
+    content: '';
+
+    position: absolute;
+
+    width: 170%;
+    height: 3px;
+
+    background: rgba(255,255,255,0.9);
+
+    top: 45%;
+    left: -25%;
+
+    transform: rotate(-20deg);
+
+    opacity: 0.7;
+
+    filter: blur(1px);
+}
+
+/* Kirkas valopiste silmissä — luo elävän ja uhkaavan vaikutelman, ikään kuin silmät hehkuisivat sisältäpäin */
+.eye::after {
+    content: '';
+
+    position: absolute;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    top: 28px;
+    left: 30px;
+
+    box-shadow:
+        0 0 12px white,
+        0 0 24px rgba(255,255,255,0.8);
+}
+
+/*Suu*/
+.mouth {
+    position: absolute;
+
+    width: 240px;
+    height: 170px;
+
+    left: 50%;
+    bottom: 80px;
+
+    transform:
+        translateX(-50%)
+        rotate(-3deg);
+
+    border-radius:
+        25% 25%
+        60% 60%
+        / 18% 18%
+        82% 82%;
+
+    background:
+        radial-gradient(circle at 50% 10%,
+        #600 0%,
+        #220000 30%,
+        #050000 100%);
+
+    box-shadow:
+        inset 0 -35px 60px rgba(0,0,0,0.95),
+        inset 0 20px 30px rgba(255,0,0,0.15),
+        0 0 50px rgba(255,0,0,0.5);
+}
+
+/*Hampaat*/
+.mouth::before {
+    content: '';
+
+    position: absolute;
+
+    width: 100%;
+    height: 28px;
+
+    top: 0;
+
+    background:
+        repeating-linear-gradient(
+        to right,
+        #ddd 0px,
+        #ddd 12px,
+        #111 14px,
+        #111 18px);
+
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        95% 100%,
+        90% 0,
+        80% 100%,
+        70% 0,
+        60% 100%,
+        50% 0,
+        40% 100%,
+        30% 0,
+        20% 100%,
+        10% 0,
+        5% 100%);
+
+    opacity: 0.9;
+}
+
+/*Animaatio millä koko jumpscare-efekti tapahtuu — kirkas välähdys, kasvojen zoom ja glitch-efekti*/
+@keyframes scareFlash {
+
+    0% {
+        opacity: 0;
+    }
+
+    6% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/*Zoom-efekti kasvoille — alkaa pienestä ja epätarkasta, kasvaa suuremmaksi ja kirkkaammaksi, luo uhkaavaa ja yllättävää vaikutelmaa*/
+@keyframes faceZoom {
+
+    0% {
+        transform:
+            scale(0.08)
+            rotate(-16deg);
+
+        filter:
+            blur(18px)
+            brightness(0.2)
+            contrast(3);
+    }
+
+    35% {
+        transform:
+            scale(1.1)
+            rotate(5deg);
+    }
+
+    60% {
+        transform:
+            scale(1.35)
+            rotate(-3deg);
+    }
+
+    100% {
+        transform:
+            scale(1.55)
+            rotate(1deg);
+
+        filter:
+            blur(0px)
+            brightness(1.2)
+            contrast(1.8);
+    }
+}
+
+/* Glitch-efekti kasvoille — nopea ja satunnainen siirtymä eri suuntiin, luo epävakaata ja uhkaavaa vaikutelmaa, ikään kuin kasvot olisivat vääristyneet tai hajoamassa*/
+@keyframes faceGlitch {
+
+    0% {
+        transform:
+            translateX(-12px)
+            translateY(4px);
+    }
+
+    20% {
+        transform:
+            translateX(9px)
+            translateY(-5px);
+    }
+
+    40% {
+        transform:
+            translateX(-6px)
+            translateY(8px);
+    }
+
+    60% {
+        transform:
+            translateX(7px)
+            translateY(-3px);
+    }
+
+    80% {
+        transform:
+            translateX(-10px)
+            translateY(5px);
+    }
+
+    100% {
+        transform:
+            translateX(6px)
+            translateY(-4px);
+    }
+}
+/*Pieni pyörivä liike kasvoille — luo epävakaata ja uhkaavaa vaikutelmaa, ikään kuin kasvot olisivat vääristyneet tai hajoamassa*/
+@keyframes faceRotate {
+
+    0% {
+        rotate: -1deg;
+    }
+
+    50% {
+        rotate: 1deg;
+    }
+
+    100% {
+        rotate: -1deg;
+    }
+}
+
+/*Silmien välkkymis- ja pulssiefektit — luo elävän ja uhkaavan vaikutelman, ikään kuin silmät hehkuisivat ja sykkisivät sisältäpäin*/
+@keyframes eyeFlicker {
+
+    0% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    60% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes eyePulse {
+
+    0% {
+        box-shadow:
+            0 0 30px red,
+            0 0 80px crimson;
+    }
+
+    50% {
+        box-shadow:
+            0 0 60px red,
+            0 0 160px crimson;
+    }
+
+    100% {
+        box-shadow:
+            0 0 30px red,
+            0 0 80px crimson;
+    }
+}
+
+/* ================================
+   8. TUNTILASKURI, PÄÄ-/ALITEHTÄVÄ JA KOOSTEMODAL
+   ================================ */
+
+/* Kortin lisätieto: pää-/alitehtävä + tunnit */
+.task-meta {
+    color: #aa8888;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-top: 2px;
+}
+.task-meta .tag-main { color: #cc5555; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 1px; }
+.task-meta .tag-sub  { color: #cc8833; }
+.task-meta strong { color: #ff6666; }
+
+/* Päätehtävän alitehtävälista kortissa */
+.subtask-list {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+.subtask-list-title {
+    color: #aa8888;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.subtask-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #660000;
+    background: rgba(0, 0, 0, 0.4);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.82rem;
+    color: #ddbbbb;
+}
+.subtask-chip.status-not_started { border-left: 3px solid #bb3333; }
+.subtask-chip.status-in_progress { border-left: 3px solid #cc8833; }
+.subtask-chip.status-done        { border-left: 3px solid #55aa55; text-decoration: line-through; color: #886666; }
+
+/* Muokkausmodalin päätehtävävalikko */
+.modal-select {
+    width: 100%;
+    background: #1a0000;
+    color: #ffdddd;
+    border: 1px solid #660000;
+    font-family: 'Courier New', monospace;
+    padding: 8px;
+    padding-right: 32px;     /* Tilaa alasvetonuolelle — teksti ei mene sen päälle */
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;     /* Pitkä valittu teksti katkeaa siististi "…" eikä valu reunan yli */
+}
+
+/* #editParent: option-tekstit ovat tahallaan sisennettyjä (ks. tm_parentOptions),
+   jotta avattu pudotusvalikko näyttää tehtäväpuun rakenteen. Suljettuna natiivi
+   <select> näyttäisi saman sisennyksen isona tyhjänä alkuvälinä — sitä ei voi
+   näyttää eri tavalla auki/kiinni samasta option-tekstistä pelkällä CSS:llä,
+   joten oma teksti piilotetaan (color: transparent) ja siisti, sisennyksetön
+   teksti näytetään päällä olevassa #editParentLabel-elementissä (ks. tasks.js). */
+.modal-select-wrap {
+    position: relative;
+}
+.modal-select-wrap .modal-select {
+    color: transparent; /* Piilottaa suljetun napin oman (sisennetyn) tekstin */
+}
+.modal-select-wrap .modal-select option {
+    color: #ffdddd; /* Pudotusvalikon vaihtoehdot pysyvät normaalisti näkyvinä */
+}
+.modal-select-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    padding: 8px 32px 8px 8px;  /* Sama kuin .modal-select — oikealla tilaa alasvetonuolelle */
+    box-sizing: border-box;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;       /* Klikkaus läpäisee alla olevaan <select>iin */
+}
+
+/* Kooste-nappi todo-boxin alla */
+.kooste-btn {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 12px;
+    background: rgba(60, 0, 0, 0.8);
+    color: #ffdddd;
+    border: 1px solid #990000;
+    font-family: Impact, sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.kooste-btn:hover { background: rgba(120, 0, 0, 0.9); box-shadow: 0 0 15px #660000; }
+
+/* ================================
+   OPERAATIOVALITSIN — pudotusvalikko aktiivisen operaation valintaan
+   ================================ */
+/* Sama leveys ja linjaus kuin tehtävän lisäysrivillä (.input-area): kenttä
+   joustaa täyteen leveyteen, napit oikeassa reunassa, sama gap/margin-bottom. */
+.operation-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.operation-select {
+    flex: 1;
+    min-width: 0; /* Sallii kutistumisen alle option-tekstin sisältöleveyden — muuten rivi ylivuotaa oikealta (ks. .input-area input, jolla sama ongelma ei esiinny) */
+    padding: 8px 10px;
+    background: #111;
+    border: 2px solid #660000;
+    border-left-width: 5px;       /* Paksumpi vasen reuna toimii operaation väripalkkina */
+    border-left-color: #880000;   /* Oletusväri — JS päivittää valitun operaation värin mukaan */
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: box-shadow 0.15s ease-out;
+}
+
+/* Vain ylä/oikea/ala-reunat vaihtavat väriä fokuksessa — vasen reuna pysyy operaation värisenä */
+.operation-select:focus {
+    outline: none;
+    border-top-color: #cc0000;
+    border-right-color: #cc0000;
+    border-bottom-color: #cc0000;
+}
+
+/* Napit ryhmänä valitsimen oikeassa reunassa — sama asettelu kuin lisäysrivin Lisää-napilla.
+   Kiinteä leveys (sama 90px kuin .input-area button) — muuten kapeampi ikonipari
+   (~61px) antaisi .operation-select:lle enemmän flex-tilaa kuin input[type="text"]
+   saa, jolloin valitsin näyttäisi leveämmältä vaikka rivien oma kokonaisleveys
+   olisi jo sama. justify-content: flex-end pitää ikonit rivin oikeassa reunassa
+   kiinteän leveyden sisällä. */
+.operation-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    width: 90px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* Muokkaa/poista-napit — täsmälleen samat tyylit kuin tehtäväkorttien .actions-napeilla */
+.op-icon-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+#operationEditBtn   { color: #ffaa33; } /* Oranssi  — sama kuin tehtävän muokkausnappi */
+#operationDeleteBtn { color: #d8d8d8; } /* Neutraali — sama kuin tehtävän poistonappi */
+
+/* Kehote luoda ensimmäinen operaatio kun niitä ei vielä ole */
+.operation-empty {
+    padding: 14px;
+    margin-bottom: 12px;
+    background: rgba(30, 0, 0, 0.7);
+    border: 1px solid #660000;
+    text-align: center;
+}
+.operation-empty p {
+    margin: 0 0 4px 0;
+    color: #ffbbbb;
+    text-align: left;
+}
+.operation-empty p:last-of-type {
+    margin-bottom: 10px;
+}
+
+/* Operaatiomodalin väripalikat + oma väri hex-kenttänä */
+.op-color-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.op-swatch {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    padding: 0;
+}
+.op-swatch.selected {
+    border-color: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+.op-swatch-1 { background: #cc0000; }
+.op-swatch-2 { background: #cc6a00; }
+.op-swatch-3 { background: #4a8f3d; }
+.op-swatch-4 { background: #3d7a9e; }
+.op-swatch-5 { background: #8a3d9e; }
+
+/* Oma väri hex-tekstinä — sama tyyli kuin muut modalin tekstikentät, mutta
+   pieni ja mahtuu väripallojen oikealle puolelle samalle riville.
+   Natiivi <input type="color"> ei kelpaa, koska sen avautuva väripaletti-popup
+   on selaimen renderöimä eikä tyyliteltävissä millään CSS:llä.
+   Selektori #opColorRow .op-color-hex on tahallaan spesifisempi kuin
+   .modal-body input[type="text"] (joka asettaa width:100%), jotta pieni
+   leveys voittaa ilman !important-sääntöä. */
+#opColorRow .op-color-hex {
+    width: 92px;
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    background: #0d0000;
+    border: 1px solid #660000;
+    color: #ffdddd;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+#opColorRow .op-color-hex:focus {
+    outline: none;
+    border-color: #cc0000;
+    box-shadow: 0 0 8px rgba(180, 0, 0, 0.4);
+}
+
+/* Esikatselupalikka — näyttää hex-kentän värin, päivitetään JS:llä el.style-kautta.
+   Oletusväri on harmaa (sama sävy kuin placeholder-teksti) kunnes kelvollinen hex on annettu. */
+.op-color-preview {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    flex: 0 0 auto;
+    border: 2px solid #660000;
+    background: #777777;
+}
+
+/* ISO koostemodal */
+.modal.modal-wide { max-width: 760px; width: 92%; overflow: hidden; } /* Ulompi scroll pois — vain .modal-body skrollaa */
+.modal.modal-wide .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    /* Firefox: ohut teemaan sopiva scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #990000 rgba(0, 0, 0, 0.5);
+}
+/* Webkit (Chrome, Edge, Safari): tumma verenpunainen pystyscrollbar */
+.modal.modal-wide .modal-body::-webkit-scrollbar { width: 12px; }
+.modal.modal-wide .modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #440000;
+}
+.modal.modal-wide .modal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #990000, #660000);
+    border: 1px solid #440000;
+}
+.modal.modal-wide .modal-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #cc0000, #880000);
+}
+
+.kooste-heading {
+    font-family: Impact, sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 18px 0 8px 0;
+}
+.kooste-heading.in-progress { color: #cc8833; }
+.kooste-heading.done-title  { color: #55aa55; }
+
+.kooste-total {
+    background: rgba(30, 0, 0, 0.7);
+    border: 1px solid #660000;
+    padding: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.1rem;
+    color: #ffdddd;
+}
+.kooste-total strong { color: #ff6666; }
+
+.kooste-list { margin-bottom: 6px; }
+.kooste-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(30, 0, 0, 0.7);
+    border: 1px solid #660000;
+    border-left: 4px solid #bb3333;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+}
+.kooste-name { color: #ffdddd; font-size: 1.05rem; font-weight: 600; min-width: 0; }
+.kooste-hours { display: flex; flex-direction: column; align-items: flex-end; font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; }
+.kooste-hours .k-own   { color: #aa8888; }
+/* Tuntiluku ei saa koskaan katketa riville "3" + "h" — pysyy yhtenä palana ja säilyttää oman leveytensä */
+.kooste-hours .k-total { color: #ff6666; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.kooste-children { margin-left: 18px; padding-left: 10px; border-left: 2px solid #660000; margin-bottom: 10px; }
+.kooste-subrow { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; }
+/* Pitkä/sisennetty tehtävän nimi saa kutistua ja rivittyä — tuntiluku ei koskaan */
+.kooste-subname { color: #ddbbbb; min-width: 0; word-break: break-word; }
+.kooste-subhours { color: #cc8833; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+
+/* Aikajana — vaakasuunnassa vieritettävä päiväruudukko */
+.timeline-scroll {
+    overflow-x: auto;              /* Vaakascroll kun aikajana on modalia leveämpi */
+    background: rgba(30, 0, 0, 0.6);
+    border: 1px solid #440000;     /* Sama tumma reunus kuin admin-sivun scrollaavilla alueilla */
+    padding: 12px;
+    /* Firefox: ohut teemaan sopiva scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #990000 rgba(0, 0, 0, 0.5);
+}
+/* Webkit-selaimet (Chrome, Edge, Safari): tumma verenpunainen scrollbar */
+.timeline-scroll::-webkit-scrollbar {
+    height: 12px;
+}
+.timeline-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #440000;
+}
+.timeline-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #990000, #660000);
+    border: 1px solid #440000;
+}
+.timeline-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #cc0000, #880000);
+}
+.timeline { position: relative; min-width: 100%; }
+
+/* Päivämääräotsikot — yksi sarake per päivä, tumma teemapohja */
+.tl-days {
+    display: flex;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #440000;
+}
+.tl-day {
+    flex: 0 0 auto;               /* Kiinteä leveys (asetetaan JS:llä) */
+    color: #cc8888;
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 5px 0;
+    border-left: 1px solid rgba(120, 0, 0, 0.5); /* Pystyviiva jokaisen päivän kohdalle */
+    box-sizing: border-box;
+}
+.tl-day:first-child { border-left: none; }
+
+.tl-item { margin-bottom: 14px; }
+
+/* Tehtävän nimi otsikkona palkin yläpuolella — statuksen mukainen värikorostus */
+.tl-label {
+    display: inline-block;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffdddd;
+    padding: 3px 12px;
+    margin-bottom: 5px;
+    border-left: 4px solid #660000;
+    background: linear-gradient(90deg, rgba(60,0,0,0.7), transparent);
+    text-shadow: 1px 1px 2px black;
+}
+.tl-label.status-not_started { border-left-color: #bb3333; color: #ffbbbb; }
+.tl-label.status-in_progress { border-left-color: #cc8833; color: #ffcc99; }
+.tl-label.status-done        { border-left-color: #55aa55; color: #bbeebb; }
+
+.tl-track {
+    position: relative;
+    height: 26px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #440000;
+    /* Pystyviivat taustalle päivävälein — sama 60px kuin DAY_PX JS:ssä */
+    background-image: repeating-linear-gradient(90deg, transparent 0, transparent 59px, rgba(102,0,0,0.4) 59px, rgba(102,0,0,0.4) 60px);
+    box-sizing: border-box;
+}
+.tl-bar { position: absolute; top: 0; height: 100%; display: flex; align-items: center; min-width: 2px; box-sizing: border-box; overflow: hidden; }
+.tl-bar.status-in_progress { background: linear-gradient(90deg, #cc8833, #aa6622); }
+.tl-bar.status-done        { background: linear-gradient(90deg, #55aa55, #338833); }
+.tl-bar.status-not_started { background: linear-gradient(90deg, #bb3333, #992222); }
+.tl-dur { color: #fff; font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 600; padding: 0 8px; white-space: nowrap; text-shadow: 1px 1px 2px black; }
+
+@media (max-width: 600px) {
+    .modal.modal-wide .modal-body { max-height: 60vh; }
+    .kooste-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .kooste-hours { align-items: flex-start; }
+    .modal-footer {
+    padding: 15px;
+}
+}
+
+/* ================================
+   9. KOOSTEEN TULOSTUS (PDF)
+   ================================ */
+
+/* Tulosta-nappi koostemodalissa */
+.btn-print {
+    background: rgba(60, 0, 0, 0.8);
+    color: #ffdddd;
+    border: 1px solid #990000;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    padding: 8px 16px;
+    margin-right: auto; /* Työntää Sulje-napin oikealle */
+    cursor: pointer;
+}
+.btn-print:hover { background: rgba(120, 0, 0, 0.9); box-shadow: 0 0 12px #660000; }
+
+/* Tulostuksen listamuotoinen aikajana — piilossa näytöllä, näkyy vain printissä */
+.timeline-print { display: none; }
+.tlp-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 10px;
+    border-left: 4px solid #660000;
+    margin-bottom: 4px;
+}
+.tlp-row.status-not_started { border-left-color: #bb3333; }
+.tlp-row.status-in_progress { border-left-color: #cc8833; }
+.tlp-row.status-done        { border-left-color: #55aa55; }
+.tlp-name  { font-weight: 700; flex: 1; }
+.tlp-range { color: #666; font-family: 'Courier New', monospace; }
+.tlp-hours { font-weight: 700; }
+
+@media print {
+    /* Piilotetaan koko sovellus paitsi koostemodal — display:none eikä visibility:hidden,
+       jotta piilotetut elementit eivät vie tilaa layoutista. visibility:hidden jättäisi
+       niiden korkeuden paikalleen ja synnyttäisi ylimääräisiä tyhjiä sivuja tulosteeseen. */
+    body > *:not(#koosteModal) { display: none !important; }
+
+    /* Sivun taustakuva (metsäkuva) pois tulosteesta — se ei kuulu koosteeseen.
+       Koostemodalin oma tumma tausta asetetaan erikseen alla. */
+    body { background: none !important; }
+
+    /* Pakotetaan kaikki teemavärit ja taustat tulostumaan (tumma tausta, punaiset korostukset). */
+    #koosteModal, #koosteModal * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Modal normaaliin dokumenttivirtaan (ei enää position:fixed overlay-tyyliä),
+       jotta korkeus määräytyy vain sisällön mukaan eikä pakota tyhjää tilaa/sivuja. */
+    #koosteModal {
+        position: static;
+        width: 100%;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        display: block;
+        padding: 10px;
+        box-sizing: border-box;
+        background: #120000 !important; /* Sama tumma pohja kuin sovelluksessa */
+    }
+    /* .modal-perussäännöllä on max-height:90vh + .modal.modal-wide:lla overflow:hidden
+       (style.css riveillä ~789 ja ~2632) — ruudulla se rajaa modalin sisäisen scrollin,
+       mutta printissä 90vh vastaa yhtä sivua, joten se leikkaisi loppusisällön piiloon.
+       Nollataan siksi korkeus/overflow tästä laatikosta !important:lla. */
+    #koosteModal .modal.modal-wide {
+        max-width: 100%;
+        width: 100%;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        /* Reunus, tausta, varjo ja fontit jäävät ruudun tyyleistä — ei ylikirjoiteta */
+    }
+    /* Body ei rajaa korkeutta printissä — kaikki sisältö näkyviin */
+    #koosteModal .modal.modal-wide .modal-body {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    /* Piilotetaan napit ja sulkuruksi (ei tulosteta) */
+    #koosteModal .modal-header .modal-close,
+    #koosteModal .modal-footer { display: none !important; }
+
+    /* Aikajana: näytön scrollattava piiloon, print-lista näkyviin.
+       Print-lista käyttää samoja teemavärejä kuin muukin kooste. */
+    .timeline-scroll { display: none !important; }
+    .timeline-print { display: block !important; }
+    .tlp-row {
+        border: 1px solid #660000;
+        border-left: 4px solid #660000;
+        margin-bottom: 4px;
+        break-inside: avoid; /* Rivi ei katkea sivun yli */
+    }
+    .tlp-row.status-not_started { border-left-color: #bb3333; }
+    .tlp-row.status-in_progress { border-left-color: #cc8833; }
+    .tlp-row.status-done        { border-left-color: #55aa55; }
+    .tlp-name  { color: #ffdddd; }
+    .tlp-range { color: #aa8888; }
+    .tlp-hours { color: #ff6666; }
+
+    /* Sivunvaihtojen hallinta */
+    .kooste-heading { break-after: avoid; }
+    .kooste-row, .kooste-subrow, .kooste-total { break-inside: avoid; }
+
+    /* Poistetaan selaimen omat sivun reunukset, jotta tumma tausta täyttää sivun */
+    @page { margin: 10mm; }
+}
+
+/* ================================
+   10. TOIMINTONAPPIEN TOOLTIP
+   Teematyylinen vihjeteksti hoverilla (data-tooltip)
+   ================================ */
+
+/* Nappi tarvitsee position:relative jotta tooltip sijoittuu suhteessa siihen.
+   .op-icon-btn (operaation muokkaa/poista-napit) käyttää samaa tooltipia. */
+.actions button[data-tooltip],
+.op-icon-btn[data-tooltip] {
+    position: relative;
+}
+
+/* Vihjelaatikko — piilossa oletuksena, ilmestyy hoverilla napin yläpuolelle */
+.actions button[data-tooltip]::after,
+.op-icon-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;                 /* Napin yläpuolelle */
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    margin-bottom: 2px;
+    background: #1a0000;
+    color: #ffdddd;
+    border: 1px solid #990000;
+    padding: 4px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(150, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;         /* Tooltip ei estä napin klikkausta */
+    transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+    z-index: 50;
+}
+
+/* Pieni kolmio tooltipin alareunaan osoittamaan nappia */
+.actions button[data-tooltip]::before,
+.op-icon-btn[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-2px);
+    border: 5px solid transparent;
+    border-top-color: #990000;    /* Osoittaa alaspäin nappiin */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease-out;
+    z-index: 50;
+}
+
+/* Näytetään tooltip kun nappia hoverataan tai se on fokusoitu (näppäimistö) */
+.actions button[data-tooltip]:hover::after,
+.actions button[data-tooltip]:focus-visible::after,
+.op-icon-btn[data-tooltip]:hover::after,
+.op-icon-btn[data-tooltip]:focus-visible::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
+}
+.actions button[data-tooltip]:hover::before,
+.actions button[data-tooltip]:focus-visible::before,
+.op-icon-btn[data-tooltip]:hover::before,
+.op-icon-btn[data-tooltip]:focus-visible::before {
+    opacity: 1;
+}
+
+/* ================================
+   8. LATAUSINDIKAATTORI (loading-overlay)
+   Jaettu kaikilla sivuilla — injektoidaan ui.js:stä.
+   Näytetään hitaiden PHP/DB-toimintojen ajaksi (lomakkeen submit, AJAX-fetch).
+   ================================ */
+.loading-overlay {
+    display: none;             /* Piilossa oletuksena — ei saa jäädä näkyviin sivun latautuessa */
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(2px);
+    z-index: 999998;           /* Jumpscaren (999999) alla, kaiken muun päällä */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+}
+.loading-overlay.active {
+    display: flex;
+    animation: loadingFadeIn 0.15s ease-out;
+}
+@keyframes loadingFadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+}
+
+/* Pyörivä kallo-henkinen spinneri — pelkkää CSS:ää, ei kuvatiedostoja */
+.loading-spinner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 6px solid rgba(136, 0, 0, 0.35);
+    border-top-color: #ff4444;
+    animation: loadingSpin 0.9s linear infinite;
+    box-shadow: 0 0 20px rgba(200, 0, 0, 0.5);
+}
+@keyframes loadingSpin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-family: 'Courier New', monospace;
+    color: #ff4444;
+    text-shadow: 2px 2px black;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    animation: loadingPulseText 1.4s ease-in-out infinite;
+}
+@keyframes loadingPulseText {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
