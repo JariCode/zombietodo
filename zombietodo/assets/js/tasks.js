@@ -1079,9 +1079,15 @@ async function openKooste() {
     const opNameEl = document.getElementById('koosteOpName');
     if (opNameEl) {
         const select = document.getElementById('operationSelect');
-        const opText = (select && select.selectedOptions && select.selectedOptions[0]) ? select.selectedOptions[0].text : '';
+        const opt = select ? select.options[select.selectedIndex] : null;
+        const opText = opt ? opt.text : '';
         opNameEl.textContent = opText; // textContent escapee automaattisesti, ei tarvita k_escia
         opNameEl.hidden = !opText;
+        // Sama väri kuin operaatiovalitsimen reunapalkissa (ks. updateOperationColor) —
+        // CSP-turvallinen: väri tulee jo sivulla olevasta data-color-attribuutista, asetetaan el.style:llä.
+        const color = (opt && opt.dataset.color) ? opt.dataset.color : '#cc8833';
+        opNameEl.style.borderLeftColor = color;
+        opNameEl.style.boxShadow = '0 0 6px ' + color;
     }
 
     document.getElementById('koosteModal').classList.add('open');
