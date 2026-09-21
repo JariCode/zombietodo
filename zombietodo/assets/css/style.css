@@ -850,6 +850,20 @@ body.modal-open {
     margin: 0;
     text-transform: uppercase;
 }
+.kooste-op-name {
+    display: inline-block;
+    margin: 4px 0 0 0;
+    padding: 2px 10px;
+    background: rgba(60, 0, 0, 0.7);
+    border-left: 3px solid #cc8833;
+    color: #ffcc99;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px black;
+}
 
 /* Sulje-nappi modalin headerissä */
 .modal-close {
@@ -2807,6 +2821,43 @@ h1.admin-title {
 .tl-bar.status-done        { background: linear-gradient(90deg, #55aa55, #338833); }
 .tl-bar.status-not_started { background: linear-gradient(90deg, #bb3333, #992222); }
 .tl-dur { color: #fff; font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 600; padding: 0 8px; white-space: nowrap; text-shadow: 1px 1px 2px black; }
+
+/* Aikajanapalkin hoverin päivämäärävihje — sama teema kuin toimintonappien [data-tooltip]
+   (ks. "10. TOIMINTONAPPIEN TOOLTIP"). Oma elementti .tl-bar:in vieressä eikä sen pseudoelementti,
+   koska .tl-bar:lla on overflow:hidden joka rajaisi vihjeen näkymättömiin. */
+.tl-bar-tip {
+    position: absolute;
+    bottom: 100%;
+    transform: translateX(-50%) translateY(-2px);
+    margin-bottom: 2px;
+    background: #1a0000;
+    color: #ffdddd;
+    border: 1px solid #990000;
+    padding: 4px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(150, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+    z-index: 50;
+}
+.tl-bar-tip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-2px);
+    border: 5px solid transparent;
+    border-top-color: #990000;
+}
+.tl-bar:hover + .tl-bar-tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
+}
 
 @media (max-width: 600px) {
     .modal.modal-wide .modal-body { max-height: 60vh; }

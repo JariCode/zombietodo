@@ -1006,11 +1006,19 @@ function k_build(tasks) {
             const leftPx  = startOffsetDays * DAY_PX;
             const widthPx = durationDays * DAY_PX;
             const label = k_fmtHours(t.hours) + ' h'; // Palkin sisällä vain tunnit
+            const barTip = fd(t.startDay) + '–' + fd(t.endDay); // Hover: pelkkä päivämääräväli — tunnit näkyvät jo palkissa
+            const tipCenter = leftPx + Math.round(widthPx / 2); // Vihje keskitetään palkin päälle
+            // .tl-bar:lla on overflow:hidden (rajaa sisällä olevan tuntitekstin), joten teemavihje
+            // ei voi olla sen oma pseudoelementti — se on sen sijaan sisarelementti .tl-track:ssa,
+            // samaa tyyliä kuin toimintonappien [data-tooltip] (ks. tyylitiedoston "10. TOIMINTONAPPIEN TOOLTIP").
             html += '<div class="tl-item">' +
                     '<div class="tl-label status-' + k_esc(t.status) + '">' + k_esc(t.text) + '</div>' +
                     '<div class="tl-track" data-width="' + totalWidth + '">' +
                     '<div class="tl-bar status-' + k_esc(t.status) + '" data-left="' + leftPx +
-                    '" data-barwidth="' + widthPx + '"><span class="tl-dur">' + label + '</span></div></div></div>';
+                    '" data-barwidth="' + widthPx +
+                    '"><span class="tl-dur">' + label + '</span></div>' +
+                    '<div class="tl-bar-tip" data-left="' + tipCenter + '">' + k_esc(barTip) + '</div>' +
+                    '</div></div>';
         });
         html += '</div></div>';
 
@@ -1048,12 +1056,34 @@ function k_build(tasks) {
         bar.style.left  = bar.getAttribute('data-left') + 'px';
         bar.style.width = bar.getAttribute('data-barwidth') + 'px';
     });
+    document.querySelectorAll('#koosteContent .tl-bar-tip').forEach(function(tip) {
+        // Keskitetään palkin päälle, mutta rajataan aikajanan reunojen sisään ettei vihje
+        // leikkaudu näkymättömiin scrollattavan alueen reunalla (ks. .tl-track:n leveys).
+        const center = parseInt(tip.getAttribute('data-left'), 10) || 0;
+        const track = tip.closest('.tl-track');
+        const trackWidth = track ? (parseInt(track.getAttribute('data-width'), 10) || 0) : 0;
+        const halfW = tip.offsetWidth / 2;
+        let left = center;
+        if (trackWidth > 0) left = Math.min(Math.max(center, halfW), trackWidth - halfW);
+        tip.style.left = left + 'px';
+    });
     return; // k_build päättyy tähän — sisältö on jo asetettu
 }
 
 async function openKooste() {
     const content = document.getElementById('koosteContent');
     content.innerHTML = '<p class="empty-hint">Ladataan…</p>';
+
+    // Näytetään aktiivisen operaation nimi koosteen otsikossa — luetaan valitsimesta,
+    // joka on jo sivulla (ei erillistä palvelinkutsua).
+    const opNameEl = document.getElementById('koosteOpName');
+    if (opNameEl) {
+        const select = document.getElementById('operationSelect');
+        const opText = (select && select.selectedOptions && select.selectedOptions[0]) ? select.selectedOptions[0].text : '';
+        opNameEl.textContent = opText; // textContent escapee automaattisesti, ei tarvita k_escia
+        opNameEl.hidden = !opText;
+    }
+
     document.getElementById('koosteModal').classList.add('open');
     document.body.classList.add('modal-open');
     showLoading(); // ui.js — näytetään latausindikaattori koosteen haun ajaksi

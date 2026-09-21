@@ -337,7 +337,10 @@ if ($activeOperationId !== null) {
     <div class="modal-overlay" id="koosteModal" role="dialog" aria-modal="true" aria-labelledby="koosteTitle">
         <div class="modal modal-wide">
             <div class="modal-header">
-                <h2 id="koosteTitle">📊 Kooste</h2>
+                <div>
+                    <h2 id="koosteTitle">📊 Kooste</h2>
+                    <p id="koosteOpName" class="kooste-op-name"></p>
+                </div>
                 <button class="modal-close" id="koosteClose" aria-label="Sulje">✕</button>
             </div>
             <div class="modal-body">
