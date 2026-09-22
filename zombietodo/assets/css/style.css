@@ -2546,9 +2546,17 @@ h1.admin-title {
     margin-bottom: 15px;
 }
 
-.operation-select {
+/* Kääre pelkästään hovivihjettä varten (ks. alempana [data-tooltip]) — position:relative
+   antaa vihjeelle sijoituskontekstin. flex:1/min-width:0 siirretty tänne .operation-select:ltä,
+   jotta kutistuminen toimii edelleen samoin kääreen ollessa flex-rivin jäsen. */
+.operation-select-wrap {
+    position: relative;
     flex: 1;
-    min-width: 0; /* Sallii kutistumisen alle option-tekstin sisältöleveyden — muuten rivi ylivuotaa oikealta (ks. .input-area input, jolla sama ongelma ei esiinny) */
+    min-width: 0;
+}
+
+.operation-select {
+    width: 100%;
     padding: 8px 10px;
     background: #111;
     border: 2px solid #660000;
@@ -2560,7 +2568,6 @@ h1.admin-title {
     box-sizing: border-box;
     transition: box-shadow 0.15s ease-out;
 }
-
 /* Vain ylä/oikea/ala-reunat vaihtavat väriä fokuksessa — vasen reuna pysyy operaation värisenä */
 .operation-select:focus {
     outline: none;
@@ -3044,6 +3051,45 @@ h1.admin-title {
 .op-icon-btn[data-tooltip]:hover::before,
 .op-icon-btn[data-tooltip]:focus-visible::before {
     opacity: 1;
+}
+
+/* Operaation kuvaus hoverataan suoraan valitsimen tekstistä — kääre saa data-tooltip:in
+   JS:stä (ks. updateOperationInfo). Sama teema kuin muillakin tooltipeilla, mutta kuvaus
+   voi olla pitkä (maxlength 255) joten oletuksen nowrap-vihjeen sijaan tämä rivittyy ja
+   leveys rajataan. Kääre kääntyy hoveriin myös silloin kun hoverataan sen sisällä olevaa
+   <select>:iä, koska :hover koskee myös elementtiä jonka sisällä osoitin on. */
+.operation-select-wrap[data-tooltip] {
+    position: relative;
+}
+.operation-select-wrap[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    transform: translateY(-6px);
+    margin-bottom: 2px;
+    background: #1a0000;
+    color: #ffdddd;
+    border: 1px solid #990000;
+    padding: 4px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: normal;
+    text-align: left;
+    max-width: 320px;
+    width: max-content;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(150, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+    z-index: 50;
+}
+.operation-select-wrap[data-tooltip]:hover::after,
+.operation-select-wrap[data-tooltip]:focus-within::after {
+    opacity: 1;
+    transform: translateY(-2px);
 }
 
 /* ================================

@@ -652,6 +652,24 @@ function updateOperationColor() {
     select.style.boxShadow = '0 0 6px ' + color;
 }
 
+// Päivittää operaationimen hovivihjeen valitun operaation kuvauksen mukaan.
+// Palkkiin ei mahdu erillistä nappia/riviä kuvaukselle, joten hover suoraan
+// valitsimen tekstistä (ks. .operation-select-wrap[data-tooltip] style.css:ssä)
+// on ainoa paikka jossa kuvaus näkyy. data-tooltip poistetaan kokonaan jos
+// kuvaus on tyhjä, jottei tyhjä vihjelaatikko välähdä hoverilla.
+function updateOperationInfo() {
+    const select = document.getElementById('operationSelect');
+    const wrap = document.getElementById('operationSelectWrap');
+    if (!select || !wrap) return;
+    const opt = select.options[select.selectedIndex];
+    const description = (opt && opt.dataset.description) ? opt.dataset.description.trim() : '';
+    if (description) {
+        wrap.setAttribute('data-tooltip', description);
+    } else {
+        wrap.removeAttribute('data-tooltip');
+    }
+}
+
 // Avaa operaatiomodalin joko tyhjänä (uusi) tai esitäytettynä (muokkaus)
 function openOperationModal(mode, data) {
     operationEditingId = mode === 'edit' ? data.id : null;
@@ -791,6 +809,7 @@ function setupOperationBar() {
 
     if (select) {
         updateOperationColor();
+        updateOperationInfo();
         let previousValue = select.value;
 
         select.addEventListener('change', async function() {

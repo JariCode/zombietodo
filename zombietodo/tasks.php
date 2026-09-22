@@ -168,15 +168,17 @@ if ($activeOperationId !== null) {
         <!-- OPERAATIOVALITSIN — valitsee mitkä tehtävät näkyvät alla -->
         <?php if (!empty($operations)): ?>
         <div class="operation-bar">
-            <select id="operationSelect" class="operation-select" aria-label="Aktiivinen operaatio">
-                <?php foreach ($operations as $op): ?>
-                <option value="<?= (int)$op['id'] ?>"
-                        data-color="<?= clean($op['color'] ?: '#880000') ?>"
-                        data-description="<?= clean($op['description'] ?? '') ?>"
-                        <?= ((int)$op['id'] === (int)$activeOperationId) ? 'selected' : '' ?>><?= clean($op['name']) ?></option>
-                <?php endforeach; ?>
-                <option value="__new__">➕ Uusi operaatio</option>
-            </select>
+            <div class="operation-select-wrap" id="operationSelectWrap">
+                <select id="operationSelect" class="operation-select" aria-label="Aktiivinen operaatio">
+                    <?php foreach ($operations as $op): ?>
+                    <option value="<?= (int)$op['id'] ?>"
+                            data-color="<?= clean($op['color'] ?: '#880000') ?>"
+                            data-description="<?= clean($op['description'] ?? '') ?>"
+                            <?= ((int)$op['id'] === (int)$activeOperationId) ? 'selected' : '' ?>><?= clean($op['name']) ?></option>
+                    <?php endforeach; ?>
+                    <option value="__new__">➕ Uusi operaatio</option>
+                </select>
+            </div>
             <div class="operation-actions">
                 <button type="button" id="operationEditBtn" class="op-icon-btn" data-tooltip="Muokkaa operaatiota" aria-label="Muokkaa operaatiota">✏️</button>
                 <button type="button" id="operationDeleteBtn" class="op-icon-btn" data-tooltip="Poista operaatio" aria-label="Poista operaatio">🗑</button>
