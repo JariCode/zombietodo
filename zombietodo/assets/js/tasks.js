@@ -1057,14 +1057,21 @@ function k_build(tasks) {
         bar.style.width = bar.getAttribute('data-barwidth') + 'px';
     });
     document.querySelectorAll('#koosteContent .tl-bar-tip').forEach(function(tip) {
-        // Keskitetään palkin päälle, mutta rajataan aikajanan reunojen sisään ettei vihje
-        // leikkaudu näkymättömiin scrollattavan alueen reunalla (ks. .tl-track:n leveys).
+        // Keskitetään palkin päälle, mutta rajataan näkyvän vierityskehyksen (.timeline-scroll)
+        // sisään ettei vihje leikkaudu sen reunalla. Rajaus lasketaan .timeline-scroll:n
+        // leveyden mukaan eikä .tl-track:n oman data-width:n mukaan, koska .tl-track itse ei
+        // rajaa mitään (vain .timeline-scroll:lla on overflow) — lyhyen aikajanan (vähän
+        // päiviä) track voi olla kapeampi kuin itse vihjeteksti, jolloin trackWidth-halfW
+        // menisi halfW:n alle ja kääntäisi rajauksen väärinpäin (vihje työntyisi reunan yli).
         const center = parseInt(tip.getAttribute('data-left'), 10) || 0;
-        const track = tip.closest('.tl-track');
-        const trackWidth = track ? (parseInt(track.getAttribute('data-width'), 10) || 0) : 0;
+        const scrollEl = tip.closest('.timeline-scroll');
         const halfW = tip.offsetWidth / 2;
         let left = center;
-        if (trackWidth > 0) left = Math.min(Math.max(center, halfW), trackWidth - halfW);
+        if (scrollEl) {
+            const viewMin = scrollEl.scrollLeft + halfW;
+            const viewMax = Math.max(viewMin, scrollEl.scrollLeft + scrollEl.clientWidth - halfW);
+            left = Math.min(Math.max(center, viewMin), viewMax);
+        }
         tip.style.left = left + 'px';
     });
     return; // k_build päättyy tähän — sisältö on jo asetettu
