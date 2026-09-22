@@ -1057,20 +1057,28 @@ function k_build(tasks) {
         bar.style.width = bar.getAttribute('data-barwidth') + 'px';
     });
     document.querySelectorAll('#koosteContent .tl-bar-tip').forEach(function(tip) {
-        // Keskitetään palkin päälle, mutta rajataan näkyvän vierityskehyksen (.timeline-scroll)
-        // sisään ettei vihje leikkaudu sen reunalla. Rajaus lasketaan .timeline-scroll:n
-        // leveyden mukaan eikä .tl-track:n oman data-width:n mukaan, koska .tl-track itse ei
-        // rajaa mitään (vain .timeline-scroll:lla on overflow) — lyhyen aikajanan (vähän
-        // päiviä) track voi olla kapeampi kuin itse vihjeteksti, jolloin trackWidth-halfW
-        // menisi halfW:n alle ja kääntäisi rajauksen väärinpäin (vihje työntyisi reunan yli).
+        // Keskitetään palkin päälle, mutta rajataan aikajanan reunojen sisään ettei vihje
+        // leikkaudu näkymättömiin scrollattavan alueen reunalla (ks. .tl-track:n leveys).
         const center = parseInt(tip.getAttribute('data-left'), 10) || 0;
-        const scrollEl = tip.closest('.timeline-scroll');
+        const track = tip.closest('.tl-track');
+        const trackWidth = track ? (parseInt(track.getAttribute('data-width'), 10) || 0) : 0;
         const halfW = tip.offsetWidth / 2;
         let left = center;
-        if (scrollEl) {
-            const viewMin = scrollEl.scrollLeft + halfW;
-            const viewMax = Math.max(viewMin, scrollEl.scrollLeft + scrollEl.clientWidth - halfW);
-            left = Math.min(Math.max(center, viewMin), viewMax);
+        if (trackWidth >= halfW * 2) {
+            // Normaalitapaus: track on leveämpi kuin vihje — rajataan sen sisään kuten ennenkin.
+            left = Math.min(Math.max(center, halfW), trackWidth - halfW);
+        } else if (trackWidth > 0) {
+            // Erikoistapaus: track on kapeampi kuin itse vihjeteksti (lyhyt aikajana,
+            // esim. vain 1-2 päivää). trackWidth-halfW menisi tällöin halfW:n alle ja
+            // kääntäisi yllä olevan rajauksen väärinpäin, jolloin vihje työntyisi
+            // näkymättömiin scrollattavan kehyksen reunalla. Rajataan siksi tässä
+            // tapauksessa näkyvän .timeline-scroll-kehyksen mukaan track:n sijaan.
+            const scrollEl = track.closest('.timeline-scroll');
+            if (scrollEl) {
+                const viewMin = scrollEl.scrollLeft + halfW;
+                const viewMax = Math.max(viewMin, scrollEl.scrollLeft + scrollEl.clientWidth - halfW);
+                left = Math.min(Math.max(center, viewMin), viewMax);
+            }
         }
         tip.style.left = left + 'px';
     });
