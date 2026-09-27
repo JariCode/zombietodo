@@ -23,9 +23,14 @@
    ================================ */
 
 /* Perusasetukset koko sivulle */
+html {
+    overflow-x: hidden;
+}
+
 body {
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
     background: url('../img/Kansikuva.webp') center/cover no-repeat fixed;
     font-family: 'Courier New', monospace;
     color: #ff4444;
@@ -827,6 +832,7 @@ body.modal-open {
     border: 2px solid #880000;
     box-shadow: 0 0 40px #660000, 0 0 80px rgba(100,0,0,0.3);
     width: 100%;
+    box-sizing: border-box;
     max-width: 520px;
     max-height: 90vh;
     overflow-y: auto;
