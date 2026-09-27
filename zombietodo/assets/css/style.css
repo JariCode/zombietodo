@@ -3465,11 +3465,11 @@ h1.admin-title {
    BUB PUHEANIMAATIO
    Suun liike Bubin vastauksen aikana
    ================================ */
-#bub-mouth {
+.bub-mouth-opening {
     transform-box: fill-box;
     transform-origin: center;
-    animation: bub-speaking .35s infinite alternate ease-in-out;
-    animation-play-state: var(--bub-mouth-state, paused);
+    transform: scaleY(.18);
+    animation: var(--bub-mouth-animation, none) .35s infinite alternate ease-in-out;
 }
 
 /* ================================
@@ -3513,7 +3513,7 @@ h1.admin-title {
 
 @keyframes bub-speaking {
     0% {
-        transform: scaleY(.84);
+        transform: scaleY(.18);
     }
 
     35% {

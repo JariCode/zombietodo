@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setMouthAnimationState(state) {
         bubSvgs.forEach(svg => {
-            svg.style.setProperty('--bub-mouth-state', state);
+            const animation = state === 'running' ? 'bub-speaking' : 'none';
+            svg.style.setProperty('--bub-mouth-animation', animation);
         });
     }
 

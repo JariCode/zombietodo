@@ -614,6 +614,7 @@ if ($activeOperationId !== null) {
 <!-- Suu ja parta -->
 <g id="bub-mouth">
     <path
+        class="bub-mouth-opening"
         d="M116 246
         C130 237 145 234 160 234
         C175 234 190 237 204 246
