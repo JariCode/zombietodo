@@ -270,10 +270,14 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
 
             <h3>6. TIETOJEN LUOVUTUS JA SIIRTO</h3>
             <p>Tietoja ei luovuteta kolmansille osapuolille markkinointia, analytiikkaa tai muita rekisterinpitäjän omasta käytöstä riippumattomia tarkoituksia varten.</p>
-            <p>Sovelluksen tekninen toteutus edellyttää, että tietoja käsittelee tietojenkäsittelijän roolissa Planeetta Internet Oy (Domainhotelli), joka tarjoaa palvelun käyttämän palvelimen, tietokannan ja sähköpostien lähetyksen salasanan palautuksen yhteydessä. Palvelin sijaitsee Suomessa Helsingissä. Tietoja ei siirretä EU:n tai ETA-alueen ulkopuolelle.</p>
-
+            <p>Sovelluksen tekninen toteutus edellyttää, että tietoja käsittelee tietojenkäsittelijän roolissa Planeetta Internet Oy (Domainhotelli), joka tarjoaa palvelun käyttämän palvelimen, tietokannan ja sähköpostien lähetyksen salasanan palautuksen yhteydessä. Palvelin sijaitsee Suomessa Helsingissä. Planeetta Internet Oy:n tarjoaman palvelinympäristön osalta tietoja ei siirretä EU:n tai ETA-alueen ulkopuolelle.</p>
+            <p>Sovelluksessa oleva Bub-AI-avustaja käyttää OpenAI:n tarjoamaa tekoälypalvelua. Kun käyttäjä lähettää viestin Bubille, viestin sisältö sekä käyttäjän tällä hetkellä aktiiviseen operaatioon liittyvä tehtäväkonteksti voidaan lähettää OpenAI:lle vastauksen muodostamista varten. Tehtäväkonteksti voi sisältää tehtävien nimiä, tehtävien tiloja ja tehtäviin kirjattuja tuntimääriä. Bubille ei lähetetä tietokannan sisäisiä tunnisteita eikä muiden käyttäjien tietoja.</p>
+            <p>Bub voi käyttää OpenAI:n tarjoamaa verkkohakua ajantasaisen tiedon etsimiseen. Verkkohakua voidaan käyttää esimerkiksi nykyisiin tapahtumiin, henkilöihin, uutisiin tai muihin muuttuviin tietoihin liittyvissä kysymyksissä. Verkkohakukyselyyn ei tarkoituksellisesti sisällytetä Zombie To-Do -sovelluksen yksityisiä tietoja, kuten käyttäjän tehtäviä, operaation nimeä, käyttäjätietoja tai muita sovelluksen sisäisiä tietoja. Verkkohakuun voidaan välittää käyttäjän esittämä kysymys siinä määrin kuin se on ajantasaisen tiedon etsimiseksi tarpeellista.</p>
+            <p>OpenAI käsittelee näitä tietoja palvelun tuottamiseksi OpenAI:n omien palveluehtojen ja tietojenkäsittelykäytäntöjen mukaisesti. Bub-palvelun käyttö on vapaaehtoista, eikä käyttäjän tarvitse käyttää Bub-AI-avustajaa Zombie To-Do -palvelun muun toiminnallisuuden käyttämiseksi.</p>
+            
             <h3>7. TIETOJEN SÄILYTYSAIKA</h3>
             <p>Käyttäjätilin tiedot, tehtävät ja salasana poistetaan välittömästi tilin poistamisen yhteydessä.</p>
+            <p>Bub-AI-avustajan keskusteluhistoriasta säilytetään enintään 30 viimeisintä viestiä käyttäjää kohden. Vanhemmat viestit poistetaan automaattisesti uusien viestien tallentamisen yhteydessä. Keskusteluhistoria poistetaan kokonaan käyttäjätilin poistamisen yhteydessä.</p>
             <p>Lokimerkinnät (käyttäjänimi, IP-osoite ja tapahtumatyyppi) säilytetään enintään 12 kuukautta tapahtuman jälkeen palvelun turvallisuuden ja väärinkäytösten selvittämisen vuoksi, minkä jälkeen ne poistetaan automaattisesti.</p>
             <p>Salasanan palautuslinkki vanhenee tunnissa ja sitä voi käyttää vain kerran.</p>
 

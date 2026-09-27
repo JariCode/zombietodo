@@ -88,6 +88,31 @@ CREATE TABLE IF NOT EXISTS tasks (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
 
+// Bub AI -keskustelutaulu — tallentaa käyttäjän Bub-keskustelun viestit
+$conn->query("
+CREATE TABLE IF NOT EXISTS bub_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,          -- Jokaiselle viestille oma numero
+    user_id INT NOT NULL,                       -- Minkä käyttäjän viesti on, pakollinen
+    role ENUM('user','assistant') NOT NULL,     -- Viestin lähettäjä: käyttäjä tai Bub
+    message TEXT NOT NULL,                      -- Viestin sisältö
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Milloin viesti tallennettiin
+
+    INDEX idx_bub_user_created (user_id, created_at),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+// Bub AI - rate limiter
+$conn->query("
+CREATE TABLE IF NOT EXISTS bub_rate_limits (
+    user_id INT PRIMARY KEY,
+    request_count INT NOT NULL DEFAULT 0,
+    window_started_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
 // Lokitaulu — tallentaa käyttäjien tapahtumat
 $conn->query("
 CREATE TABLE IF NOT EXISTS logs (

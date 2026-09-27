@@ -394,6 +394,348 @@ if ($activeOperationId !== null) {
     </div>
     <!-- Operaatiomodal loppuu -->
 
+    <!-- Bub AI Assistant -->
+    <div class="bub-widget" id="bub-widget">
+        <button type="button" class="bub-small" id="bub-small" aria-label="Avaa Bub">
+            <svg class="bub-svg bub-svg-small" viewBox="0 0 320 430" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <use href="#bub-character"></use>
+            </svg>
+        </button>
+
+        <div class="bub-overlay" id="bub-overlay" aria-hidden="true">
+            <div class="bub-stage">
+                <section class="bub-chat-window" role="dialog" aria-modal="true" aria-label="Bub AI Assistant">
+                    <button type="button" class="bub-close" id="bub-close" aria-label="Sulje Bub">×</button>
+
+                    <div class="bub-chat-header">
+                        <div>
+                            <strong>BUB</strong>
+                            <span>Kun aivot loppuvat, Bub auttaa</span>
+                        </div>
+                    </div>
+
+                    <div class="bub-messages" id="bub-messages"></div>
+
+                    <form class="bub-form" id="bub-form">
+                        <input
+                            type="text"
+                            id="bub-message"
+                            name="message"
+                            placeholder="Kysy Bubilta..."
+                            autocomplete="off"
+                            maxlength="2000"
+                        >
+                        <button type="submit">Lähetä</button>
+                    </form>
+                </section>
+
+                <div class="bub-large" aria-hidden="true">
+                    <svg class="bub-svg bub-svg-large" viewBox="0 0 320 430" xmlns="http://www.w3.org/2000/svg">
+                        <use href="#bub-character"></use>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <svg class="bub-svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+            <radialGradient id="bub-skin" cx="50%" cy="38%" r="68%">
+                <stop offset="0%" stop-color="#858c70"/>
+                <stop offset="45%" stop-color="#686f58"/>
+                <stop offset="78%" stop-color="#505744"/>
+                <stop offset="100%" stop-color="#363b30"/>
+            </radialGradient>
+
+            <linearGradient id="bub-shirt" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#20281e"/>
+                <stop offset="55%" stop-color="#111710"/>
+                <stop offset="100%" stop-color="#050705"/>
+            </linearGradient>
+
+            <radialGradient id="bub-eye" cx="50%" cy="45%" r="60%">
+                <stop offset="0%" stop-color="#b54437"/>
+                <stop offset="45%" stop-color="#79251f"/>
+                <stop offset="100%" stop-color="#260908"/>
+            </radialGradient>
+
+            <linearGradient id="bub-beard" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#777a69"/>
+                <stop offset="50%" stop-color="#5c5f51"/>
+                <stop offset="100%" stop-color="#3d4036"/>
+            </linearGradient>
+
+            <filter id="bub-shadow" x="-40%" y="-30%" width="180%" height="180%">
+                <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000000" flood-opacity=".85"/>
+            </filter>
+
+            <filter id="bub-eye-glow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="3"/>
+            </filter>
+
+            <symbol id="bub-character" viewBox="0 0 320 430">
+                <ellipse cx="160" cy="414" rx="94" ry="11" fill="#000000" opacity=".65"/>
+
+                <!-- Vartalo -->
+                <path
+                    d="M54 430
+                    C57 380 67 342 91 319
+                    C109 302 133 294 160 294
+                    C187 294 211 302 229 319
+                    C253 342 263 380 266 430Z"
+                    fill="url(#bub-shirt)"
+                    stroke="#090c08"
+                    stroke-width="5"
+                    filter="url(#bub-shadow)"
+                />
+
+                <!-- Pää -->
+                <path
+                    d="M92 279
+                    C78 263 73 240 73 215
+                    C73 183 77 150 84 120
+                    C93 86 120 62 160 60
+                    C200 62 227 86 236 120
+                    C243 150 247 183 247 215
+                    C247 240 242 263 228 279
+                    C211 296 187 304 160 304
+                    C133 304 109 296 92 279Z"
+                    fill="url(#bub-skin)"
+                    stroke="#30362b"
+                    stroke-width="4"
+                    filter="url(#bub-shadow)"
+                />
+
+                <!-- Otsan kevyt ihotekstuuri -->
+                <path
+                    d="M105 105
+                    C119 76 138 63 160 62
+                    C182 63 201 76 215 105"
+                    fill="none"
+                    stroke="#92997e"
+                    stroke-width="4"
+                    opacity=".16"
+                />
+
+                <!-- Kulmakarvat -->
+                <path
+                    d="M91 148
+                    C108 134 132 130 151 138"
+                    fill="none"
+                    stroke="#343a2d"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                />
+
+                <path
+                    d="M169 138
+                    C188 130 212 134 229 148"
+                    fill="none"
+                    stroke="#343a2d"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                />
+
+                <!-- Silmien ympärysten varjot -->
+                <ellipse cx="119" cy="177" rx="34" ry="27" fill="#30352a" opacity=".9"/>
+                <ellipse cx="201" cy="177" rx="34" ry="27" fill="#30352a" opacity=".9"/>
+
+                <!-- Silmien hehku -->
+                <ellipse
+                    cx="120"
+                    cy="178"
+                    rx="21"
+                    ry="17"
+                    fill="#3b0b09"
+                    opacity=".65"
+                    filter="url(#bub-eye-glow)"
+                />
+
+                <ellipse
+                    cx="200"
+                    cy="178"
+                    rx="21"
+                    ry="17"
+                    fill="#3b0b09"
+                    opacity=".65"
+                    filter="url(#bub-eye-glow)"
+                />
+
+                <ellipse cx="120" cy="178" rx="17" ry="14" fill="url(#bub-eye)"/>
+                <ellipse cx="200" cy="178" rx="17" ry="14" fill="url(#bub-eye)"/>
+
+                <ellipse cx="120" cy="178" rx="6" ry="9" fill="#120403"/>
+                <ellipse cx="200" cy="178" rx="6" ry="9" fill="#120403"/>
+
+                <circle cx="116" cy="174" r="2.5" fill="#d9d0b4"/>
+                <circle cx="196" cy="174" r="2.5" fill="#d9d0b4"/>
+
+                <!-- Poskien varjot -->
+                <path
+                    d="M89 203
+                    C103 220 119 229 139 232"
+                    fill="none"
+                    stroke="#3c4233"
+                    stroke-width="6"
+                    stroke-linecap="round"
+                    opacity=".5"
+                />
+
+                <path
+                    d="M231 203
+                    C217 220 201 229 181 232"
+                    fill="none"
+                    stroke="#3c4233"
+                    stroke-width="6"
+                    stroke-linecap="round"
+                    opacity=".5"
+                />
+
+                <!-- Nenä -->
+                <path
+                    d="M153 169
+                    C150 190 146 213 150 229
+                    C152 237 168 237 170 229
+                    C174 213 170 190 167 169"
+                    fill="#59604d"
+                    stroke="#363c30"
+                    stroke-width="3"
+                />
+
+                <path
+                    d="M148 228
+                    C153 233 167 233 172 228"
+                    fill="none"
+                    stroke="#34392e"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+
+<!-- Suu ja parta -->
+<g id="bub-mouth">
+    <path
+        d="M116 246
+        C130 237 145 234 160 234
+        C175 234 190 237 204 246
+        C198 264 183 275 160 277
+        C137 275 122 264 116 246Z"
+        fill="#252a23"
+        stroke="#34392e"
+        stroke-width="3"
+    />
+
+    <!-- Parta -->
+    <path
+        d="M122 250
+        C133 263 146 269 160 270
+        C174 269 187 263 198 250
+        C193 276 178 291 160 294
+        C142 291 127 276 122 250Z"
+        fill="url(#bub-beard)"
+        opacity=".9"
+    />
+
+    <path
+        d="M132 258 L138 280
+        M144 261 L148 287
+        M156 263 L160 290
+        M168 263 L172 287
+        M180 261 L182 280
+        M191 257 L186 276"
+        fill="none"
+        stroke="#4b4e42"
+        stroke-width="3"
+        stroke-linecap="round"
+        opacity=".8"
+    />
+</g>
+
+            <!-- Korvat -->
+            <path
+                d="M81 163
+                C72 159 65 164 63 175
+                C61 188 64 202 71 207
+                C79 204 84 193 85 180
+                C86 171 84 165 81 163Z"
+                fill="url(#bub-skin)"
+                stroke="#343a2d"
+                stroke-width="4"
+                transform="translate(-7 -25) rotate(-8 73 184)"
+            />
+
+            <path
+                d="M239 163
+                C248 159 255 164 257 175
+                C259 188 256 202 249 207
+                C241 204 236 193 235 180
+                C234 171 236 165 239 163Z"
+                fill="url(#bub-skin)"
+                stroke="#343a2d"
+                stroke-width="4"
+                transform="translate(7 -25) rotate(8 247 184)"
+            />
+
+            <path
+                d="M74 169
+                C69 178 69 190 73 200"
+                fill="none"
+                stroke="#4b5240"
+                stroke-width="3"
+                stroke-linecap="round"
+                opacity=".8"
+                transform="translate(-7 -25) rotate(-8 73 184)"
+            />
+
+            <path
+                d="M246 169
+                C251 178 251 190 247 200"
+                fill="none"
+                stroke="#4b5240"
+                stroke-width="3"
+                stroke-linecap="round"
+                opacity=".8"
+                transform="translate(7 -25) rotate(8 247 184)"
+            />
+                <!-- Kaula -->
+                <path
+                    d="M111 293
+                    C125 306 142 312 160 312
+                    C178 312 195 306 209 293
+                    L217 318
+                    C199 330 181 336 160 336
+                    C139 336 121 330 103 318Z"
+                    fill="#4a5141"
+                    opacity=".75"
+                />
+
+                <!-- Paita -->
+                <path
+                    d="M92 319
+                    C111 308 135 304 160 304
+                    C185 304 209 308 228 319
+                    C247 343 258 381 261 430
+                    L59 430
+                    C62 381 73 343 92 319Z"
+                    fill="url(#bub-shirt)"
+                    stroke="#090c08"
+                    stroke-width="5"
+                />
+
+                <!-- Paidan kevyt rakenne -->
+                <path
+                    d="M108 328
+                    C123 338 141 344 160 344
+                    C179 344 197 338 212 328"
+                    fill="none"
+                    stroke="#263025"
+                    stroke-width="5"
+                    opacity=".7"
+                />
+            </symbol>
+        </defs>
+    </svg>   
+    
+
     <!-- Jumpscare-elementti — aluksi piilossa, näytetään satunnaisesti kun tehtäviä aloitetaan tai merkitään valmiiksi -->
     <div id="jumpScare" class="no-caret">
         <div class="zombie-wrapper">
@@ -409,6 +751,7 @@ if ($activeOperationId !== null) {
     <script src="assets/js/ui.js"></script><!-- Yleiset UI-toiminnot -->
     <script src="assets/js/flatpickr.min.js"></script><!-- Flatpickr-kirjasto päivämäärävalitsimia varten — ladataan paikallisesti -->
     <script src="assets/js/tasks.js"></script> <!-- Tehtävälogiikka -->
+    <script src="assets/js/bub.js"></script> <!-- AI-assistantti -->
     
 </body>
 </html>
