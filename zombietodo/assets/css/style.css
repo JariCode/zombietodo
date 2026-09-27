@@ -35,7 +35,7 @@ body {
 /* Veriantimaatio valuu yläreunasta ja häviää */
 .blood {
     width: 100%;
-    height: 150%;
+    height: 100vh;
     background: url('../img/blood.webp') top center no-repeat;
     background-size: cover;
     position: absolute;
@@ -538,6 +538,7 @@ button.link-btn:hover {
 /* Tehtävän tekstikenttä lisäyslomakkeessa */
 .input-area input[type="text"] {
     flex: 1;
+    min-width: 0;
     padding: 10px;
     background: #111;
     border: 2px solid #660000;
@@ -647,6 +648,7 @@ button.link-btn:hover {
     flex-direction: column;
     gap: 4px;
     flex: 1;
+    min-width: 0;
 }
 
 /* Tehtävän teksti */
@@ -654,6 +656,7 @@ button.link-btn:hover {
     color: #ffdddd;
     font-size: 1.2rem;
     font-weight:500;
+    overflow-wrap: anywhere;
 }
 
 /* Aikaleima — lisätty, aloitettu, valmis */
@@ -1726,13 +1729,22 @@ h1.admin-title {
 
 /* Puhelin */
 @media (max-width: 640px) {
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
     /* Sisältökontti keskellä ja kapeampana mobiilissa */
     .container {
         margin: 10px auto;
         width: 90%;
+        height: calc(100dvh - 20px);
+        max-height: calc(100dvh - 20px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
         box-sizing: border-box;
-        border-left: none;
-        border-right: none;
     }
 
     /* Wip-banner teksti pienemmäksi mobiilissa */
@@ -3157,6 +3169,10 @@ h1.admin-title {
     z-index: 10000;
 }
 
+#koosteModal.open ~ .bub-widget {
+    display: none;
+}
+
 .bub-svg-defs {
     position: absolute;
     width: 0;
@@ -3165,6 +3181,7 @@ h1.admin-title {
 }
 
 .bub-small {
+    display: block;
     width: 190px;
     height: 250px;
     padding: 0;
@@ -3506,8 +3523,7 @@ h1.admin-title {
 }
 @media (max-width: 700px) {
     .bub-widget {
-        position: fixed;
-        right: 10px;
+        right: 5px;
         bottom: 10px;
     }
 
