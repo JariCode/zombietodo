@@ -3169,6 +3169,7 @@ h1.admin-title {
     z-index: 10000;
 }
 
+#editModal.open ~ .bub-widget,
 #koosteModal.open ~ .bub-widget {
     display: none;
 }
