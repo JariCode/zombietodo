@@ -458,12 +458,19 @@ foreach ($tasks as $task) {
     }
 
     $taskText = (string)$task['text'];
+    $createdAt = $task['created_at'];
+    $startedAt = $task['started_at'];
+    $doneAt = $task['done_at'];
+
     $taskLine = sprintf(
-        "- %s | tila: %s | tunnit: %.2f
+        "- %s | tila: %s | tunnit: %.2f | lisätty: %s | aloitettu: %s | valmistunut: %s
 ",
         $taskText,
         $status,
-        $task['hours']
+        $task['hours'],
+        $createdAt ?: '-',
+        $startedAt ?: '-',
+        $doneAt ?: '-'
     );
 
     if (
@@ -476,7 +483,10 @@ foreach ($tasks as $task) {
     $taskData[] = [
         'text' => $taskText,
         'status' => $status,
-        'hours' => $task['hours']
+        'hours' => $task['hours'],
+        'created_at' => $createdAt,
+        'started_at' => $startedAt,
+        'done_at' => $doneAt
     ];
 
     $taskContextLength += mb_strlen($taskLine);
@@ -512,6 +522,11 @@ Olet Bub, Zombie To-Do -sovelluksen pieni zombie-avustaja.
 Nykyinen päivämäärä on {$currentDate} ja tänään on {$currentWeekday}.
 Käytä tätä päivämäärää, kun käyttäjä puhuu tänään, huomisesta,
 eilisestä tai muista suhteellisista päivämääristä.
+
+Kun käyttäjä kysyy, mikä tehtävä lisättiin, aloitettiin tai valmistui
+tiettynä päivänä, käytä tehtävien lisätty-, aloitettu- ja valmistunut-
+päivämääriä. Älä päättele päivämäärää tehtävän nimestä tai pelkästä
+tilasta. Käytä tehtävän käytettyinä tunteina aina tehtävän hours-arvoa.
 
 Puhu aina suomeksi.
 
@@ -565,10 +580,14 @@ Jos käyttäjä kysyy jostain muusta aiheesta, vastaa normaalisti
 AJANTASAINEN TIETO:
 - Älä tee web-hakua automaattisesti.
 - Jos käyttäjän kysymys koskee nykyistä, ajankohtaista tai muuttuvaa tietoa,
-  kysy käyttäjältä ensin, haluaako hän, että etsit asiasta ajantasaiset tiedot
-  verkosta.
+  älä arvaa äläkä anna mahdollisesti vanhentunutta vastausta.
+- Jos et pysty varmistamaan ajantasaista tietoa ilman web-hakua, älä vastaa
+  kysymykseen faktana ennen hakua. Kysy käyttäjältä ensin, haluaako hän,
+  että etsit asiasta ajantasaiset tiedot verkosta.
 - Tee tämä kysymys luonnollisesti osana Bubin vastausta, esimerkiksi:
   "Haluatko, että etsin tästä ajantasaiset tiedot verkosta?"
+- Älä väitä tietäväsi tai arvaa nykyistä tietoa vain siksi, että mallilla on
+  vanhempaa tietoa aiheesta.
 - Älä väitä hakeneesi verkosta, jos web-hakua ei ole tehty.
 - Web-haku tehdään vasta käyttäjän selkeän suostumuksen jälkeen.
 - Web-hakuun ei saa lähettää operaation nimiä, tehtävien tekstejä,
@@ -590,10 +609,13 @@ if (empty($taskData)) {
 } else {
     foreach ($taskData as $task) {
         $systemPrompt .= sprintf(
-            "- %s | tila: %s | tunnit: %.2f\n",
+            "- %s | tila: %s | tunnit: %.2f | lisätty: %s | aloitettu: %s | valmistunut: %s\n",
             $task['text'],
             $task['status'],
-            $task['hours']
+            $task['hours'],
+            $task['created_at'] ?: '-',
+            $task['started_at'] ?: '-',
+            $task['done_at'] ?: '-'
         );
     }
 
@@ -660,6 +682,8 @@ PROMPT;
 // käyttäjän kysymys tallennetaan palvelimen sessioon. Näin
 // hyväksyntä voidaan käsitellä varmasti ilman, että
 // keskusteluhistoriasta tarvitsee päätellä kysymystä.
+// Useampi peräkkäinen hakupyyntö säilytetään, jotta käyttäjä
+// voi hyväksyä ne samalla kertaa.
 // ========================================
 $webSearchApproved = false;
 $webSearchQuestion = '';
@@ -696,35 +720,54 @@ $isApprovalMessage = in_array(
 if (!$isApprovalMessage) {
     $isApprovalMessage =
         preg_match(
-            '/^(joo|juu|kyllä|kylla|yes|etsi|hae)(\s+vaan|\s+se|\s+tiedot|\s+tuo|\s+siitä|\s+siita)?[.!?]*$/iu',
+            '/^(joo|juu|kyllä|kylla|yes|etsi|hae)(\s+vaan|\s+se|\s+tiedot|\s+tuo|\s+siitä|\s+siita|\s+molemmista|\s+kerro|\s+ne|\s+kaikki|\s+niistä|\s+niista|\s+asiasta|\s+siitäkin|\s+siitakin)*[.!?]*$/iu',
             $normalizedMessage
         ) === 1;
 }
 
-if (
-    $isApprovalMessage &&
-    isset($_SESSION['bub_web_search_question']) &&
-    is_string($_SESSION['bub_web_search_question'])
-) {
-    $webSearchQuestion = trim(
-        $_SESSION['bub_web_search_question']
-    );
+// Vanhoja odottavia hakupyyntöjä säilytetään vain hetken,
+// jotta hyväksyntä ei voi vahingossa kohdistua vanhaan keskusteluun.
+$pendingWebSearches = [];
+if (isset($_SESSION['bub_web_search_questions']) && is_array($_SESSION['bub_web_search_questions'])) {
+    $now = time();
 
-    if ($webSearchQuestion !== '') {
+    foreach ($_SESSION['bub_web_search_questions'] as $pendingQuestion) {
+        if (
+            is_array($pendingQuestion) &&
+            isset($pendingQuestion['question'], $pendingQuestion['created_at']) &&
+            is_string($pendingQuestion['question']) &&
+            is_numeric($pendingQuestion['created_at']) &&
+            ($now - (int)$pendingQuestion['created_at']) <= 600
+        ) {
+            $pendingWebSearches[] = [
+                'question' => trim($pendingQuestion['question']),
+                'created_at' => (int)$pendingQuestion['created_at']
+            ];
+        }
+    }
+}
+
+if ($isApprovalMessage && !empty($pendingWebSearches)) {
+    $questions = [];
+
+    foreach ($pendingWebSearches as $pendingQuestion) {
+        if ($pendingQuestion['question'] !== '') {
+            $questions[] = $pendingQuestion['question'];
+        }
+    }
+
+    if (!empty($questions)) {
         $webSearchApproved = true;
+        $webSearchQuestion = implode("\n", array_unique($questions));
         $messageForAI = $webSearchQuestion;
     }
 
-    unset($_SESSION['bub_web_search_question']);
-}
-
-// Jos käyttäjä vastaa jollain muulla tavalla kuin hyväksymällä
-// web-haun, vanha odottava hakupyyntö ei saa jäädä roikkumaan.
-if (!$isApprovalMessage) {
+    unset($_SESSION['bub_web_search_questions']);
     unset($_SESSION['bub_web_search_question']);
 }
 
 // ========================================
+
 // OPENAI WEB-HAKU
 // ========================================
 // Web-haku tehdään vain käyttäjän selkeän suostumuksen jälkeen.
@@ -1136,7 +1179,8 @@ if ($reply === '') {
 // WEB-HAUN PYYNNÖN TALLENNUS
 // ========================================
 // Jos Bub pyytää käyttäjältä lupaa web-hakuun, säilytetään
-// alkuperäinen kysymys palvelimen sessiossa seuraavaa viestiä varten.
+// alkuperäinen kysymys palvelimen sessiossa seuraavia viestejä varten.
+// Useampi odottava kysymys voidaan hyväksyä samalla kertaa.
 // Web-hakua ei vielä tässä vaiheessa tehdä.
 // ========================================
 if (!$webSearchApproved) {
@@ -1146,13 +1190,37 @@ if (!$webSearchApproved) {
     ) === 1;
 
     if ($asksForWebSearch) {
-        $_SESSION['bub_web_search_question'] = $message;
-    } else {
-        unset($_SESSION['bub_web_search_question']);
+        $pendingWebSearches = [];
+
+        if (isset($_SESSION['bub_web_search_questions']) && is_array($_SESSION['bub_web_search_questions'])) {
+            foreach ($_SESSION['bub_web_search_questions'] as $pendingQuestion) {
+                if (
+                    is_array($pendingQuestion) &&
+                    isset($pendingQuestion['question'], $pendingQuestion['created_at']) &&
+                    is_string($pendingQuestion['question']) &&
+                    is_numeric($pendingQuestion['created_at']) &&
+                    (time() - (int)$pendingQuestion['created_at']) <= 600
+                ) {
+                    $pendingWebSearches[] = $pendingQuestion;
+                }
+            }
+        }
+
+        $pendingWebSearches[] = [
+            'question' => $message,
+            'created_at' => time()
+        ];
+
+        // Säilytetään korkeintaan viisi viimeisintä odottavaa kysymystä.
+        $_SESSION['bub_web_search_questions'] = array_slice(
+            $pendingWebSearches,
+            -5
+        );
     }
 }
 
 // ========================================
+
 // TALLENNETAAN KESKUSTELU
 // ========================================
 // Molemmat viestit tallennetaan kirjautuneen
