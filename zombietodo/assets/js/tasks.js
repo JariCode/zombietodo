@@ -1025,7 +1025,7 @@ function k_build(tasks) {
             const leftPx  = startOffsetDays * DAY_PX;
             const widthPx = durationDays * DAY_PX;
             const label = k_fmtHours(t.hours) + ' h'; // Palkin sisällä vain tunnit
-            const barTip = fd(t.startDay) + '–' + fd(t.endDay); // Hover: pelkkä päivämääräväli — tunnit näkyvät jo palkissa
+            const barTip = k_esc(t.text) + '<br>' + fd(t.startDay) + '–' + fd(t.endDay); // Hover: taskin nimi päivämäärävälin yläpuolella
             const tipCenter = leftPx + Math.round(widthPx / 2); // Vihje keskitetään palkin päälle
             // .tl-bar:lla on overflow:hidden (rajaa sisällä olevan tuntitekstin), joten teemavihje
             // ei voi olla sen oma pseudoelementti — se on sen sijaan sisarelementti .tl-track:ssa,
@@ -1036,7 +1036,7 @@ function k_build(tasks) {
                     '<div class="tl-bar status-' + k_esc(t.status) + '" data-left="' + leftPx +
                     '" data-barwidth="' + widthPx +
                     '"><span class="tl-dur">' + label + '</span></div>' +
-                    '<div class="tl-bar-tip" data-left="' + tipCenter + '">' + k_esc(barTip) + '</div>' +
+                    '<div class="tl-bar-tip" data-left="' + tipCenter + '">' + barTip + '</div>' +
                     '</div></div>';
         });
         html += '</div></div>';
