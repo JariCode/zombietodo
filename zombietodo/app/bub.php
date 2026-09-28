@@ -433,6 +433,16 @@ $pendingTasks = 0;
 $maxTasksForAI = 100;
 $maxTaskContextLength = 12000;
 $taskContextLength = 0;
+$totalTaskHours = 0.0;
+$completedTodayTasks = [];
+
+$helsinkiTime = new DateTimeImmutable(
+    'now',
+    new DateTimeZone('Europe/Helsinki')
+);
+
+$currentDate = $helsinkiTime->format('d.m.Y');
+$currentDateIso = $helsinkiTime->format('Y-m-d');
 
 foreach ($tasks as $task) {
     $status = (string)$task['status'];
@@ -462,15 +472,28 @@ foreach ($tasks as $task) {
     $startedAt = $task['started_at'];
     $doneAt = $task['done_at'];
 
+    $totalTaskHours += (float)$task['hours'];
+
+    $completedToday = false;
+    if (
+        $doneAt !== null &&
+        $doneAt !== '' &&
+        substr((string)$doneAt, 0, 10) === $currentDateIso
+    ) {
+        $completedToday = true;
+        $completedTodayTasks[] = $taskText;
+    }
+
     $taskLine = sprintf(
-        "- %s | tila: %s | tunnit: %.2f | lisätty: %s | aloitettu: %s | valmistunut: %s
+        "- %s | tila: %s | tunnit: %.2f | lisätty: %s | aloitettu: %s | valmistunut: %s | valmistui tänään: %s
 ",
         $taskText,
         $status,
         $task['hours'],
         $createdAt ?: '-',
         $startedAt ?: '-',
-        $doneAt ?: '-'
+        $doneAt ?: '-',
+        $completedToday ? 'kyllä' : 'ei'
     );
 
     if (
@@ -486,7 +509,8 @@ foreach ($tasks as $task) {
         'hours' => $task['hours'],
         'created_at' => $createdAt,
         'started_at' => $startedAt,
-        'done_at' => $doneAt
+        'done_at' => $doneAt,
+        'completed_today' => $completedToday
     ];
 
     $taskContextLength += mb_strlen($taskLine);
@@ -495,13 +519,6 @@ foreach ($tasks as $task) {
 // ========================================
 // BUBIN PERSONA JA KÄYTTÖTAPA
 // ========================================
-$helsinkiTime = new DateTimeImmutable(
-    'now',
-    new DateTimeZone('Europe/Helsinki')
-);
-
-$currentDate = $helsinkiTime->format('d.m.Y');
-
 $weekdayNames = [
     1 => 'maanantai',
     2 => 'tiistai',
@@ -527,6 +544,10 @@ Kun käyttäjä kysyy, mikä tehtävä lisättiin, aloitettiin tai valmistui
 tiettynä päivänä, käytä tehtävien lisätty-, aloitettu- ja valmistunut-
 päivämääriä. Älä päättele päivämäärää tehtävän nimestä tai pelkästä
 tilasta. Käytä tehtävän käytettyinä tunteina aina tehtävän hours-arvoa.
+Palvelin laskee tehtävien kokonaisajan ja tämän päivän valmistuneet tehtävät.
+Käytä näitä palvelimen laskemia tietoja sellaisenaan äläkä laske tai arvaa
+niitä itse. Jos käyttäjä kysyy, mikä tehtävä valmistui tänään, käytä vain
+tehtäviä, joiden "valmistui tänään" on "kyllä".
 
 Puhu aina suomeksi.
 
@@ -625,6 +646,21 @@ if (empty($taskData)) {
             . "Kaikki tehtävät eivät välttämättä näy tässä.\n";
     }
 }
+
+$completedTodaySummary = empty($completedTodayTasks)
+    ? 'Ei yhtään.'
+    : implode(', ', $completedTodayTasks);
+
+$systemPrompt .= sprintf(
+    "PALVELIMEN LASKEMAT TEHTÄVÄTIEDOT:
+"
+    . "- Käytetty aika yhteensä: %.2f tuntia
+"
+    . "- Tänään valmistuneet tehtävät: %s
+",
+    $totalTaskHours,
+    $completedTodaySummary
+);
 
 $systemPrompt .= <<<PROMPT
 
