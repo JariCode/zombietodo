@@ -210,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage(message, 'user');
         input.value = '';
         setLoading(true);
-        startSpeaking();
         showThinkingMessage();
 
         try {
@@ -236,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             removeThinkingMessage();
+            startSpeaking();
             addMessage(data.reply, 'bub');
         } catch (error) {
             console.error('Bub:', error);
