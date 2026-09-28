@@ -1594,21 +1594,30 @@ h1.admin-title {
    .modal-wide .modal-body:llä ja aikajanan .timeline-scroll:lla — nekin ovat jo
    valmiiksi teemoitettuja omilla säännöillään, ei toistettu tähän.
 ========================================= */
+html,
+body,
+.container,
 .modal,
 .legal-body,
 .admin-user-scroll,
 .admin-log-scroll {
-    /* Firefox: ohut teemaan sopiva scrollbar */
+    /* Firefox ja Safari 18.2+: ohut teemaan sopiva scrollbar (standardi CSS Scrollbars -spesifikaatio) */
     scrollbar-width: thin;
     scrollbar-color: #990000 rgba(0, 0, 0, 0.5);
 }
-/* Webkit (Chrome, Edge, Safari): tumma verenpunainen pystyscrollbar */
+/* Webkit (Chrome, Edge; vanhempi Safari ei tue tätä pääikkunan/html-scrollbariin, katso alla) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.container::-webkit-scrollbar,
 .modal::-webkit-scrollbar,
 .legal-body::-webkit-scrollbar,
 .admin-user-scroll::-webkit-scrollbar,
 .admin-log-scroll::-webkit-scrollbar {
     width: 12px;
 }
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.container::-webkit-scrollbar-track,
 .modal::-webkit-scrollbar-track,
 .legal-body::-webkit-scrollbar-track,
 .admin-user-scroll::-webkit-scrollbar-track,
@@ -1616,6 +1625,9 @@ h1.admin-title {
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid #440000;
 }
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.container::-webkit-scrollbar-thumb,
 .modal::-webkit-scrollbar-thumb,
 .legal-body::-webkit-scrollbar-thumb,
 .admin-user-scroll::-webkit-scrollbar-thumb,
@@ -1623,6 +1635,9 @@ h1.admin-title {
     background: linear-gradient(180deg, #990000, #660000);
     border: 1px solid #440000;
 }
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.container::-webkit-scrollbar-thumb:hover,
 .modal::-webkit-scrollbar-thumb:hover,
 .legal-body::-webkit-scrollbar-thumb:hover,
 .admin-user-scroll::-webkit-scrollbar-thumb:hover,
@@ -3438,12 +3453,21 @@ h1.admin-title {
 }
 
 .bub-large {
+    /* Matches .bub-chat-window's top + height at this breakpoint, so the
+       fluid size below always knows how much vertical room is left under it. */
+    --bub-chat-bottom: calc(9vh + 480px);
+    /* Fill essentially all the space left below the chat window (head sits
+       close under it, 10px gap), only backed off by a generous width safety
+       net so a tall-but-narrow viewport can't push it wider than the screen.
+       Aspect ratio (320:430) is derived from this single value so the SVG
+       never stretches. */
+    --bub-h: clamp(140px, min(calc(100vh - var(--bub-chat-bottom) - 10px), calc(90vw * 430 / 320)), 560px);
     position: absolute;
     z-index: 5;
     left: 50%;
     bottom: 0;
-    width: 360px;
-    height: 462px;
+    width: calc(var(--bub-h) * 320 / 430);
+    height: var(--bub-h);
     margin: 0;
     padding: 0;
     transform: translateX(-50%);
@@ -3452,13 +3476,11 @@ h1.admin-title {
 
 .bub-svg-large {
     display: block;
-    width: 360px;
-    height: 462px;
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
     filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .9));
-    transform: scale(.80);
-    transform-origin: bottom center;
 }
 
 /* ================================
@@ -3546,13 +3568,7 @@ h1.admin-title {
     }
 
     .bub-large {
-        width: 280px;
-        height: 359px;
-    }
-
-    .bub-svg-large {
-        width: 280px;
-        height: 359px;
+        --bub-chat-bottom: calc(5vh + 42vh);
     }
 }
 
@@ -3569,15 +3585,7 @@ h1.admin-title {
     }
 
     .bub-large {
-        width: 235px;
-        height: 301px;
-    }
-
-    .bub-svg-large {
-        width: 235px;
-        height: 301px;
-        transform: scale(.75);
-        transform-origin: bottom center;
+        --bub-chat-bottom: calc(3vh + 60vh);
     }
 
     .bub-form button {
