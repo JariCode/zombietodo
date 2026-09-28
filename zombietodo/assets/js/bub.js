@@ -247,7 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 'error'
             );
         } finally {
-            stopSpeaking();
+            setTimeout(() => {
+                stopSpeaking();
+            }, 1000);
+
             setLoading(false);
             input.focus();
         }
