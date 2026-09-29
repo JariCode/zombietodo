@@ -281,7 +281,7 @@ if ($activeOperationId !== null) {
 
     </div><!-- .container loppuu-->
 
-  <!-- Muokkausmodal — avautuu kun käyttäjä klikkaa ✏️-nappia -->
+    <!-- Muokkausmodal — avautuu kun käyttäjä klikkaa ✏️-nappia -->
     <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal">
             <div class="modal-header">
@@ -611,92 +611,93 @@ if ($activeOperationId !== null) {
                     stroke-linecap="round"
                 />
 
-<!-- Suu ja parta -->
-<g id="bub-mouth">
-    <path
-        class="bub-mouth-opening"
-        d="M116 246
-        C130 237 145 234 160 234
-        C175 234 190 237 204 246
-        C198 264 183 275 160 277
-        C137 275 122 264 116 246Z"
-        fill="#252a23"
-        stroke="#34392e"
-        stroke-width="3"
-    />
+                <!-- Suu ja parta -->
+                <g id="bub-mouth">
+                    <path
+                        class="bub-mouth-opening"
+                        d="M116 246
+                        C130 237 145 234 160 234
+                        C175 234 190 237 204 246
+                        C198 264 183 275 160 277
+                        C137 275 122 264 116 246Z"
+                        fill="#252a23"
+                        stroke="#34392e"
+                        stroke-width="3"
+                    />
 
-    <!-- Parta -->
-    <path
-        d="M122 250
-        C133 263 146 269 160 270
-        C174 269 187 263 198 250
-        C193 276 178 291 160 294
-        C142 291 127 276 122 250Z"
-        fill="url(#bub-beard)"
-        opacity=".9"
-    />
+                    <!-- Parta -->
+                    <path
+                        d="M122 250
+                        C133 263 146 269 160 270
+                        C174 269 187 263 198 250
+                        C193 276 178 291 160 294
+                        C142 291 127 276 122 250Z"
+                        fill="url(#bub-beard)"
+                        opacity=".9"
+                    />
 
-    <path
-        d="M132 258 L138 280
-        M144 261 L148 287
-        M156 263 L160 290
-        M168 263 L172 287
-        M180 261 L182 280
-        M191 257 L186 276"
-        fill="none"
-        stroke="#4b4e42"
-        stroke-width="3"
-        stroke-linecap="round"
-        opacity=".8"
-    />
-</g>
+                    <path
+                        d="M132 258 L138 280
+                        M144 261 L148 287
+                        M156 263 L160 290
+                        M168 263 L172 287
+                        M180 261 L182 280
+                        M191 257 L186 276"
+                        fill="none"
+                        stroke="#4b4e42"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        opacity=".8"
+                    />
+                </g>
 
-            <!-- Korvat -->
-            <path
-                d="M81 163
-                C72 159 65 164 63 175
-                C61 188 64 202 71 207
-                C79 204 84 193 85 180
-                C86 171 84 165 81 163Z"
-                fill="url(#bub-skin)"
-                stroke="#343a2d"
-                stroke-width="4"
-                transform="translate(-7 -25) rotate(-8 73 184)"
-            />
+                <!-- Korvat -->
+                <path
+                    d="M81 163
+                    C72 159 65 164 63 175
+                    C61 188 64 202 71 207
+                    C79 204 84 193 85 180
+                    C86 171 84 165 81 163Z"
+                    fill="url(#bub-skin)"
+                    stroke="#343a2d"
+                    stroke-width="4"
+                    transform="translate(-7 -25) rotate(-8 73 184)"
+                />
 
-            <path
-                d="M239 163
-                C248 159 255 164 257 175
-                C259 188 256 202 249 207
-                C241 204 236 193 235 180
-                C234 171 236 165 239 163Z"
-                fill="url(#bub-skin)"
-                stroke="#343a2d"
-                stroke-width="4"
-                transform="translate(7 -25) rotate(8 247 184)"
-            />
+                <path
+                    d="M239 163
+                    C248 159 255 164 257 175
+                    C259 188 256 202 249 207
+                    C241 204 236 193 235 180
+                    C234 171 236 165 239 163Z"
+                    fill="url(#bub-skin)"
+                    stroke="#343a2d"
+                    stroke-width="4"
+                    transform="translate(7 -25) rotate(8 247 184)"
+                />
 
-            <path
-                d="M74 169
-                C69 178 69 190 73 200"
-                fill="none"
-                stroke="#4b5240"
-                stroke-width="3"
-                stroke-linecap="round"
-                opacity=".8"
-                transform="translate(-7 -25) rotate(-8 73 184)"
-            />
+                <path
+                    d="M74 169
+                    C69 178 69 190 73 200"
+                    fill="none"
+                    stroke="#4b5240"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    opacity=".8"
+                    transform="translate(-7 -25) rotate(-8 73 184)"
+                />
 
-            <path
-                d="M246 169
-                C251 178 251 190 247 200"
-                fill="none"
-                stroke="#4b5240"
-                stroke-width="3"
-                stroke-linecap="round"
-                opacity=".8"
-                transform="translate(7 -25) rotate(8 247 184)"
-            />
+                <path
+                    d="M246 169
+                    C251 178 251 190 247 200"
+                    fill="none"
+                    stroke="#4b5240"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    opacity=".8"
+                    transform="translate(7 -25) rotate(8 247 184)"
+                />
+
                 <!-- Kaula -->
                 <path
                     d="M111 293
