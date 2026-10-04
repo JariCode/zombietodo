@@ -2790,6 +2790,12 @@ body::-webkit-scrollbar-thumb:hover,
     /* Firefox: ohut teemaan sopiva scrollbar */
     scrollbar-width: thin;
     scrollbar-color: #990000 rgba(0, 0, 0, 0.5);
+    cursor: grab;                  /* Vihjaa että sisältöä voi vetää sivusuunnassa */
+}
+/* Hiiri pohjassa vedon aikana — luokka lisätään/poistetaan JS:llä (tasks.js) */
+.timeline-scroll.tl-dragging {
+    cursor: grabbing;
+    user-select: none;             /* Estää tekstin maalautumisen vedon aikana */
 }
 /* Webkit-selaimet (Chrome, Edge, Safari): tumma verenpunainen scrollbar */
 .timeline-scroll::-webkit-scrollbar {

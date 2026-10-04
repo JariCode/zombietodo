@@ -923,6 +923,8 @@ function k_renderChildren(parentId, depth, childrenByParent, byId, visited) {
     return html;
 }
 
+let tlDragAbort = null; // Edellisen k_build-kutsun vetokuuntelijat — puretaan ennen uusien kiinnittämistä
+
 function k_build(tasks) {
     const byId = {}, childrenByParent = {};
     tasks.forEach(function(t) { byId[t.id] = t; });
@@ -1101,6 +1103,40 @@ function k_build(tasks) {
         }
         tip.style.left = left + 'px';
     });
+
+    // Vaakavieritys hiirellä tarttumalla ja vetämällä (Macin trackpad-vieritys toimii jo
+    // natiivisti, tämä on sille lisäys hiirikäyttäjiä/Firefoxia varten, ei korvaa sitä).
+    // Edellisen avauskerran kuuntelijat puretaan ensin, koska k_build luo aikajanan
+    // DOM:iin uutena joka kerta kun kooste avataan.
+    if (tlDragAbort) tlDragAbort.abort();
+    const timelineScrollEl = document.querySelector('#koosteContent .timeline-scroll');
+    if (timelineScrollEl) {
+        tlDragAbort = new AbortController();
+        const signal = tlDragAbort.signal;
+        let tlDragging = false;
+        let tlStartX = 0;
+        let tlStartScrollLeft = 0;
+        timelineScrollEl.addEventListener('mousedown', function(e) {
+            tlDragging = true;
+            tlStartX = e.pageX;
+            tlStartScrollLeft = timelineScrollEl.scrollLeft;
+            timelineScrollEl.classList.add('tl-dragging');
+        }, { signal: signal });
+        timelineScrollEl.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+        }, { signal: signal });
+        window.addEventListener('mousemove', function(e) {
+            if (!tlDragging) return;
+            e.preventDefault();
+            timelineScrollEl.scrollLeft = tlStartScrollLeft - (e.pageX - tlStartX);
+        }, { signal: signal });
+        window.addEventListener('mouseup', function() {
+            if (!tlDragging) return;
+            tlDragging = false;
+            timelineScrollEl.classList.remove('tl-dragging');
+        }, { signal: signal });
+    }
+
     return; // k_build päättyy tähän — sisältö on jo asetettu
 }
 
