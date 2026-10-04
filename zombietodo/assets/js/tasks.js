@@ -924,6 +924,7 @@ function k_renderChildren(parentId, depth, childrenByParent, byId, visited) {
 }
 
 let tlDragAbort = null; // Edellisen k_build-kutsun vetokuuntelijat — puretaan ennen uusien kiinnittämistä
+let tlDidDrag = false; // true kun aikajanaa oikeasti vedettiin — estää vedon päättävää taustaklikkausta sulkemasta koostemodalia
 
 function k_build(tasks) {
     const byId = {}, childrenByParent = {};
@@ -1121,6 +1122,7 @@ function k_build(tasks) {
             tlStartX = e.pageX;
             tlStartScrollLeft = timelineScrollEl.scrollLeft;
             timelineScrollEl.classList.add('tl-dragging');
+            tlDidDrag = false; // Nollataan jotta edellinen veto ei estä myöhempää aitoa taustaklikkausta
         }, { signal: signal });
         timelineScrollEl.addEventListener('dragstart', function(e) {
             e.preventDefault();
@@ -1128,7 +1130,11 @@ function k_build(tasks) {
         window.addEventListener('mousemove', function(e) {
             if (!tlDragging) return;
             e.preventDefault();
-            timelineScrollEl.scrollLeft = tlStartScrollLeft - (e.pageX - tlStartX);
+            const newScrollLeft = tlStartScrollLeft - (e.pageX - tlStartX);
+            if (newScrollLeft !== timelineScrollEl.scrollLeft) {
+                timelineScrollEl.scrollLeft = newScrollLeft;
+                tlDidDrag = true; // Aikajana liikkui oikeasti — ei pelkkä mousedown/click
+            }
         }, { signal: signal });
         window.addEventListener('mouseup', function() {
             if (!tlDragging) return;
@@ -1141,6 +1147,7 @@ function k_build(tasks) {
 }
 
 async function openKooste() {
+    tlDidDrag = false; // Varmistus: ei jää roikkumaan edellisestä kerrasta jos modal suljettiin muuten kuin taustaklikkauksella
     const content = document.getElementById('koosteContent');
     content.innerHTML = '<p class="empty-hint">Ladataan…</p>';
 
@@ -1194,7 +1201,13 @@ function setupKoosteModal() {
     document.getElementById('koosteCancel').addEventListener('click', closeKooste);
     const printBtn = document.getElementById('koostePrint');
     if (printBtn) printBtn.addEventListener('click', function() { window.print(); }); // Selaimen tulostus → voi tallentaa PDF:ksi
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeKooste(); });
+    overlay.addEventListener('click', function(e) {
+        if (e.target !== overlay) return;
+        // Jos hiiri päästettiin ylös taustan päällä kesken aikajanan vedon (veto meni
+        // modalin reunan yli), tämä klikkaus ei saa sulkea modalia — vain nollataan lippu.
+        if (tlDidDrag) { tlDidDrag = false; return; }
+        closeKooste();
+    });
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && overlay.classList.contains('open')) closeKooste();
     });
