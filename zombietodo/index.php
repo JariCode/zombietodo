@@ -37,8 +37,6 @@ if ($apiKey !== '') { // Tehdään API-kutsu vain jos avain on asetettu .env-tie
 
     $response = curl_exec($curl); // Suoritetaan API-pyyntö ja tallennetaan vastaus muuttujaan.
     $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE); // Tarkistetaan HTTP-statuskoodi — 200 tarkoittaa onnistunutta vastausta.
-    curl_close($curl); // Suljetaan cURL-yhteys kun pyyntö on valmis.
-
     if ($response !== false && $httpCode === 200) { // Tarkistetaan että API palautti onnistuneen vastauksen.
         $quoteData = json_decode($response, true); // Muutetaan JSON-muotoinen vastaus PHP-taulukoksi.
 

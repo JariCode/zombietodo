@@ -895,8 +895,6 @@ if ($webSearchApproved) {
             curl_error($ch)
         );
 
-        curl_close($ch);
-
         http_response_code(502);
 
         echo json_encode([
@@ -911,8 +909,6 @@ if ($webSearchApproved) {
         $ch,
         CURLINFO_HTTP_CODE
     );
-
-    curl_close($ch);
 
     if (
         $webSearchStatusCode < 200 ||
@@ -1088,8 +1084,6 @@ if ($response === false) {
         curl_error($ch)
     );
 
-    curl_close($ch);
-
     http_response_code(502);
 
     echo json_encode([
@@ -1104,8 +1098,6 @@ $statusCode = curl_getinfo(
     $ch,
     CURLINFO_HTTP_CODE
 );
-
-curl_close($ch);
 
 // ========================================
 // OPENAI-VIRHE
