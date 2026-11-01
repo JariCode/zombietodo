@@ -28,7 +28,7 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 // Tarkistetaan istunnon vanheneminen
 // Jos tunti on kulunut ilman toimintaa, kirjaudutaan ulos automaattisesti
 if (!validateSessionTimeout()) {
-    $_SESSION['error'] = 'Istunto on vanhentunut. Kirjaudu uudelleen.';
+    $_SESSION['error'] = 'Kirjautuminen on vanhentunut. Kirjaudu uudelleen.';
     header('Location: index.php');
     exit;
 }

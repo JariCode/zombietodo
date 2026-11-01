@@ -64,6 +64,8 @@ function validateSessionTimeout() { // Tarkistetaan onko käyttäjän istunto va
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
         session_unset();   // Tyhjennetään kaikki istunnon tiedot muistista
         session_destroy(); // Tuhotaan istunto kokonaan palvelimelta
+        session_start();   // Käynnistetään uusi istunto vanhenemisviestiä varten
+        $_SESSION['error'] = 'Kirjautuminen on vanhentunut. Kirjaudu uudelleen.';
         return false;      // Palautetaan false — istunto on vanhentunut
     }
 

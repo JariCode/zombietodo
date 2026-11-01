@@ -38,7 +38,7 @@ $action = $_POST['action'] ?? $_GET['action'] ?? null; // Jos kumpikaan ei löyd
 // Tarkistetaan istunnon vanheneminen — vain jos käyttäjä on kirjautunut sisään
 if (isset($_SESSION['user_id'])) { // isset tarkistaa onko user_id tallennettu istuntoon eli onko kirjauduttu
     if (!validateSessionTimeout()) { // validateSessionTimeout() on db.php:ssä. Palauttaa false jos tunti kulunut viimeisestä toiminnasta ja istunto vanhentunut
-        $_SESSION['error'] = 'Istunto on vanhentunut. Kirjaudu uudelleen.'; // Tallennetaan virheilmoitus istuntoon
+        $_SESSION['error'] = 'Kirjautuminen on vanhentunut. Kirjaudu uudelleen.'; // Tallennetaan virheilmoitus istuntoon
         header('Location: ../index.php'); // Ohjataan kirjautumissivulle kun istunto on vanhentunut
         exit; // Pysäytetään koodin suoritus heti — ilman tätä PHP jatkaisi eteenpäin
     }
