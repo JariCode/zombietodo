@@ -10,8 +10,8 @@ Options -Indexes
     #########################################################
     # 0) Ohjaa index.php kansio-osoitteeseen (canonical)
     #########################################################
-    RewriteCond %{THE_REQUEST} \s/+zombietodo/index\.php[\s?] [NC]
-    RewriteRule ^index\.php$ /zombietodo/ [R=301,L]
+    RewriteCond %{THE_REQUEST} \s/+index\.php[\s?] [NC]
+    RewriteRule ^index\.php$ / [R=301,L]
 
     #########################################################
     # 0b) Piilota .php-pääte juurikansion sivuilta
@@ -21,9 +21,9 @@ Options -Indexes
     #########################################################
     # Jos selaimessa pyydetään suoraan .php-osoitetta, ohjaa
     # päätteettömään osoitteeseen (jotta pääte ei näy).
-    RewriteCond %{THE_REQUEST} \s/+zombietodo/([^/\s]+)\.php[\s?] [NC]
+    RewriteCond %{THE_REQUEST} \s/+([^/\s]+)\.php[\s?] [NC]
     RewriteCond %1 !^app$ [NC]
-    RewriteRule ^([^/]+)\.php$ /zombietodo/$1 [R=301,L]
+    RewriteRule ^([^/]+)\.php$ /$1 [R=301,L]
 
     # Jos pyydetään päätteetöntä osoitetta ja vastaava .php on
     # olemassa juuressa, näytä se sisäisesti (pääte pysyy piilossa).
@@ -106,7 +106,7 @@ Options -Indexes
     Header unset Content-Security-Policy
     Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Strict-Transport-Security "max-age=31536000"
     Header always set Cross-Origin-Opener-Policy "same-origin"
 
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), autoplay=()"
