@@ -3238,6 +3238,7 @@ body::-webkit-scrollbar-thumb:hover,
     z-index: 10001;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     box-sizing: border-box;
     overflow: hidden;
     background: rgba(0, 0, 0, .82);
@@ -3259,6 +3260,7 @@ body::-webkit-scrollbar-thumb:hover,
     inset: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -3424,7 +3426,7 @@ body::-webkit-scrollbar-thumb:hover,
     background: #080808;
     color: #ffdede;
     font-family: "Courier New", monospace;
-    font-size: .95rem;
+    font-size: 16px;
 }
 
 .bub-form input:focus {
@@ -3467,7 +3469,7 @@ body::-webkit-scrollbar-thumb:hover,
        net so a tall-but-narrow viewport can't push it wider than the screen.
        Aspect ratio (320:430) is derived from this single value so the SVG
        never stretches. */
-    --bub-h: clamp(140px, min(calc(100vh - var(--bub-chat-bottom) - 10px), calc(90vw * 430 / 320)), 560px);
+    --bub-h: clamp(140px, min(calc(100dvh - var(--bub-chat-bottom) - 10px), calc(90vw * 430 / 320)), 560px);
     position: absolute;
     z-index: 5;
     left: 50%;
