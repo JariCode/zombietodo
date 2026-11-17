@@ -78,6 +78,34 @@ document.addEventListener('DOMContentLoaded', () => {
         messages.scrollTop = messages.scrollHeight;
     }
 
+    // Kirjoittaa Bubin vastauksen merkki kerrallaan ja pitää suun liikkeessä
+    // juuri niin kauan kuin kirjoitus kestää. Teksti menee samaan elementtiin,
+    // joten puhekupla kasvaa automaattisesti sisällön mukana.
+    // textContent (ei innerHTML) → XSS-turvallinen, kuten addMessage.
+    function typeMessage(text) {
+        const message = document.createElement('div');
+        message.className = 'bub-message bub-message-bub';
+        messages.appendChild(message);
+
+        const chars = Array.from(text); // Array.from → ääkköset/emojit ehjinä
+        let i = 0;
+
+        startSpeaking(); // Suu liikkeelle kirjoituksen ajaksi
+
+        return new Promise(resolve => {
+            const timer = setInterval(() => {
+                message.textContent += chars[i];
+                i++;
+                messages.scrollTop = messages.scrollHeight; // Seurataan kasvavaa kuplaa
+                if (i >= chars.length) {
+                    clearInterval(timer);
+                    stopSpeaking(); // Suu kiinni kun teksti on valmis
+                    resolve();
+                }
+            }, 28); // Kirjoitusnopeus ms/merkki — isompi = hitaampi
+        });
+    }
+
     function showThinkingMessage() {
         removeThinkingMessage();
 
@@ -235,8 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             removeThinkingMessage();
-            startSpeaking();
-            addMessage(data.reply, 'bub');
+            await typeMessage(data.reply);
         } catch (error) {
             console.error('Bub:', error);
 
@@ -247,10 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'error'
             );
         } finally {
-            setTimeout(() => {
-                stopSpeaking();
-            }, 2000);
-
+            stopSpeaking(); // Varmistus: suu kiinni myös virhetilanteessa
             setLoading(false);
             input.focus();
         }
